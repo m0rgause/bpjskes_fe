@@ -11,9 +11,10 @@ import {
   Select,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
+import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
 
-export function DetailTWRR() {
+export function ObligasiCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
@@ -22,119 +23,122 @@ export function DetailTWRR() {
     setLoading(true);
   };
 
+  const isMobile = window.innerWidth <= 768;
+
+  const dataChart = [
+    { tanggal: "2021-01-01", return: 3000 },
+    { tanggal: "2021-01-02", return: 20000 },
+    { tanggal: "2021-01-03", return: 30000 },
+    { tanggal: "2021-01-04", return: 10000 },
+  ];
+
+  const config = {
+    data: dataChart,
+    xField: "tanggal",
+    yField: "return",
+    xAxis: {
+      label: {
+        autoHide: true,
+        autoRotate: false,
+      },
+    },
+    meta: {
+      tanggal: { alias: "Tanggal" },
+      return: { alias: "Return" },
+    },
+    minColumnWidth: isMobile ? 24 : 100,
+    maxColumnWidth: isMobile ? 24 : 100,
+    color: () => {
+      return "#3AA0FF";
+    },
+    columnStyle: {
+      radius: [10, 10, 0, 0],
+    },
+  };
+
   const columns = [
     {
-      title: "Aset",
-      dataIndex: "aset",
-      key: "aset",
-      children: [
-        {
-          title: "Date",
-          dataIndex: "date",
-          key: "date",
-        },
-        {
-          title: "Adj. Cash Flow",
-          dataIndex: "adj_cash_flow",
-          key: "adj_cash_flow",
-        },
-        {
-          title: "Cash",
-          dataIndex: "cash",
-          key: "cash",
-        },
-      ],
+      title: "Period",
+      dataIndex: "period",
+      key: "period",
     },
     {
-      title: "Liabilities",
-      dataIndex: "liabilities",
-      key: "liabilities",
-      children: [
-        {
-          title: "Custody Fee",
-          dataIndex: "custody_fee",
-          key: "custody_fee",
-        },
-        {
-          title: "Other",
-          dataIndex: "other",
-          key: "other",
-        },
-      ],
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
     },
     {
-      title: "Total Sebelum External Cash",
-      dataIndex: "total_sebelum_external_cash",
-      key: "total_sebelum_external_cash",
+      title: "Counterpart",
+      dataIndex: "counterpart",
+      key: "counterpart",
     },
     {
-      title: "Total Sesudah External Cash",
-      dataIndex: "total_sesudah_external_cash",
-      key: "total_sesudah_external_cash",
+      title: "Principal",
+      dataIndex: "principal",
+      key: "principal",
     },
     {
-      title: "Return Harian (%)",
-      dataIndex: "return_harian",
-      key: "return_harian",
+      title: "Sisa Tenor (days)",
+      dataIndex: "sisa_tenor",
+      key: "sisa_tenor",
     },
     {
-      title: "Return Akumulasi (%)",
-      dataIndex: "return_akumulasi",
-      key: "return_akumulasi",
+      title: "Due Date",
+      dataIndex: "due_date",
+      key: "due_date",
+    },
+    {
+      title: "LGD",
+      dataIndex: "lgd",
+      key: "lgd",
+    },
+    {
+      title: "ECL",
+      dataIndex: "ecl",
+      key: "ecl",
     },
   ];
 
   const dataSource = [
     {
       key: "1",
-      aset: "Aset",
-      date: "2019-03",
-      adj_cash_flow: 2000,
-      cash: 3000,
-      liabilities: 0.5,
-      custody_fee: 0.5,
-      other: 0.5,
-      total_sebelum_external_cash: 0.5,
-      total_sesudah_external_cash: 0.5,
-      return_harian: 0.5,
-      return_akumulasi: 0.5,
+      period: "2021-01-01",
+      id: "1",
+      counterpart: "Bank Mandiri",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      lgd: "0.5%",
+      ecl: "0.5%",
     },
     {
       key: "2",
-      aset: "Aset",
-      date: "2019-04",
-      adj_cash_flow: 2000,
-      cash: 3000,
-      liabilities: 0.5,
-      custody_fee: 0.5,
-      other: 0.5,
-      total_sebelum_external_cash: 0.5,
-      total_sesudah_external_cash: 0.5,
-      return_harian: 0.5,
-      return_akumulasi: 0.5,
+      period: "2021-01-01",
+      id: "2",
+      counterpart: "Bank BCA",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      lgd: "0.5%",
+      ecl: "0.5%",
     },
     {
       key: "3",
-      aset: "Aset",
-      date: "2019-05",
-      adj_cash_flow: 2000,
-      cash: 3000,
-      liabilities: 0.5,
-      custody_fee: 0.5,
-      other: 0.5,
-      total_sebelum_external_cash: 0.5,
-      total_sesudah_external_cash: 0.5,
-      return_harian: 0.5,
-      return_akumulasi: 0.5,
+      period: "2021-01-01",
+      id: "3",
+      counterpart: "Bank BNI",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      lgd: "0.5%",
+      ecl: "0.5%",
     },
   ];
-
-  const isMobile = window.innerWidth <= 768;
 
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
-        Detail
+        Obligasi
       </Typography.Title>
       <Row gutter={[8, 8]}>
         <Col span={isMobile ? 24 : 18}>
@@ -168,6 +172,21 @@ export function DetailTWRR() {
                   style={{ maxWidth: "300px", width: "100%" }}
                 />
               </Col>
+              <Col span={isMobile ? 24 : 2}>
+                <Typography.Text strong>Tenor</Typography.Text>
+              </Col>
+              <Col span={isMobile ? 24 : 22}>
+                <Select
+                  defaultValue="all"
+                  options={[
+                    { value: "all", label: "Semua" },
+                    { value: "1", label: "1" },
+                    { value: "2", label: "2" },
+                    { value: "3", label: "3" },
+                  ]}
+                  style={{ maxWidth: "300px", width: "100%" }}
+                />
+              </Col>
               <Col span={isMobile ? 24 : 2}></Col>
               <Col span={isMobile ? 24 : 22}>
                 <Button
@@ -183,12 +202,9 @@ export function DetailTWRR() {
           </Card>
         </Col>
         <Col span={isMobile ? 24 : 6}>
-          <Card
-            style={{ minHeight: "175px" }}
-            className={isMobile ? "mb-1" : ""}
-          >
+          <Card style={{ minHeight: "175px" }}>
             <Typography.Title level={5} className="page-header">
-              Total Return Akumulasi
+              Total ECL
             </Typography.Title>
             <Typography.Title level={3} className="page-header">
               0.5%
@@ -196,6 +212,11 @@ export function DetailTWRR() {
           </Card>
         </Col>
       </Row>
+
+      <Card className="mb-1">
+        <Column {...config} />
+      </Card>
+
       <Card>
         <Table
           columns={columns}

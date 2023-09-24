@@ -6,130 +6,103 @@ import {
   Typography,
   Row,
   Col,
-  DatePicker,
   Button,
   Select,
+  DatePicker,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-export function DetailTWRR() {
+export function DetailCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
-
+  const isMobile = window.innerWidth <= 768;
   const onFilter = () => {
     setLoading(true);
   };
 
   const columns = [
     {
-      title: "Aset",
-      dataIndex: "aset",
-      key: "aset",
-      children: [
-        {
-          title: "Date",
-          dataIndex: "date",
-          key: "date",
-        },
-        {
-          title: "Adj. Cash Flow",
-          dataIndex: "adj_cash_flow",
-          key: "adj_cash_flow",
-        },
-        {
-          title: "Cash",
-          dataIndex: "cash",
-          key: "cash",
-        },
-      ],
+      title: "Period",
+      dataIndex: "period",
+      key: "period",
     },
     {
-      title: "Liabilities",
-      dataIndex: "liabilities",
-      key: "liabilities",
-      children: [
-        {
-          title: "Custody Fee",
-          dataIndex: "custody_fee",
-          key: "custody_fee",
-        },
-        {
-          title: "Other",
-          dataIndex: "other",
-          key: "other",
-        },
-      ],
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
     },
     {
-      title: "Total Sebelum External Cash",
-      dataIndex: "total_sebelum_external_cash",
-      key: "total_sebelum_external_cash",
+      title: "Counterpart",
+      dataIndex: "counterpart",
+      key: "counterpart",
     },
     {
-      title: "Total Sesudah External Cash",
-      dataIndex: "total_sesudah_external_cash",
-      key: "total_sesudah_external_cash",
+      title: "Nominal",
+      dataIndex: "nominal",
+      key: "nominal",
     },
     {
-      title: "Return Harian (%)",
-      dataIndex: "return_harian",
-      key: "return_harian",
+      title: "Principal",
+      dataIndex: "principal",
+      key: "principal",
     },
     {
-      title: "Return Akumulasi (%)",
-      dataIndex: "return_akumulasi",
-      key: "return_akumulasi",
+      title: "Sisa Tenor (days)",
+      dataIndex: "sisa_tenor",
+      key: "sisa_tenor",
+    },
+    {
+      title: "Due Date",
+      dataIndex: "due_date",
+      key: "due_date",
+    },
+    {
+      title: "PD",
+      dataIndex: "pd",
+      key: "pd",
+    },
+    {
+      title: "LGD",
+      dataIndex: "lgd",
+      key: "lgd",
+    },
+    {
+      title: "ECL",
+      dataIndex: "ecl",
+      key: "ecl",
     },
   ];
 
   const dataSource = [
     {
       key: "1",
-      aset: "Aset",
-      date: "2019-03",
-      adj_cash_flow: 2000,
-      cash: 3000,
-      liabilities: 0.5,
-      custody_fee: 0.5,
-      other: 0.5,
-      total_sebelum_external_cash: 0.5,
-      total_sesudah_external_cash: 0.5,
-      return_harian: 0.5,
-      return_akumulasi: 0.5,
+      period: "2021-01-01",
+      id: "1",
+      counterpart: "Bank Mandiri",
+      nominal: "100000000",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      pd: "0.5%",
+      lgd: "0.5%",
+      ecl: "0.5%",
     },
     {
       key: "2",
-      aset: "Aset",
-      date: "2019-04",
-      adj_cash_flow: 2000,
-      cash: 3000,
-      liabilities: 0.5,
-      custody_fee: 0.5,
-      other: 0.5,
-      total_sebelum_external_cash: 0.5,
-      total_sesudah_external_cash: 0.5,
-      return_harian: 0.5,
-      return_akumulasi: 0.5,
-    },
-    {
-      key: "3",
-      aset: "Aset",
-      date: "2019-05",
-      adj_cash_flow: 2000,
-      cash: 3000,
-      liabilities: 0.5,
-      custody_fee: 0.5,
-      other: 0.5,
-      total_sebelum_external_cash: 0.5,
-      total_sesudah_external_cash: 0.5,
-      return_harian: 0.5,
-      return_akumulasi: 0.5,
+      period: "2021-01-01",
+      id: "2",
+      counterpart: "Bank BCA",
+      nominal: "100000000",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      pd: "0.5%",
+      lgd: "0.5%",
+      ecl: "0.5%",
     },
   ];
-
-  const isMobile = window.innerWidth <= 768;
 
   return (
     <Spin spinning={loading}>
@@ -183,10 +156,7 @@ export function DetailTWRR() {
           </Card>
         </Col>
         <Col span={isMobile ? 24 : 6}>
-          <Card
-            style={{ minHeight: "175px" }}
-            className={isMobile ? "mb-1" : ""}
-          >
+          <Card style={{ minHeight: "175px" }}>
             <Typography.Title level={5} className="page-header">
               Total Return Akumulasi
             </Typography.Title>
@@ -196,12 +166,27 @@ export function DetailTWRR() {
           </Card>
         </Col>
       </Row>
-      <Card>
+
+      <Card className="mb-1">
         <Table
           columns={columns}
           dataSource={dataSource}
-          className="mb-1"
-          scroll={{ x: 1000 }}
+          summary={() => {
+            return (
+              <Table.Summary.Row>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell>Total</Table.Summary.Cell>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell></Table.Summary.Cell>
+                <Table.Summary.Cell>0.10%</Table.Summary.Cell>
+              </Table.Summary.Row>
+            );
+          }}
         />
         <Button
           type="primary"

@@ -14,7 +14,7 @@ import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
 
-export function SummaryCKPN() {
+export function DepositoCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
@@ -22,20 +22,18 @@ export function SummaryCKPN() {
   const onFilter = () => {
     setLoading(true);
   };
-
   const isMobile = window.innerWidth <= 768;
 
   const dataChart = [
-    { bank: "Mandiri", return: 3000 },
-    { bank: "BCA", return: 20000 },
-    { bank: "BNI", return: 30000 },
-    { bank: "BRI", return: 10000 },
-    { bank: "BTN", return: 5000 },
+    { tanggal: "2021-01-01", return: 3000 },
+    { tanggal: "2021-01-02", return: 20000 },
+    { tanggal: "2021-01-03", return: 30000 },
+    { tanggal: "2021-01-04", return: 10000 },
   ];
 
   const config = {
     data: dataChart,
-    xField: "bank",
+    xField: "tanggal",
     yField: "return",
     xAxis: {
       label: {
@@ -44,23 +42,13 @@ export function SummaryCKPN() {
       },
     },
     meta: {
-      bank: { alias: "Bank" },
+      tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
     },
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
-    color: ({ bank }) => {
-      if (bank === "Mandiri") {
-        return "#4ECB73";
-      } else if (bank === "BCA") {
-        return "#3AA0FF";
-      } else if (bank === "BNI") {
-        return "#5A6ACF";
-      } else if (bank === "BRI") {
-        return "#8C8C8C";
-      } else if (bank === "BTN") {
-        return "#A6ABC9";
-      }
+    color: () => {
+      return "#FAD337";
     },
     columnStyle: {
       radius: [10, 10, 0, 0],
@@ -69,9 +57,39 @@ export function SummaryCKPN() {
 
   const columns = [
     {
-      title: "Bank",
-      dataIndex: "bank",
-      key: "bank",
+      title: "Period",
+      dataIndex: "period",
+      key: "period",
+    },
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Counterpart",
+      dataIndex: "counterpart",
+      key: "counterpart",
+    },
+    {
+      title: "Principal",
+      dataIndex: "principal",
+      key: "principal",
+    },
+    {
+      title: "Sisa Tenor (days)",
+      dataIndex: "sisa_tenor",
+      key: "sisa_tenor",
+    },
+    {
+      title: "Due Date",
+      dataIndex: "due_date",
+      key: "due_date",
+    },
+    {
+      title: "LGD",
+      dataIndex: "lgd",
+      key: "lgd",
     },
     {
       title: "ECL",
@@ -83,22 +101,35 @@ export function SummaryCKPN() {
   const dataSource = [
     {
       key: "1",
-      bank: "Mandiri",
+      period: "2021-01-01",
+      id: "1",
+      counterpart: "Bank Mandiri",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      lgd: "0.5%",
       ecl: "0.5%",
     },
     {
       key: "2",
-      bank: "BCA",
+      period: "2021-01-01",
+      id: "2",
+      counterpart: "Bank BCA",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      lgd: "0.5%",
       ecl: "0.5%",
     },
     {
       key: "3",
-      bank: "BNI",
-      ecl: "0.5%",
-    },
-    {
-      key: "4",
-      bank: "BRI",
+      period: "2021-01-01",
+      id: "3",
+      counterpart: "Bank BNI",
+      principal: "100000000",
+      sisa_tenor: "100",
+      due_date: "2021-01-01",
+      lgd: "0.5%",
       ecl: "0.5%",
     },
   ];
@@ -106,7 +137,7 @@ export function SummaryCKPN() {
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
-        Summary
+        Deposito
       </Typography.Title>
       <Row gutter={[8, 8]}>
         <Col span={isMobile ? 24 : 18}>
@@ -127,15 +158,30 @@ export function SummaryCKPN() {
                 />
               </Col>
               <Col span={isMobile ? 24 : 2}>
-                <Typography.Text strong>Bank</Typography.Text>
+                <Typography.Text strong>KBMI</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
                 <Select
-                  defaultValue="mandiri"
+                  defaultValue="kbmi4"
                   options={[
-                    { value: "mandiri", label: "Mandiri" },
-                    { value: "bca", label: "BCA" },
-                    { value: "bni", label: "BNI" },
+                    { value: "kbmi4", label: "KBMI 4" },
+                    { value: "kbmi5", label: "KBMI 5" },
+                    { value: "kbmi6", label: "KBMI 6" },
+                  ]}
+                  style={{ maxWidth: "300px", width: "100%" }}
+                />
+              </Col>
+              <Col span={isMobile ? 24 : 2}>
+                <Typography.Text strong>Tenor</Typography.Text>
+              </Col>
+              <Col span={isMobile ? 24 : 22}>
+                <Select
+                  defaultValue="all"
+                  options={[
+                    { value: "all", label: "Semua" },
+                    { value: "1", label: "1" },
+                    { value: "2", label: "2" },
+                    { value: "3", label: "3" },
                   ]}
                   style={{ maxWidth: "300px", width: "100%" }}
                 />
@@ -155,7 +201,7 @@ export function SummaryCKPN() {
           </Card>
         </Col>
         <Col span={isMobile ? 24 : 6}>
-          <Card style={{ minHeight: "175px" }}>
+          <Card style={{ minHeight: "175px" }} className="mb-1">
             <Typography.Title level={5} className="page-header">
               Total ECL
             </Typography.Title>
@@ -171,7 +217,12 @@ export function SummaryCKPN() {
       </Card>
 
       <Card>
-        <Table columns={columns} dataSource={dataSource} className="mb-1" />
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          className="mb-1"
+          scroll={{ x: 1000 }}
+        />
         <Button
           type="primary"
           style={{

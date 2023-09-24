@@ -13,12 +13,14 @@ import {
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-export function ComparisonTWRR() {
+export function ComparisonCKPN() {
   const [loading, setLoading] = React.useState(false);
 
   const onFilter = () => {
     setLoading(true);
   };
+
+  const isMobile = window.innerWidth <= 768;
 
   const columns = [
     {
@@ -46,28 +48,26 @@ export function ComparisonTWRR() {
   const dataSource = [
     {
       key: "1",
-      comparison: "Total Sebelum External Cash",
+      comparison: "BSI",
       mei: 350,
       mei2: 900,
       mei3: 300,
     },
     {
       key: "2",
-      comparison: "Total Sesudah External Cash",
+      comparison: "BNI",
       mei: 220,
       mei2: 300,
       mei3: 450,
     },
     {
       key: "3",
-      comparison: "Return Harian (%)",
+      comparison: "BRI",
       mei: 130,
       mei2: 600,
       mei3: 150,
     },
   ];
-
-  const isMobile = window.innerWidth <= 768;
 
   return (
     <Spin spinning={loading}>

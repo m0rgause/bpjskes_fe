@@ -108,6 +108,9 @@ export function ExternalCash() {
         isGroup: true,
         seriesField: "type",
         color: ["#FAD337", "#3AA0FF"],
+        columnStyle: {
+          radius: [10, 10, 0, 0],
+        },
       },
       {
         geometry: "line",
@@ -177,68 +180,64 @@ export function ExternalCash() {
     },
   ];
 
+  const isMobile = window.innerWidth <= 768;
+
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
         External Cash
       </Typography.Title>
-      <Row gutter={[10]} className="mb-1">
-        <Col span={18}>
-          <Card
-            style={{
-              minHeight: "150px",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <div className="p-filter">
-              <label className="form-label">Periode :</label>
-              <DatePicker
-                defaultValue={filterStartDate}
-                format={"DD-MM-YYYY"}
-                onChange={(e) => {
-                  setfilterStartDate(e);
-                }}
-                className="form-control"
-              />
-            </div>
-            <div className="p-filter">
-              <label className="form-label"></label>
-              <DatePicker
-                defaultValue={filterEndDate}
-                format={"DD-MM-YYYY"}
-                onChange={(e) => {
-                  setfilterEndDate(e);
-                }}
-                className="form-control"
-              />
-            </div>
-            <div className="p-filter">
-              <label className="form-label">Bank</label>
-              <Select
-                defaultValue="mandiri"
-                options={[
-                  { value: "mandiri", label: "Mandiri" },
-                  { value: "bca", label: "BCA" },
-                  { value: "bni", label: "BNI" },
-                ]}
-                className="form-control"
-              />
-            </div>
-            <div className="p-filter">
-              <Button
-                type="primary"
-                icon={<SearchOutlined />}
-                className="form-control"
-                onClick={onFilter}
-              >
-                Filter
-              </Button>
-            </div>
+      <Row gutter={[8, 8]}>
+        <Col span={isMobile ? 24 : 18}>
+          <Card className="mb-1" style={{ minHeight: "175px" }}>
+            <Row gutter={[8, 8]}>
+              <Col span={isMobile ? 24 : 2}>
+                <Typography.Text strong>Period</Typography.Text>
+              </Col>
+              <Col span={isMobile ? 24 : 22}>
+                <DatePicker
+                  defaultValue={filterStartDate}
+                  onChange={(date) => setfilterStartDate(date)}
+                />{" "}
+                -{" "}
+                <DatePicker
+                  defaultValue={filterEndDate}
+                  onChange={(date) => setfilterEndDate(date)}
+                />
+              </Col>
+              <Col span={isMobile ? 24 : 2}>
+                <Typography.Text strong>Bank</Typography.Text>
+              </Col>
+              <Col span={isMobile ? 24 : 22}>
+                <Select
+                  defaultValue="mandiri"
+                  options={[
+                    { value: "mandiri", label: "Mandiri" },
+                    { value: "bca", label: "BCA" },
+                    { value: "bni", label: "BNI" },
+                  ]}
+                  style={{ maxWidth: "300px", width: "100%" }}
+                />
+              </Col>
+              <Col span={isMobile ? 24 : 2}></Col>
+              <Col span={22}>
+                <Button
+                  type="primary"
+                  icon={<SearchOutlined />}
+                  style={{ maxWidth: "300px", width: "100%" }}
+                  onClick={onFilter}
+                >
+                  Filter
+                </Button>
+              </Col>
+            </Row>
           </Card>
         </Col>
-        <Col span={6}>
-          <Card style={{ minHeight: "150px" }}>
+        <Col span={isMobile ? 24 : 6}>
+          <Card
+            style={{ minHeight: "175px" }}
+            className={isMobile ? "mb-1" : ""}
+          >
             <Typography.Title level={5} className="page-header">
               Total Return Akumulasi
             </Typography.Title>
@@ -252,7 +251,7 @@ export function ExternalCash() {
         <DualAxes {...config} />
       </Card>
       <Card className="mb-1">
-        <Table columns={columns} dataSource={dataSource} />
+        <Table columns={columns} dataSource={dataSource} scroll={{ x: 500 }} />
         <Button
           type="primary"
           style={{

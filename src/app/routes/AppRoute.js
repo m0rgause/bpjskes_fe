@@ -22,12 +22,25 @@ import { ExternalCash } from "../views/dashboard/twrr/external_cash";
 import { ComparisonTWRR } from "../views/dashboard/twrr/comparison";
 import { DetailTWRR } from "../views/dashboard/twrr/detail";
 
+// CKPN
+import { SummaryCKPN } from "../views/dashboard/ckpn/summary";
+import { DepositoCKPN } from "../views/dashboard/ckpn/deposito";
+import { ObligasiCKPN } from "../views/dashboard/ckpn/obligasi";
+import { ComparisonCKPN } from "../views/dashboard/ckpn/comparison";
+import { DetailCKPN } from "../views/dashboard/ckpn/detail";
+
 export function AppRoute() {
   return (
     <Routes>
       <Route path="/twrr/external_cash" Component={ExternalCash} />
       <Route path="/twrr/comparison" Component={ComparisonTWRR} />
       <Route path="/twrr/detail" Component={DetailTWRR} />
+
+      <Route path="/ckpn/summary" Component={SummaryCKPN} />
+      <Route path="/ckpn/deposito" Component={DepositoCKPN} />
+      <Route path="/ckpn/obligasi" Component={ObligasiCKPN} />
+      <Route path="/ckpn/comparison" Component={ComparisonCKPN} />
+      <Route path="/ckpn/detail" Component={DetailCKPN} />
 
       <Route path="/setting/user/list" Component={UserList} />
       <Route path="/setting/user/insert" Component={UserInsert} />

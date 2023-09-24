@@ -17,9 +17,18 @@ import { AccessList } from "../views/setting/access/AccessList";
 import { AccessInsert } from "../views/setting/access/AccessInsert";
 import { AccessUpdate } from "../views/setting/access/AccessUpdate";
 
+// External Cash
+import { ExternalCash } from "../views/dashboard/twrr/external_cash";
+import { ComparisonTWRR } from "../views/dashboard/twrr/comparison";
+import { DetailTWRR } from "../views/dashboard/twrr/detail";
+
 export function AppRoute() {
   return (
     <Routes>
+      <Route path="/twrr/external_cash" Component={ExternalCash} />
+      <Route path="/twrr/comparison" Component={ComparisonTWRR} />
+      <Route path="/twrr/detail" Component={DetailTWRR} />
+
       <Route path="/setting/user/list" Component={UserList} />
       <Route path="/setting/user/insert" Component={UserInsert} />
       <Route path="/setting/user/:id" Component={UserUpdate} />

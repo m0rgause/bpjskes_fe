@@ -39,7 +39,12 @@ export function AppLayout() {
     let email = user.email;
     post("/user/menu", qs.stringify({ email: email }))
       .then(({ data: { data } }) => {
-        setMenuItems(data.aut_group.access_list);
+        // reordering menu by urutan
+        let access_list = data.aut_group.access_list.sort((a, b) => {
+          return a.urutan - b.urutan;
+        });
+
+        setMenuItems(access_list);
         setLoginName(data.nama);
       })
       .catch(({ error }) => {
@@ -64,7 +69,13 @@ export function AppLayout() {
   const [collapsed, setCollapsed] = useState(isMobile);
 
   return (
-    <Layout style={{ height: "98vh", padding: 0, margin: 0 }}>
+    <Layout
+      style={{
+        minHeight: "98vh",
+        padding: 0,
+        margin: 0,
+      }}
+    >
       <Sider
         theme="light"
         collapsible
@@ -89,10 +100,24 @@ export function AppLayout() {
         <Menu
           onClick={onClickMenu}
           defaultOpenKeys={
-            isMobile ? [] : ["/dashboard", "/setting", "/useraccess"]
+            isMobile
+              ? []
+              : [
+                  "/ckpn/summary",
+                  "/porto/summary",
+                  "/twrr/external_cash",
+                  "/useraccess",
+                ]
           }
           defaultSelectedKeys={
-            isMobile ? [] : ["/dashboard", "/setting", "/useraccess"]
+            isMobile
+              ? []
+              : [
+                  "/ckpn/summary",
+                  "/porto/summary",
+                  "/twrr/external_cash",
+                  "/useraccess",
+                ]
           }
           mode="inline"
         >
@@ -128,7 +153,7 @@ export function AppLayout() {
           })}
         </Menu>
       </Sider>
-      <Layout>
+      <Layout style={{ backgroundColor: "#F1F2F7" }}>
         <Header
           style={{
             backgroundColor: "white",

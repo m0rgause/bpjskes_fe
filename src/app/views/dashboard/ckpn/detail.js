@@ -42,11 +42,15 @@ export function DetailCKPN() {
       title: "Nominal",
       dataIndex: "nominal",
       key: "nominal",
+      align: "right",
+      render: (text) => text.toLocaleString("id-ID"),
     },
     {
       title: "Principal",
       dataIndex: "principal",
       key: "principal",
+      align: "right",
+      render: (text) => text.toLocaleString("id-ID"),
     },
     {
       title: "Sisa Tenor (days)",
@@ -72,35 +76,37 @@ export function DetailCKPN() {
       title: "ECL",
       dataIndex: "ecl",
       key: "ecl",
+      align: "right",
+      render: (text) => text.toLocaleString("id-ID"),
     },
   ];
 
   const dataSource = [
     {
       key: "1",
-      period: "2021-01-01",
-      id: "1",
+      period: "1 Mei 2023",
+      id: "Bunga Deposito Berjangka",
       counterpart: "Bank Mandiri",
-      nominal: "100000000",
-      principal: "100000000",
+      nominal: 100000000,
+      principal: 100000000,
       sisa_tenor: "100",
       due_date: "2021-01-01",
       pd: "0.5%",
       lgd: "0.5%",
-      ecl: "0.5%",
+      ecl: 23624,
     },
     {
       key: "2",
-      period: "2021-01-01",
-      id: "2",
+      period: "2 Mei 2023",
+      id: "Bunga Deposito Berjangka",
       counterpart: "Bank BCA",
-      nominal: "100000000",
-      principal: "100000000",
+      nominal: 100000000,
+      principal: 100000000,
       sisa_tenor: "100",
       due_date: "2021-01-01",
       pd: "0.5%",
       lgd: "0.5%",
-      ecl: "0.5%",
+      ecl: 25679,
     },
   ];
 
@@ -183,7 +189,7 @@ export function DetailCKPN() {
                 <Table.Summary.Cell></Table.Summary.Cell>
                 <Table.Summary.Cell></Table.Summary.Cell>
                 <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell>0.10%</Table.Summary.Cell>
+                <Table.Summary.Cell>169.137</Table.Summary.Cell>
               </Table.Summary.Row>
             );
           }}

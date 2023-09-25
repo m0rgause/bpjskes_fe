@@ -77,6 +77,8 @@ export function SummaryCKPN() {
       title: "ECL",
       dataIndex: "ecl",
       key: "ecl",
+      align: "right",
+      render: (text) => text.toLocaleString("id-ID"),
     },
   ];
 
@@ -84,22 +86,22 @@ export function SummaryCKPN() {
     {
       key: "1",
       bank: "Mandiri",
-      ecl: "0.5%",
+      ecl: 929723,
     },
     {
       key: "2",
       bank: "BCA",
-      ecl: "0.5%",
+      ecl: 929723,
     },
     {
       key: "3",
       bank: "BNI",
-      ecl: "0.5%",
+      ecl: 929723,
     },
     {
       key: "4",
       bank: "BRI",
-      ecl: "0.5%",
+      ecl: "929723",
     },
   ];
 

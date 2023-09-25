@@ -136,21 +136,21 @@ export function ExternalCash() {
   let dataSource = [
     {
       key: "1",
-      periode: "2019-03",
+      periode: "1 Mei 2023",
       total_sebelum: 2000,
       total_sesudah: 3000,
       return_harian: 0.5,
     },
     {
       key: "2",
-      periode: "2019-04",
+      periode: "2 Mei 2023",
       total_sebelum: 3000,
       total_sesudah: 4000,
       return_harian: 0.5,
     },
     {
       key: "3",
-      periode: "2019-05",
+      periode: "3 Mei 2023",
       total_sebelum: 4000,
       total_sesudah: 5000,
       return_harian: 0.5,
@@ -167,11 +167,19 @@ export function ExternalCash() {
       title: "Total Sebelum External Cash",
       dataIndex: "total_sebelum",
       key: "total_sebelum",
+      align: "right",
+      render: (text) => {
+        return text.toLocaleString("id-ID");
+      },
     },
     {
       title: "Total Sesudah External Cash",
       dataIndex: "total_sesudah",
       key: "total_sesudah",
+      align: "right",
+      render: (text) => {
+        return text.toLocaleString("id-ID");
+      },
     },
     {
       title: "Return Harian",

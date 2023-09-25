@@ -30,16 +30,22 @@ export function ComparisonTWRR() {
       title: "1 Mei 2021",
       dataIndex: "mei",
       key: "mei",
+      align: "right",
+      render: (text) => text.toLocaleString("id-ID"),
     },
     {
       title: "1 Mei 2022",
       dataIndex: "mei2",
       key: "mei2",
+      align: "right",
+      render: (text) => text.toLocaleString("id-ID"),
     },
     {
       title: "1 Mei 2023",
       dataIndex: "mei3",
       key: "mei3",
+      align: "right",
+      render: (text) => text.toLocaleString("id-ID"),
     },
   ];
 

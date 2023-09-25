@@ -32,6 +32,10 @@ import { DetailCKPN } from "../views/dashboard/ckpn/detail";
 // Porto
 import { SummaryPorto } from "../views/dashboard/porto/summary";
 import { DepositoPorto } from "../views/dashboard/porto/deposito";
+import { SBNPorto } from "../views/dashboard/porto/sbn";
+import { ObligasiPorto } from "../views/dashboard/porto/obligasi";
+import { SBIPorto } from "../views/dashboard/porto/sbi";
+import { ComparisonPorto } from "../views/dashboard/porto/comparison";
 
 export function AppRoute() {
   return (
@@ -48,6 +52,10 @@ export function AppRoute() {
 
       <Route path="/porto/summary" Component={SummaryPorto} />
       <Route path="/porto/deposito" Component={DepositoPorto} />
+      <Route path="/porto/sbn" Component={SBNPorto} />
+      <Route path="/porto/obligasi" Component={ObligasiPorto} />
+      <Route path="/porto/sbi" Component={SBIPorto} />
+      <Route path="/porto/comparison" Component={ComparisonPorto} />
 
       <Route path="/setting/user/list" Component={UserList} />
       <Route path="/setting/user/insert" Component={UserInsert} />

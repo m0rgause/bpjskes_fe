@@ -1,10 +1,12 @@
 import React from "react";
 import { Card, Table, Spin, Typography, Row, Col, Button } from "antd";
 import { Pie } from "@ant-design/plots";
+import { useNavigate } from "react-router-dom";
 
 export function SummaryPorto() {
   const [loading, setLoading] = React.useState(false);
   const isMobile = window.innerWidth <= 768;
+  const history = useNavigate();
 
   const dataChart = [
     { type: "SBN", value: 27 },
@@ -62,9 +64,23 @@ export function SummaryPorto() {
       title: "Aksi",
       dataIndex: "aksi",
       key: "aksi",
-      render: () => {
+      render: (text, record) => {
+        let push;
+        if (record.jenis === "SBN") {
+          push = "/porto/summary/sbn";
+        } else if (record.jenis === "SBI") {
+          push = "/porto/summary/sbi";
+        } else if (record.jenis === "Deposito") {
+          push = "/porto/summary/deposito";
+        }
         return (
-          <Button type="primary" size="small">
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => {
+              history(push);
+            }}
+          >
             Detail
           </Button>
         );

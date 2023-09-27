@@ -36,6 +36,9 @@ import { SBNPorto } from "../views/dashboard/porto/sbn";
 import { ObligasiPorto } from "../views/dashboard/porto/obligasi";
 import { SBIPorto } from "../views/dashboard/porto/sbi";
 import { ComparisonPorto } from "../views/dashboard/porto/comparison";
+import { DetailDepositoPorto } from "../views/dashboard/porto/detailDeposito";
+import { DetailSBIPorto } from "../views/dashboard/porto/detailSBI";
+import { DetailSBNPorto } from "../views/dashboard/porto/detailSBN";
 
 export function AppRoute() {
   return (
@@ -56,6 +59,9 @@ export function AppRoute() {
       <Route path="/porto/obligasi" Component={ObligasiPorto} />
       <Route path="/porto/sbi" Component={SBIPorto} />
       <Route path="/porto/comparison" Component={ComparisonPorto} />
+      <Route path="/porto/summary/deposito" Component={DetailDepositoPorto} />
+      <Route path="/porto/summary/sbi" Component={DetailSBIPorto} />
+      <Route path="/porto/summary/sbn" Component={DetailSBNPorto} />
 
       <Route path="/setting/user/list" Component={UserList} />
       <Route path="/setting/user/insert" Component={UserInsert} />

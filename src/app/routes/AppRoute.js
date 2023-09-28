@@ -45,6 +45,35 @@ import { TWRRCOAList } from "../views/master/twrr_coa/twrrCoaList";
 import { TWRRCOAInsert } from "../views/master/twrr_coa/twrrCoaInsert";
 import { TWRRCOAUpdate } from "../views/master/twrr_coa/twrrCoaUpdate";
 
+// ISSUER
+// import { IssuerList } from "../views/master/issuer/issuerList";
+import { IssuerInsert } from "../views/master/issuer/issuerInsert";
+import { IssuerUpdate } from "../views/master/issuer/issuerUpdate";
+
+// Rating
+// import { RatingList } from "../views/master/rating/ratingList";
+import { RatingInsert } from "../views/master/rating/ratingInsert";
+import { RatingUpdate } from "../views/master/rating/ratingUpdate";
+
+// Tenor
+import { TenorInsert } from "../views/master/tenor/tenorInsert";
+import { TenorUpdate } from "../views/master/tenor/tenorUpdate";
+
+// Kepemilikan
+import { KepemilikanInsert } from "../views/master/kepemilikan/kepemilikanInsert";
+import { KepemilikanUpdate } from "../views/master/kepemilikan/kepemilikanUpdate";
+
+// Pengelolaan
+import { PengelolaanInsert } from "../views/master/pengelolaan/pengelolaanInsert";
+import { PengelolaanUpdate } from "../views/master/pengelolaan/pengelolaanUpdate";
+
+// Kategori
+import { KategoriInsert } from "../views/master/kategori/kategoriInsert";
+import { KategoriUpdate } from "../views/master/kategori/kategoriUpdate";
+
+// TAB LIST
+import { TabList } from "../views/master/TabList";
+
 export function AppRoute() {
   return (
     <Routes>
@@ -71,6 +100,26 @@ export function AppRoute() {
       <Route path="/setting/twrr_coa" Component={TWRRCOAList} />
       <Route path="/setting/twrr_coa/insert" Component={TWRRCOAInsert} />
       <Route path="/setting/twrr_coa/:id" Component={TWRRCOAUpdate} />
+
+      <Route path="/setting/bank" Component={TabList} />
+
+      <Route path="/setting/kategori/insert" Component={KategoriInsert} />
+      <Route path="/setting/kategori/:id" Component={KategoriUpdate} />
+
+      <Route path="/setting/kepemilikan/insert" Component={KepemilikanInsert} />
+      <Route path="/setting/kepemilikan/:id" Component={KepemilikanUpdate} />
+
+      <Route path="/setting/pengelolaan/insert" Component={PengelolaanInsert} />
+      <Route path="/setting/pengelolaan/:id" Component={PengelolaanUpdate} />
+
+      <Route path="/setting/tenor/insert" Component={TenorInsert} />
+      <Route path="/setting/tenor/:id" Component={TenorUpdate} />
+
+      <Route path="/setting/rating/insert" Component={RatingInsert} />
+      <Route path="/setting/rating/:id" Component={RatingUpdate} />
+
+      <Route path="/setting/bank/insert" Component={IssuerInsert} />
+      <Route path="/setting/bank/:id" Component={IssuerUpdate} />
 
       <Route path="/setting/user/list" Component={UserList} />
       <Route path="/setting/user/insert" Component={UserInsert} />

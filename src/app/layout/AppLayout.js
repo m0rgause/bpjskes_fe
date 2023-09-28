@@ -107,18 +107,10 @@ export function AppLayout() {
                   "/porto/summary",
                   "/twrr/external_cash",
                   "/useraccess",
+                  "/setting",
                 ]
           }
-          defaultSelectedKeys={
-            isMobile
-              ? []
-              : [
-                  "/ckpn/summary",
-                  "/porto/summary",
-                  "/twrr/external_cash",
-                  "/useraccess",
-                ]
-          }
+          defaultSelectedKeys={isMobile ? [] : ["/ckpn/summary"]}
           mode="inline"
         >
           {menuItems.map((item) => {

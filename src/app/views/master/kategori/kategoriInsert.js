@@ -47,7 +47,7 @@ export function KategoriInsert() {
           icon={<ArrowLeftOutlined />}
           onClick={() => history(-1)}
         />
-        Tambah Kategori
+        Tambah KBMI
       </Typography.Title>
       <Card>
         <Form form={form} layout="vertical" onFinish={onFinish}>

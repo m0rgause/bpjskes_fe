@@ -33,7 +33,7 @@ export function TabList() {
     },
     {
       key: "kategori",
-      tab: "Kategori",
+      tab: "KBMI",
     },
     {
       key: "tenor",

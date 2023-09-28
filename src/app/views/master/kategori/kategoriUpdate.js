@@ -96,7 +96,7 @@ export function KategoriUpdate() {
           icon={<ArrowLeftOutlined />}
           onClick={() => history(-1)}
         />
-        Ubah Kategori
+        Ubah KBMI
       </Typography.Title>
       <Card>
         <Form form={form} layout="vertical" onFinish={onFinish}>

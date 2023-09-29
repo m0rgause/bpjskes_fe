@@ -8,98 +8,97 @@ import {
   Row,
   Col,
   Button,
-  Select,
+  notification,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { DualAxes } from "@ant-design/plots";
+import { post } from "../../../functions/helper";
+import QueryString from "qs";
+import * as XLXS from "xlsx";
 
 export function ExternalCash() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
+  const [filterStartDate, setfilterStartDate] = React.useState(
+    dayjs().startOf("month")
+  );
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
+  const [data, setData] = React.useState([]);
+  const [totalAkumulasi, setTotalAkumulasi] = React.useState(0);
+  const [dataChart, setDataChart] = React.useState({ data: [], uvBill: [] });
+
+  React.useEffect(() => {
+    getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onFilter = () => {
-    setLoading(true);
+    if (filterStartDate.isAfter(filterEndDate)) {
+      notification.error({
+        message: "Tanggal awal tidak boleh lebih besar dari tanggal akhir",
+      });
+      return;
+    } else {
+      getData();
+    }
   };
 
-  const uvBillData = [
-    {
-      time: "2019-03",
-      value: 350,
-      type: "Total Sebelum External Cash",
-    },
-    {
-      time: "2019-04",
-      value: 900,
-      type: "Total Sebelum External Cash",
-    },
-    {
-      time: "2019-05",
-      value: 300,
-      type: "Total Sebelum External Cash",
-    },
-    {
-      time: "2019-06",
-      value: 450,
-      type: "Total Sebelum External Cash",
-    },
-    {
-      time: "2019-07",
-      value: 470,
-      type: "Total Sebelum External Cash",
-    },
-    {
-      time: "2019-03",
-      value: 220,
-      type: "Total Sesudah External Cash",
-    },
-    {
-      time: "2019-04",
-      value: 300,
-      type: "Total Sesudah External Cash",
-    },
-    {
-      time: "2019-05",
-      value: 250,
-      type: "Total Sesudah External Cash",
-    },
-    {
-      time: "2019-06",
-      value: 220,
-      type: "Total Sesudah External Cash",
-    },
-    {
-      time: "2019-07",
-      value: 362,
-      type: "Total Sesudah External Cash",
-    },
-  ];
-  const transformData = [
-    {
-      time: "2019-03",
-      count: 800,
-    },
-    {
-      time: "2019-04",
-      count: 600,
-    },
-    {
-      time: "2019-05",
-      count: 400,
-    },
-    {
-      time: "2019-06",
-      count: 380,
-    },
-    {
-      time: "2019-07",
-      count: 220,
-    },
-  ];
+  const getData = async () => {
+    setLoading(true);
+    let eq = {
+      start: filterStartDate.format("YYYY-MM-DD"),
+      end: filterEndDate.format("YYYY-MM-DD"),
+    };
+    let {
+      data: { data: externalCash },
+    } = await post("/twrr/external-cash", QueryString.stringify(eq));
+    externalCash.rows = externalCash.rows.map((item, index) => {
+      item.key = index;
+      return item;
+    });
+
+    setData(externalCash);
+    setTotalAkumulasi(
+      externalCash.rows[externalCash.rows.length - 1].return_akumulasi
+    );
+    setDataChart({
+      data: transformData(externalCash),
+      uvBill: uvBillData(externalCash),
+    });
+
+    setLoading(false);
+  };
+
+  const transformData = (data) => {
+    let result = [];
+    data.rows.forEach((element) => {
+      result.push({
+        time: dayjs(element.tanggal).format("DD MMM YYYY"),
+        count: element.return_harian,
+      });
+    });
+    return result;
+  };
+
+  const uvBillData = (data) => {
+    let result = [];
+    data.rows.forEach((element) => {
+      result.push({
+        time: dayjs(element.tanggal).format("DD MMM YYYY"),
+        value: parseInt(element.total_before_cash),
+        type: "Total Sebelum External Cash",
+      });
+      result.push({
+        time: dayjs(element.tanggal).format("DD MMM YYYY"),
+        value: parseInt(element.total_after_cash),
+        type: "Total Sesudah External Cash",
+      });
+    });
+    return result;
+  };
 
   const config = {
-    data: [uvBillData, transformData],
+    data: [dataChart.uvBill, dataChart.data],
     xField: "time",
     yField: ["value", "count"],
     geometryOptions: [
@@ -133,60 +132,77 @@ export function ExternalCash() {
     },
   };
 
-  let dataSource = [
-    {
-      key: "1",
-      periode: "1 Mei 2023",
-      total_sebelum: 2000,
-      total_sesudah: 3000,
-      return_harian: 0.5,
-    },
-    {
-      key: "2",
-      periode: "2 Mei 2023",
-      total_sebelum: 3000,
-      total_sesudah: 4000,
-      return_harian: 0.5,
-    },
-    {
-      key: "3",
-      periode: "3 Mei 2023",
-      total_sebelum: 4000,
-      total_sesudah: 5000,
-      return_harian: 0.5,
-    },
-  ];
-
   const columns = [
     {
       title: "Periode",
-      dataIndex: "periode",
+      dataIndex: "tanggal",
       key: "periode",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Total Sebelum External Cash",
-      dataIndex: "total_sebelum",
+      dataIndex: "total_before_cash",
       key: "total_sebelum",
       align: "right",
       render: (text) => {
-        return text.toLocaleString("id-ID");
+        return parseInt(text).toLocaleString("id-ID");
       },
     },
     {
       title: "Total Sesudah External Cash",
-      dataIndex: "total_sesudah",
-      key: "total_sesudah",
+      dataIndex: "total_after_cash",
+      key: "total_after_cash",
       align: "right",
       render: (text) => {
-        return text.toLocaleString("id-ID");
+        return parseInt(text).toLocaleString("id-ID");
       },
     },
     {
       title: "Return Harian",
       dataIndex: "return_harian",
       key: "return_harian",
+      render: (text) => {
+        // to percentage
+        return text + "%";
+      },
     },
   ];
+
+  const onExport = async () => {
+    let eq = {
+      start: filterStartDate.format("YYYY-MM-DD"),
+      end: filterEndDate.format("YYYY-MM-DD"),
+    };
+    let {
+      data: { data: externalCash },
+    } = await post("/twrr/external-cash", QueryString.stringify(eq));
+    externalCash.rows = externalCash.rows.map((item, index) => {
+      item.key = index;
+      return item;
+    });
+    const fileName = `External Cash ${filterStartDate.format(
+      "DD MMM YYYY"
+    )} - ${filterEndDate.format("DD MMM YYYY")}`;
+    const data = externalCash.rows.map((item) => {
+      return {
+        Periode: dayjs(item.tanggal).format("DD MMM YYYY"),
+        "Total Sebelum External Cash": parseInt(
+          item.total_before_cash
+        ).toLocaleString("id-ID"),
+        "Total Sesudah External Cash": parseInt(
+          item.total_after_cash
+        ).toLocaleString("id-ID"),
+        "Return Harian": item.return_harian + "%",
+        "Total Return Akumulasi": item.return_akumulasi + "%",
+      };
+    });
+    const worksheet = XLXS.utils.json_to_sheet(data);
+    const workbook = XLXS.utils.book_new();
+    XLXS.utils.book_append_sheet(workbook, worksheet, "External Cash");
+    XLXS.writeFile(workbook, `${fileName}.xlsx`);
+  };
 
   const isMobile = window.innerWidth <= 768;
 
@@ -213,20 +229,6 @@ export function ExternalCash() {
                   onChange={(date) => setfilterEndDate(date)}
                 />
               </Col>
-              <Col span={isMobile ? 24 : 2}>
-                <Typography.Text strong>Bank</Typography.Text>
-              </Col>
-              <Col span={isMobile ? 24 : 22}>
-                <Select
-                  defaultValue="mandiri"
-                  options={[
-                    { value: "mandiri", label: "Mandiri" },
-                    { value: "bca", label: "BCA" },
-                    { value: "bni", label: "BNI" },
-                  ]}
-                  style={{ maxWidth: "300px", width: "100%" }}
-                />
-              </Col>
               <Col span={isMobile ? 24 : 2}></Col>
               <Col span={22}>
                 <Button
@@ -250,7 +252,7 @@ export function ExternalCash() {
               Total Return Akumulasi
             </Typography.Title>
             <Typography.Title level={3} className="page-header">
-              0.5%
+              {totalAkumulasi} %
             </Typography.Title>
           </Card>
         </Col>
@@ -259,12 +261,13 @@ export function ExternalCash() {
         <DualAxes {...config} />
       </Card>
       <Card className="mb-1">
-        <Table columns={columns} dataSource={dataSource} scroll={{ x: 500 }} />
+        <Table columns={columns} dataSource={data.rows} scroll={{ x: 500 }} />
         <Button
           type="primary"
           style={{
             backgroundColor: "#4ECB73",
           }}
+          onClick={onExport}
           icon={<DownloadOutlined />}
         >
           Export Excel

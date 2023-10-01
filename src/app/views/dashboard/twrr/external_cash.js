@@ -59,7 +59,7 @@ export function ExternalCash() {
 
     setData(externalCash);
     setTotalAkumulasi(
-      externalCash.rows[externalCash.rows.length - 1].return_akumulasi
+      externalCash.rows[externalCash.rows.length - 1]?.return_akumulasi ?? 0
     );
     setDataChart({
       data: transformData(externalCash),

@@ -8,19 +8,59 @@ import {
   Col,
   DatePicker,
   Button,
+  notification,
   Select,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { post } from "../../../functions/helper";
+import QueryString from "qs";
+import * as XLSX from "xlsx";
 
 export function DetailTWRR() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
+  const [filterStartDate, setfilterStartDate] = React.useState(
+    dayjs().startOf("month")
+  );
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
+  const [data, setData] = React.useState([]);
+
+  React.useEffect(() => {
+    getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getData = async () => {
+    setLoading(true);
+    let eq = {
+      start: filterStartDate.format("YYYY-MM-DD"),
+      end: filterEndDate.format("YYYY-MM-DD"),
+    };
+    let {
+      data: { data },
+    } = await post("/twrr/detail", QueryString.stringify(eq));
+
+    setData(data);
+    setLoading(false);
+  };
 
   const onFilter = () => {
-    setLoading(true);
+    if (filterStartDate.isAfter(filterEndDate)) {
+      notification.error({
+        message: "Tanggal awal tidak boleh lebih besar dari tanggal akhir",
+      });
+      return;
+    } else {
+      getData();
+    }
   };
+
+  let total_return_akumulasi = data?.data?.rows?.[data?.data?.rows?.length - 1];
+
+  let assets =
+    data.dataCol?.rows?.filter((item) => item.tipe === "assets") || [];
+  let liabilities =
+    data.dataCol?.rows?.filter((item) => item.tipe === "liabilities") || [];
 
   const columns = [
     {
@@ -30,30 +70,18 @@ export function DetailTWRR() {
       children: [
         {
           title: "Date",
-          dataIndex: "date",
-          key: "date",
+          dataIndex: "tanggal",
+          key: "tanggal",
         },
-        {
-          title: "Adj. Cash Flow",
-          dataIndex: "adj_cash_flow",
-          key: "adj_cash_flow",
-          align: "right",
-          render: (text) => text.toLocaleString("id-ID"),
-        },
-        {
-          title: "Cash",
-          dataIndex: "cash",
-          key: "cash",
-          align: "right",
-          render: (text) => text.toLocaleString("id-ID"),
-        },
-        {
-          title: "Time Deposit",
-          dataIndex: "time_deposit",
-          key: "time_deposit",
-          align: "right",
-          render: (text) => text.toLocaleString("id-ID"),
-        },
+        ...assets?.map((item) => {
+          return {
+            title: item.label,
+            dataIndex: item.kolom,
+            key: item.kolom,
+            align: "right",
+            render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
+          };
+        }),
       ],
     },
     {
@@ -61,35 +89,30 @@ export function DetailTWRR() {
       dataIndex: "liabilities",
       key: "liabilities",
       children: [
-        {
-          title: "Custody Fee",
-          dataIndex: "custody_fee",
-          key: "custody_fee",
-          align: "right",
-          render: (text) => text.toLocaleString("id-ID"),
-        },
-        {
-          title: "Other",
-          dataIndex: "other",
-          key: "other",
-          align: "right",
-          render: (text) => text.toLocaleString("id-ID"),
-        },
+        ...liabilities?.map((item) => {
+          return {
+            title: item.label,
+            dataIndex: item.kolom,
+            key: item.kolom,
+            align: "right",
+            render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
+          };
+        }),
       ],
     },
     {
       title: "Total Sebelum External Cash",
-      dataIndex: "total_sebelum_external_cash",
-      key: "total_sebelum_external_cash",
+      dataIndex: "total_before_cash",
+      key: "total_before_cash",
       align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
     },
     {
       title: "Total Sesudah External Cash",
-      dataIndex: "total_sesudah_external_cash",
-      key: "total_sesudah_external_cash",
+      dataIndex: "total_after_cash",
+      key: "total_after_cash",
       align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
     },
     {
       title: "Return Harian (%)",
@@ -103,36 +126,47 @@ export function DetailTWRR() {
     },
   ];
 
-  const dataSource = [
-    {
-      key: "1",
-      aset: "Aset",
-      date: "1 Mei 2023",
-      adj_cash_flow: 520000000,
-      cash: 938509992,
-      custody_fee: 909840929,
-      time_deposit: 909840929,
-      other: 909840929,
-      total_sebelum_external_cash: 909840929,
-      total_sesudah_external_cash: 909840929,
-      return_harian: 0.5,
-      return_akumulasi: 0.3,
-    },
-    {
-      key: "2",
-      aset: "Aset",
-      date: "2 Mei 2023",
-      adj_cash_flow: 1293123908123,
-      cash: 1293123908123,
-      custody_fee: 1293123908123,
-      time_deposit: 909840929,
-      other: 1293123908123,
-      total_sebelum_external_cash: 1293123908123,
-      total_sesudah_external_cash: 1293123908123,
-      return_harian: 0.1,
-      return_akumulasi: 0.3,
-    },
-  ];
+  const dataSource = [];
+  data?.data?.rows?.forEach((item, index) => {
+    item.key = index;
+    dataSource.push(item);
+  });
+  const onExport = async () => {
+    const fileName = `Detail TWRR ${filterStartDate.format(
+      "DD MMM YYYY"
+    )} - ${filterEndDate.format("DD MMM YYYY")}`;
+
+    const data = dataSource.map((item) => {
+      return {
+        Tanggal: dayjs(item.tanggal).format("DD MMM YYYY"),
+        ...assets?.reduce((acc, curr) => {
+          acc[curr.label] = item[curr.kolom]
+            ? Number(item[curr.kolom]).toLocaleString("id-ID")
+            : 0;
+          return acc;
+        }, {}),
+        ...liabilities?.reduce((acc, curr) => {
+          acc[curr.label] = item[curr.kolom]
+            ? Number(item[curr.kolom]).toLocaleString("id-ID")
+            : 0;
+          return acc;
+        }, {}),
+        "Total Sebelum External Cash": item.total_before_cash
+          ? Number(item.total_before_cash).toLocaleString("id-ID")
+          : 0,
+        "Total Sesudah External Cash": item.total_after_cash
+          ? Number(item.total_after_cash).toLocaleString("id-ID")
+          : 0,
+        "Return Harian (%)": item.return_harian + "%",
+        "Return Akumulasi (%)": item.return_akumulasi + "%",
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Detail TWRR");
+    XLSX.writeFile(wb, `${fileName}.xlsx`);
+  };
 
   const isMobile = window.innerWidth <= 768;
 
@@ -159,20 +193,6 @@ export function DetailTWRR() {
                   onChange={(date) => setfilterEndDate(date)}
                 />
               </Col>
-              <Col span={isMobile ? 24 : 2}>
-                <Typography.Text strong>Bank</Typography.Text>
-              </Col>
-              <Col span={isMobile ? 24 : 22}>
-                <Select
-                  defaultValue="mandiri"
-                  options={[
-                    { value: "mandiri", label: "Mandiri" },
-                    { value: "bca", label: "BCA" },
-                    { value: "bni", label: "BNI" },
-                  ]}
-                  style={{ maxWidth: "300px", width: "100%" }}
-                />
-              </Col>
               <Col span={isMobile ? 24 : 2}></Col>
               <Col span={isMobile ? 24 : 22}>
                 <Button
@@ -196,7 +216,7 @@ export function DetailTWRR() {
               Total Return Akumulasi
             </Typography.Title>
             <Typography.Title level={3} className="page-header">
-              0.5%
+              {total_return_akumulasi?.return_akumulasi ?? 0} %
             </Typography.Title>
           </Card>
         </Col>
@@ -206,7 +226,8 @@ export function DetailTWRR() {
           columns={columns}
           dataSource={dataSource}
           className="mb-1"
-          scroll={{ x: 1000 }}
+          scroll={{ x: 2500 }}
+          bordered
         />
         <Button
           type="primary"
@@ -214,6 +235,7 @@ export function DetailTWRR() {
             backgroundColor: "#4ECB73",
           }}
           icon={<DownloadOutlined />}
+          onClick={onExport}
         >
           Export Excel
         </Button>

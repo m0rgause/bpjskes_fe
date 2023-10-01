@@ -9,15 +9,55 @@ import {
   Button,
   Select,
   Radio,
+  DatePicker,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { post } from "../../../functions/helper";
+import * as XLXS from "xlsx";
 
 export function ComparisonTWRR() {
   const [loading, setLoading] = React.useState(false);
+  const [data, setData] = React.useState([]);
+  const [type, setType] = React.useState("daily");
+  const [listDate, setListDate] = React.useState([]);
+  const [listDateFixed, setListDateFixed] = React.useState([]); // for table columns
+  const [pickerDate, setPickerDate] = React.useState("");
+
+  React.useEffect(() => {
+    getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getData = async () => {
+    setLoading(true);
+    let eq = {
+      type: type,
+      list_date: listDate,
+    };
+    let {
+      data: { data: comparison },
+    } = await post("/twrr/comparison", eq);
+
+    setData(comparison);
+    setLoading(false);
+  };
 
   const onFilter = () => {
-    setLoading(true);
+    setListDateFixed(listDate);
+    getData();
+  };
+
+  const onTypeChange = (e) => {
+    setListDate([]);
+    setListDateFixed([]);
+    if (e.target.value === "daily") {
+      setPickerDate("date");
+    } else if (e.target.value === "monthly") {
+      setPickerDate("month");
+    } else if (e.target.value === "yearly") {
+      setPickerDate("year");
+    }
   };
 
   const columns = [
@@ -26,53 +66,94 @@ export function ComparisonTWRR() {
       dataIndex: "comparison",
       key: "comparison",
     },
-    {
-      title: "1 Mei 2021",
-      dataIndex: "mei",
-      key: "mei",
-      align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
-    },
-    {
-      title: "1 Mei 2022",
-      dataIndex: "mei2",
-      key: "mei2",
-      align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
-    },
-    {
-      title: "1 Mei 2023",
-      dataIndex: "mei3",
-      key: "mei3",
-      align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
-    },
+    ...listDateFixed.map((item, index) => {
+      return {
+        title:
+          type === "daily"
+            ? dayjs(item).format("DD MMM YYYY")
+            : type === "monthly"
+            ? dayjs(item).format("MMM YYYY")
+            : type === "yearly"
+            ? dayjs(item).format("YYYY")
+            : "",
+        dataIndex:
+          type === "daily"
+            ? item
+            : type === "monthly"
+            ? dayjs(item).endOf("month").format("YYYY-MM-DD")
+            : type === "yearly"
+            ? dayjs(item).endOf("year").format("YYYY-MM-DD")
+            : "",
+        key: index,
+        render: (text, record) => {
+          return text ? Number(text).toLocaleString("id-ID") : "";
+        },
+      };
+    }),
   ];
 
   const dataSource = [
     {
-      key: "1",
+      key: 0,
       comparison: "Total Sebelum External Cash",
-      mei: 350,
-      mei2: 900,
-      mei3: 300,
     },
     {
-      key: "2",
+      key: 1,
       comparison: "Total Sesudah External Cash",
-      mei: 220,
-      mei2: 300,
-      mei3: 450,
     },
     {
-      key: "3",
+      key: 2,
       comparison: "Return Harian (%)",
-      mei: 130,
-      mei2: 600,
-      mei3: 150,
     },
   ];
+  data?.forEach((item) => {
+    if (type === "daily") {
+      dataSource[0][item.tanggal] = item.total_before_cash ?? 0;
+      dataSource[1][item.tanggal] = item.total_after_cash ?? 0;
+      dataSource[2][item.tanggal] = item.return_harian ?? 0;
+    } else if (type === "monthly") {
+      dataSource[0][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
+        item.total_before_cash ?? 0;
+      dataSource[1][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
+        item.total_after_cash ?? 0;
+      dataSource[2][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
+        item.return_harian ?? 0;
+    } else if (type === "yearly") {
+      dataSource[0][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
+        item.total_before_cash ?? 0;
+      dataSource[1][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
+        item.total_after_cash ?? 0;
+      dataSource[2][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
+        item.return_harian ?? 0;
+    }
+  });
 
+  const onExport = async () => {
+    const fileName = `Comparison ${type} ${dayjs().format("DD MMM YYYY")}`;
+
+    const data = dataSource.map((item) => {
+      let obj = {
+        Comparison: item.comparison,
+      };
+      listDateFixed.forEach((date) => {
+        let key =
+          type === "daily"
+            ? date
+            : type === "monthly"
+            ? dayjs(date).endOf("month").format("YYYY-MM-DD")
+            : type === "yearly"
+            ? dayjs(date).endOf("year").format("YYYY-MM-DD")
+            : "";
+        obj[key] = item[key] ?? 0;
+      });
+      return obj;
+    });
+
+    const wb = XLXS.utils.book_new();
+    const ws = XLXS.utils.json_to_sheet(data);
+    XLXS.utils.book_append_sheet(wb, ws, "Comparison");
+    XLXS.writeFile(wb, `${fileName}.xlsx`);
+  };
   const isMobile = window.innerWidth <= 768;
 
   return (
@@ -86,7 +167,13 @@ export function ComparisonTWRR() {
             <Typography.Text strong>Type</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
-            <Radio.Group defaultValue="daily">
+            <Radio.Group
+              defaultValue={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                onTypeChange(e);
+              }}
+            >
               <Radio value="daily">Daily</Radio>
               <Radio value="monthly">Monthly</Radio>
               <Radio value="yearly">Yearly</Radio>
@@ -96,29 +183,28 @@ export function ComparisonTWRR() {
             <Typography.Text strong>Period</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
-            <Select
-              mode="multiple"
-              placeholder="Select Period"
-              style={{ maxWidth: "300px", width: "100%" }}
-            >
-              <Select.Option value="2019-03">2019-03</Select.Option>
-              <Select.Option value="2019-04">2019-04</Select.Option>
-              <Select.Option value="2019-05">2019-05</Select.Option>
-            </Select>
+            <DatePicker
+              picker={pickerDate}
+              onChange={(date, dateString) => {
+                // every change of date picker, add to list date
+                let list = [...listDate];
+                list.push(dateString);
+                setListDate(list);
+              }}
+              style={{ width: "100%", maxWidth: "300px" }}
+            />
           </Col>
-          <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Bank</Typography.Text>
-          </Col>
+          <Col span={isMobile ? 24 : 2}></Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
-              defaultValue="mandiri"
-              options={[
-                { value: "mandiri", label: "Mandiri" },
-                { value: "bca", label: "BCA" },
-                { value: "bni", label: "BNI" },
-              ]}
-              style={{ maxWidth: "300px", width: "100%" }}
-            />
+              mode="multiple"
+              placeholder="Select date"
+              style={{ width: "100%", maxWidth: "300px" }}
+              value={listDate}
+              onChange={(value) => {
+                setListDate(value);
+              }}
+            ></Select>
           </Col>
           <Col span={isMobile ? 24 : 2}></Col>
           <Col span={isMobile ? 24 : 22}>
@@ -137,7 +223,10 @@ export function ComparisonTWRR() {
         <Table
           columns={columns}
           dataSource={dataSource}
-          className="mb-1"
+          pagination={{
+            hideOnSinglePage: true,
+          }}
+          className="mb-2"
           scroll={{ x: 500 }}
         />
         <Button
@@ -146,6 +235,7 @@ export function ComparisonTWRR() {
             backgroundColor: "#4ECB73",
           }}
           icon={<DownloadOutlined />}
+          onClick={onExport}
         >
           Export Excel
         </Button>

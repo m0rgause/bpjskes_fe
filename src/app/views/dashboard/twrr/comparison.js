@@ -10,6 +10,7 @@ import {
   Select,
   Radio,
   DatePicker,
+  Modal,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -44,7 +45,12 @@ export function ComparisonTWRR() {
   };
 
   const onFilter = () => {
-    setListDateFixed(listDate);
+    // sort date ascending
+    let list = [...listDate];
+    list.sort((a, b) => {
+      return dayjs(a).diff(dayjs(b));
+    });
+    setListDateFixed(list);
     getData();
   };
 
@@ -154,6 +160,31 @@ export function ComparisonTWRR() {
     XLXS.utils.book_append_sheet(wb, ws, "Comparison");
     XLXS.writeFile(wb, `${fileName}.xlsx`);
   };
+
+  const onAddDate = () => {
+    Modal.info({
+      title: "Add Date",
+      content: (
+        <div>
+          <DatePicker
+            picker={pickerDate}
+            onChange={(date, dateString) => {
+              let list = [...listDate];
+              list.push(dateString);
+              setListDate(list);
+              Modal.destroyAll();
+            }}
+            style={{ width: "100%", maxWidth: "300px" }}
+          />
+        </div>
+      ),
+      // remove ok button
+      okButtonProps: { style: { display: "none" } },
+      // close modal when click outside
+      maskClosable: true,
+    });
+  };
+
   const isMobile = window.innerWidth <= 768;
 
   return (
@@ -179,22 +210,7 @@ export function ComparisonTWRR() {
               <Radio value="yearly">Yearly</Radio>
             </Radio.Group>
           </Col>
-          <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Period</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 22}>
-            <DatePicker
-              picker={pickerDate}
-              onChange={(date, dateString) => {
-                // every change of date picker, add to list date
-                let list = [...listDate];
-                list.push(dateString);
-                setListDate(list);
-              }}
-              style={{ width: "100%", maxWidth: "300px" }}
-            />
-          </Col>
-          <Col span={isMobile ? 24 : 2}></Col>
+          <Col span={isMobile ? 24 : 2}>Period</Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               mode="multiple"
@@ -204,7 +220,12 @@ export function ComparisonTWRR() {
               onChange={(value) => {
                 setListDate(value);
               }}
-            ></Select>
+              dropdownRender={() => null}
+              // when click on select, open modal
+              onClick={() => {
+                onAddDate();
+              }}
+            />
           </Col>
           <Col span={isMobile ? 24 : 2}></Col>
           <Col span={isMobile ? 24 : 22}>

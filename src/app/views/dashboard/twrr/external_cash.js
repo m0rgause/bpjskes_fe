@@ -74,7 +74,7 @@ export function ExternalCash() {
     data.rows.forEach((element) => {
       result.push({
         time: dayjs(element.tanggal).format("DD MMM YYYY"),
-        count: element.return_harian,
+        Akumulasi: element.return_akumulasi,
       });
     });
     return result;
@@ -100,7 +100,7 @@ export function ExternalCash() {
   const config = {
     data: [dataChart.uvBill, dataChart.data],
     xField: "time",
-    yField: ["value", "count"],
+    yField: ["value", "Akumulasi"],
     geometryOptions: [
       {
         geometry: "column",
@@ -113,6 +113,7 @@ export function ExternalCash() {
       },
       {
         geometry: "line",
+
         point: {
           shape: "circle",
           size: 4,
@@ -213,7 +214,12 @@ export function ExternalCash() {
       </Typography.Title>
       <Row gutter={[8, 8]}>
         <Col span={isMobile ? 24 : 18}>
-          <Card className="mb-1" style={{ minHeight: "175px" }}>
+          <Card
+            className="mb-1"
+            style={{
+              minHeight: "175px",
+            }}
+          >
             <Row gutter={[8, 8]}>
               <Col span={isMobile ? 24 : 2}>
                 <Typography.Text strong>Period</Typography.Text>

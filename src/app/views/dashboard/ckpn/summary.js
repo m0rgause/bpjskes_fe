@@ -9,20 +9,25 @@ import {
   DatePicker,
   Button,
   Select,
+  notification,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
 import { post, get } from "../../../functions/helper";
 import QueryString from "qs";
+import * as XLSX from "xlsx";
 
 export function SummaryCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().subtract(6, "month")
+    dayjs().startOf("month")
   );
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
+  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
   const [filterBank, setfilterBank] = React.useState("all");
+  const [totalECL, setTotalECL] = React.useState(0);
+  const [dataChart, setDataChart] = React.useState([]);
+  const [dataSource, setDataSource] = React.useState([]);
 
   const [bank, setBank] = React.useState([]);
 
@@ -33,44 +38,67 @@ export function SummaryCKPN() {
   }, []);
 
   const onFilter = () => {
-    setLoading(true);
+    if (filterStartDate.isAfter(filterEndDate)) {
+      notification.error({
+        message: "Error",
+        description: "Period awal tidak boleh lebih besar dari period akhir",
+      });
+    } else {
+      getData();
+    }
   };
 
   const isMobile = window.innerWidth <= 768;
 
   const getData = async () => {
-    let eq = {
+    const eq = {
       start: filterStartDate.format("YYYY-MM-DD"),
       end: filterEndDate.format("YYYY-MM-DD"),
       range: filterStartDate.diff(filterEndDate, "month"),
       issuer: filterBank,
     };
 
-    const { data: data } = await post(
-      "/ckpn/summary",
-      QueryString.stringify(eq)
-    );
+    try {
+      setLoading(true);
+      let {
+        data: { data },
+      } = await post("/ckpn/summary", QueryString.stringify(eq));
 
-    console.log(data);
+      // add key to data
+      let dataChart = [];
+      data.forEach((element, index) => {
+        element.key = index;
+        dataChart.push({
+          key: index,
+          bank: element.nama,
+          return: Number(element.sum),
+        });
+      });
+      const totalECL = dataChart.reduce(
+        (total, element) => total + element.return,
+        0
+      );
+
+      setTotalECL(totalECL);
+      setDataChart(dataChart);
+      setDataSource(data);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
+    setLoading(false);
   };
 
   const getBank = async () => {
-    const { data: data } = await get("/issuer/select");
+    const {
+      data: { data },
+    } = await get("/issuer/select");
 
     let item = [{ value: "all", label: "All" }];
-    data.data.rows.forEach((element) => {
-      item.push({ value: element.id, label: element.nama });
+    data.rows.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
     });
     setBank(item);
   };
-
-  const dataChart = [
-    { bank: "Mandiri", return: 3000 },
-    { bank: "BCA", return: 20000 },
-    { bank: "BNI", return: 30000 },
-    { bank: "BRI", return: 10000 },
-    { bank: "BTN", return: 5000 },
-  ];
 
   const config = {
     data: dataChart,
@@ -89,17 +117,16 @@ export function SummaryCKPN() {
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
     color: ({ bank }) => {
-      if (bank === "Mandiri") {
-        return "#4ECB73";
-      } else if (bank === "BCA") {
-        return "#3AA0FF";
-      } else if (bank === "BNI") {
-        return "#5A6ACF";
-      } else if (bank === "BRI") {
-        return "#8C8C8C";
-      } else if (bank === "BTN") {
-        return "#A6ABC9";
-      }
+      let list_color = [
+        "#4ECB73",
+        "#3AA0FF",
+        "#5A6ACF",
+        "#8C8C8C",
+        "#A6ABC9",
+        "#FFB649",
+      ];
+      let random = Math.floor(Math.random() * list_color.length);
+      return list_color[random];
     },
     columnStyle: {
       radius: [10, 10, 0, 0],
@@ -108,41 +135,40 @@ export function SummaryCKPN() {
 
   const columns = [
     {
-      title: "Bank",
-      dataIndex: "bank",
-      key: "bank",
+      title: "Issuer",
+      dataIndex: "nama",
+      key: "nama",
     },
     {
       title: "ECL",
-      dataIndex: "ecl",
-      key: "ecl",
-      align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      dataIndex: "sum",
+      key: "sum",
+      render: (text) => Number(text).toLocaleString("id-ID"),
     },
   ];
 
-  const dataSource = [
-    {
-      key: "1",
-      bank: "Mandiri",
-      ecl: 929723,
-    },
-    {
-      key: "2",
-      bank: "BCA",
-      ecl: 929723,
-    },
-    {
-      key: "3",
-      bank: "BNI",
-      ecl: 929723,
-    },
-    {
-      key: "4",
-      bank: "BRI",
-      ecl: "929723",
-    },
-  ];
+  const onExport = async () => {
+    const fileName = `Summary CKPN ${filterStartDate.format(
+      "MM-YYYY"
+    )} - ${filterEndDate.format("MM-YYYY")}.xlsx`;
+
+    const dataExport = dataChart.map((element) => {
+      return {
+        Bank: element.bank,
+        ECL: Number(element.return).toLocaleString("id-ID"),
+      };
+    });
+
+    dataExport.push({
+      Bank: "Total",
+      ECL: Number(totalECL).toLocaleString("id-ID"),
+    });
+
+    const ws = XLSX.utils.json_to_sheet(dataExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Summary CKPN");
+    XLSX.writeFile(wb, fileName);
+  };
 
   return (
     <Spin spinning={loading}>
@@ -150,7 +176,7 @@ export function SummaryCKPN() {
         Summary
       </Typography.Title>
       <Row gutter={[8, 8]}>
-        <Col span={isMobile ? 24 : 18}>
+        <Col span={24}>
           <Card className="mb-1" style={{ minHeight: "175px" }}>
             <Row gutter={[8, 8]}>
               <Col span={isMobile ? 24 : 2}>
@@ -172,12 +198,13 @@ export function SummaryCKPN() {
                 />
               </Col>
               <Col span={isMobile ? 24 : 2}>
-                <Typography.Text strong>Bank</Typography.Text>
+                <Typography.Text strong>Issuer</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
                 <Select
                   defaultValue={filterBank}
                   options={bank}
+                  onChange={(value) => setfilterBank(value)}
                   style={{ maxWidth: "300px", width: "100%" }}
                 />
               </Col>
@@ -195,16 +222,6 @@ export function SummaryCKPN() {
             </Row>
           </Card>
         </Col>
-        <Col span={isMobile ? 24 : 6}>
-          <Card style={{ minHeight: "175px" }}>
-            <Typography.Title level={5} className="page-header">
-              Total ECL
-            </Typography.Title>
-            <Typography.Title level={3} className="page-header">
-              0.5%
-            </Typography.Title>
-          </Card>
-        </Col>
       </Row>
 
       <Card className="mb-1">
@@ -212,13 +229,32 @@ export function SummaryCKPN() {
       </Card>
 
       <Card>
-        <Table columns={columns} dataSource={dataSource} className="mb-1" />
+        <Table
+          columns={columns}
+          dataSource={dataSource}
+          className="mb-1"
+          summary={() => {
+            return (
+              <>
+                <Table.Summary.Row>
+                  <Table.Summary.Cell colSpan={1}>
+                    <strong>Total</strong>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell colSpan={1}>
+                    <strong>{totalECL.toLocaleString("id-ID")}</strong>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              </>
+            );
+          }}
+        />
         <Button
           type="primary"
           style={{
             backgroundColor: "#4ECB73",
           }}
           icon={<DownloadOutlined />}
+          onClick={onExport}
         >
           Export Excel
         </Button>

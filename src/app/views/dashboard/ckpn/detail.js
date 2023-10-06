@@ -8,59 +8,173 @@ import {
   Col,
   Button,
   Select,
+  notification,
   DatePicker,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { get, post } from "../../../functions/helper";
+import QueryString from "qs";
+import * as XLSX from "xlsx";
 
 export function DetailCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
+  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+  const [filterIssuer, setFilterIssuer] = React.useState("all");
+  const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
+  const [data, setData] = React.useState([]); // for table
+  const [totalECL, setTotalECL] = React.useState(0);
+
   const isMobile = window.innerWidth <= 768;
+
+  React.useEffect(() => {
+    getIssuer();
+    getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onFilter = () => {
+    if (filterStartDate.isAfter(filterEndDate)) {
+      notification.error({
+        message: "Error",
+        description: "Period awal tidak boleh lebih besar dari period akhir",
+      });
+    } else {
+      getData();
+    }
+  };
+
+  const getData = async () => {
     setLoading(true);
+    let eq = {
+      start: filterStartDate.format("YYYY-MM-DD"),
+      end: filterEndDate.format("YYYY-MM-DD"),
+      range: filterStartDate.diff(filterEndDate, "month"),
+      issuer: filterIssuer,
+    };
+
+    const {
+      data: { data },
+    } = await post("/ckpn/detail", QueryString.stringify(eq));
+
+    const dataSource = [];
+    data.forEach((element, index) => {
+      dataSource.push({
+        key: index,
+        tipe: element.tipe,
+        unique_id: element.unique_id,
+        issuer_name: element.issuer_name,
+        kbmi_name: element.kbmi_name,
+        tenor_name: element.tenor_name,
+        pengelolaan_name: element.pengelolaan_name,
+        kepemilikan_name: element.kepemilikan_name,
+        no_security: element.no_security,
+        start_date: element.start_date,
+        end_date: element.end_date,
+        nominal: element.nominal,
+        interest_date: element.interest_date,
+        sisa_tenor: element.sisa_tenor,
+        rate: element.rate,
+        pd: element.pd,
+        lgd: element.lgd,
+        ecl: element.ecl ? Number(element.ecl) : 0,
+      });
+    });
+
+    setTotalECL(dataSource.reduce((total, element) => total + element.ecl, 0));
+
+    setData(dataSource);
+    setLoading(false);
+  };
+
+  const getIssuer = async () => {
+    const {
+      data: { data },
+    } = await get("/issuer/select");
+
+    let item = [{ value: "all", label: "All" }];
+    data.rows.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setIssuer({
+      item: item,
+      data: data.rows,
+    });
   };
 
   const columns = [
     {
-      title: "Period",
-      dataIndex: "period",
-      key: "period",
+      title: "Tipe",
+      dataIndex: "tipe",
+      key: "tipe",
     },
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "Unique ID",
+      dataIndex: "unique_id",
+      key: "unique_id",
     },
     {
-      title: "Counterpart",
-      dataIndex: "counterpart",
-      key: "counterpart",
+      title: "Issuer",
+      dataIndex: "issuer_name",
+      key: "issuer",
+    },
+    {
+      title: "KBMI",
+      dataIndex: "kbmi_name",
+      key: "kbmi",
+    },
+    {
+      title: "Tenor",
+      dataIndex: "tenor_name",
+      key: "tenor",
+    },
+    {
+      title: "Pengelolaan",
+      dataIndex: "pengelolaan_name",
+      key: "pengelolaan",
+    },
+    {
+      title: "Kepemilikan",
+      dataIndex: "kepemilikan_name",
+      key: "kepemilikan",
+    },
+    {
+      title: "No Security",
+      dataIndex: "no_security",
+      key: "no_security",
+    },
+    {
+      title: "Issued Date",
+      dataIndex: "start_date",
+      key: "start_date",
+    },
+    {
+      title: "Maturity Date",
+      dataIndex: "end_date",
+      key: "end_date",
     },
     {
       title: "Nominal",
       dataIndex: "nominal",
       key: "nominal",
       align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
     },
     {
-      title: "Principal",
-      dataIndex: "principal",
-      key: "principal",
-      align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      title: "Term of Interest",
+      dataIndex: "interest_date",
+      key: "interest_date",
     },
     {
-      title: "Sisa Tenor (days)",
+      title: "Sisa Tenor",
       dataIndex: "sisa_tenor",
       key: "sisa_tenor",
     },
     {
-      title: "Due Date",
-      dataIndex: "due_date",
-      key: "due_date",
+      title: "Rate (%)",
+      dataIndex: "rate",
+      key: "rate",
     },
     {
       title: "PD",
@@ -77,119 +191,130 @@ export function DetailCKPN() {
       dataIndex: "ecl",
       key: "ecl",
       align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
     },
   ];
 
-  const dataSource = [
-    {
-      key: "1",
-      period: "1 Mei 2023",
-      id: "Bunga Deposito Berjangka",
-      counterpart: "Bank Mandiri",
-      nominal: 100000000,
-      principal: 100000000,
-      sisa_tenor: "100",
-      due_date: "2021-01-01",
-      pd: "0.5%",
-      lgd: "0.5%",
-      ecl: 23624,
-    },
-    {
-      key: "2",
-      period: "2 Mei 2023",
-      id: "Bunga Deposito Berjangka",
-      counterpart: "Bank BCA",
-      nominal: 100000000,
-      principal: 100000000,
-      sisa_tenor: "100",
-      due_date: "2021-01-01",
-      pd: "0.5%",
-      lgd: "0.5%",
-      ecl: 25679,
-    },
-  ];
+  const onExport = async () => {
+    const fileName = `Detail CKPN ${filterStartDate.format(
+      "MM-YYYY"
+    )} - ${filterEndDate.format("MM-YYYY")}.xlsx`;
+
+    const dataExport = data.map((element) => {
+      return {
+        Tipe: element.tipe,
+        "Unique ID": element.unique_id,
+        Issuer: element.issuer_name,
+        KBMI: element.kbmi_name,
+        Tenor: element.tenor_name,
+        Pengelolaan: element.pengelolaan_name,
+        Kepemilikan: element.kepemilikan_name,
+        "No Security": element.no_security,
+        "Issued Date": element.start_date,
+        "Maturity Date": element.end_date,
+        Nominal: Number(element.nominal).toLocaleString("id-ID"),
+        "Term of Interest": element.interest_date,
+        "Sisa Tenor": element.sisa_tenor,
+        "Rate (%)": element.rate,
+        PD: element.pd,
+        LGD: element.lgd,
+        ECL: Number(element.ecl).toLocaleString("id-ID"),
+      };
+    });
+
+    dataExport.push({
+      Tipe: "Total",
+      "Unique ID": "",
+      Issuer: "",
+      KBMI: "",
+      Tenor: "",
+      Pengelolaan: "",
+      Kepemilikan: "",
+      "No Security": "",
+      "Issued Date": "",
+      "Maturity Date": "",
+      Nominal: "",
+      "Term of Interest": "",
+      "Sisa Tenor": "",
+      "Rate (%)": "",
+      PD: "",
+      LGD: "",
+      ECL: Number(totalECL).toLocaleString("id-ID"),
+    });
+
+    const ws = XLSX.utils.json_to_sheet(dataExport);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Detail CKPN");
+    XLSX.writeFile(wb, fileName);
+  };
 
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
         Detail
       </Typography.Title>
-      <Row gutter={[8, 8]}>
-        <Col span={isMobile ? 24 : 18}>
-          <Card className="mb-1" style={{ minHeight: "175px" }}>
-            <Row gutter={[8, 8]}>
-              <Col span={isMobile ? 24 : 2}>
-                <Typography.Text strong>Period</Typography.Text>
-              </Col>
-              <Col span={isMobile ? 24 : 22}>
-                <DatePicker
-                  defaultValue={filterStartDate}
-                  onChange={(date) => setfilterStartDate(date)}
-                />{" "}
-                -{" "}
-                <DatePicker
-                  defaultValue={filterEndDate}
-                  onChange={(date) => setfilterEndDate(date)}
-                />
-              </Col>
-              <Col span={isMobile ? 24 : 2}>
-                <Typography.Text strong>Bank</Typography.Text>
-              </Col>
-              <Col span={isMobile ? 24 : 22}>
-                <Select
-                  defaultValue="mandiri"
-                  options={[
-                    { value: "mandiri", label: "Mandiri" },
-                    { value: "bca", label: "BCA" },
-                    { value: "bni", label: "BNI" },
-                  ]}
-                  style={{ maxWidth: "300px", width: "100%" }}
-                />
-              </Col>
-              <Col span={isMobile ? 24 : 2}></Col>
-              <Col span={isMobile ? 24 : 22}>
-                <Button
-                  type="primary"
-                  icon={<SearchOutlined />}
-                  style={{ maxWidth: "300px", width: "100%" }}
-                  onClick={onFilter}
-                >
-                  Filter
-                </Button>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-        <Col span={isMobile ? 24 : 6}>
-          <Card style={{ minHeight: "175px" }}>
-            <Typography.Title level={5} className="page-header">
-              Total Return Akumulasi
-            </Typography.Title>
-            <Typography.Title level={3} className="page-header">
-              0.5%
-            </Typography.Title>
-          </Card>
-        </Col>
-      </Row>
+
+      <Card className="mb-1" style={{ minHeight: "175px" }}>
+        <Row gutter={[8, 8]}>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Period</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <DatePicker
+              picker="month"
+              format={"MM-YYYY"}
+              defaultValue={filterStartDate}
+              onChange={(date) => setfilterStartDate(date)}
+            />{" "}
+            -{" "}
+            <DatePicker
+              picker="month"
+              format={"MM-YYYY"}
+              defaultValue={filterEndDate}
+              onChange={(date) => setfilterEndDate(date)}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Issuer</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterIssuer}
+              options={issuer.item}
+              onChange={(value) => setFilterIssuer(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}></Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              style={{ maxWidth: "300px", width: "100%" }}
+              onClick={onFilter}
+            >
+              Filter
+            </Button>
+          </Col>
+        </Row>
+      </Card>
 
       <Card className="mb-1">
         <Table
           columns={columns}
-          dataSource={dataSource}
+          dataSource={data}
+          scroll={{ x: 2000 }}
           summary={() => {
             return (
               <Table.Summary.Row>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell>Total</Table.Summary.Cell>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell></Table.Summary.Cell>
-                <Table.Summary.Cell>169.137</Table.Summary.Cell>
+                <Table.Summary.Cell colSpan={16}>
+                  <strong>Total</strong>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell colSpan={1}>
+                  <div style={{ textAlign: "right" }}>
+                    <strong>{totalECL?.toLocaleString("id-ID")}</strong>
+                  </div>
+                </Table.Summary.Cell>
               </Table.Summary.Row>
             );
           }}
@@ -199,6 +324,7 @@ export function DetailCKPN() {
           style={{
             backgroundColor: "#4ECB73",
           }}
+          onClick={onExport}
           icon={<DownloadOutlined />}
         >
           Export Excel

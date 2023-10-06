@@ -12,7 +12,12 @@ import {
   DatePicker,
   Modal,
 } from "antd";
-import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  DownloadOutlined,
+  CaretUpOutlined,
+  CaretDownOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
 import { post } from "../../../functions/helper";
 import * as XLXS from "xlsx";
@@ -92,7 +97,50 @@ export function ComparisonTWRR() {
             : "",
         key: index,
         render: (text, record) => {
-          return text ? Number(text).toLocaleString("id-ID") : "";
+          // next if first item1
+          if (index === 0) {
+            return text ? Number(text).toLocaleString("id-ID") : 0;
+          }
+          let previousDate = "";
+          let currentdate = "";
+          if (type === "daily") {
+            currentdate = item;
+            // previousDate by index
+            previousDate = listDateFixed[index - 1];
+          } else if (type === "monthly") {
+            currentdate = dayjs(item).endOf("month").format("YYYY-MM-DD");
+            previousDate = dayjs(item)
+              .subtract(1, "month")
+              .endOf("month")
+              .format("YYYY-MM-DD");
+          } else if (type === "yearly") {
+            currentdate = dayjs(item).endOf("year").format("YYYY-MM-DD");
+            previousDate = dayjs(item)
+              .subtract(1, "year")
+              .endOf("year")
+              .format("YYYY-MM-DD");
+          }
+
+          let previousValue = record[previousDate] ?? 0;
+          let currentValue = record[currentdate] ?? 0;
+          // console.log(record[previousDate], record[currentdate]);
+          let diff = currentValue - previousValue;
+          return (
+            <div>
+              {text ? Number(text).toLocaleString("id-ID") : 0}{" "}
+              {diff > 0 ? (
+                <span style={{ color: "green" }}>
+                  <CaretUpOutlined />
+                </span>
+              ) : diff < 0 ? (
+                <span style={{ color: "red" }}>
+                  <CaretDownOutlined />
+                </span>
+              ) : (
+                ""
+              )}
+            </div>
+          );
         },
       };
     }),
@@ -135,7 +183,7 @@ export function ComparisonTWRR() {
   });
 
   const onExport = async () => {
-    const fileName = `Comparison ${type} ${dayjs().format("DD MMM YYYY")}`;
+    const fileName = `Comparison TWRR ${type} ${dayjs().format("DD MMM YYYY")}`;
 
     const data = dataSource.map((item) => {
       let obj = {

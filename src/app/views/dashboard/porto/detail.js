@@ -12,20 +12,29 @@ import {
   notification,
 } from "antd";
 import { Pie } from "@ant-design/plots";
-import { SearchOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeftOutlined, SearchOutlined } from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import { get, post } from "../../../functions/helper";
 import QueryString from "qs";
 
-export function SummaryPorto() {
+const useQuery = () => {
+  let location = useLocation();
+  return new URLSearchParams(location.search);
+};
+
+export function DetailPorto() {
+  const query = useQuery();
+  const subtipe = query.get("subtipe");
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
   const [filterIssuer, setFilterIssuer] = React.useState("all");
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
   const [data, setData] = React.useState([]); // for table
+
   const isMobile = window.innerWidth <= 768;
+  const [tab, setTab] = React.useState("kbmi");
   const history = useNavigate();
 
   React.useEffect(() => {
@@ -34,25 +43,37 @@ export function SummaryPorto() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getData = async () => {
+  const getData = async (key = "kbmi") => {
     setLoading(true);
-    const body = {
+    let eq = {
       start: filterStartDate.format("YYYY-MM"),
       end: filterEndDate.format("YYYY-MM"),
-      range: filterEndDate.diff(filterStartDate, "M") + 1,
+      range: filterEndDate.diff(filterStartDate, "M"),
       issuer: filterIssuer,
+      tableName: "trx_porto",
+      subtipe: subtipe,
     };
+
+    if (key === "kbmi") {
+      eq.joinTable = "mst_kbmi";
+    } else if (key === "tenor") {
+      eq.joinTable = "mst_tenor";
+    } else if (key === "kepemilikan") {
+      eq.joinTable = "mst_kepemilikan";
+    } else if (key === "pengelolaan") {
+      eq.joinTable = "mst_pengelolaan";
+    }
 
     try {
       const {
         data: { data },
-      } = await post("/porto/summary", QueryString.stringify(body));
+      } = await post("/porto/detail", QueryString.stringify(eq));
 
       data.data.forEach((element, index) => {
         element.key = index;
-        element.nominal = Number(element.sum);
+        element.nominal = Number(element.nominal);
         element.presentase = `${(
-          (element.sum / data.totalNominal) *
+          (element.nominal / data.totalNominal) *
           100
         ).toFixed(2)}%`;
       });
@@ -61,26 +82,35 @@ export function SummaryPorto() {
       setLoading(false);
     } catch (error) {
       notification.error({
-        message: "Error",
-        description: error.message,
+        message: error.message,
       });
       setLoading(false);
     }
   };
 
   const getIssuer = async () => {
-    const {
-      data: { data },
-    } = await get("/issuer/select");
-
-    let item = [{ value: "all", label: "All" }];
-    data?.rows.forEach((element, index) => {
-      item.push({ key: index, value: element.id, label: element.nama });
-    });
-    setIssuer({
-      item: item,
-      data: data.rows,
-    });
+    try {
+      const {
+        data: { data },
+      } = await get("/issuer/select");
+      let item = [
+        {
+          label: "All",
+          value: "all",
+        },
+      ];
+      data.rows.forEach((element) => {
+        item.push({
+          label: element.nama,
+          value: element.id,
+        });
+      });
+      setIssuer({ item: item, data: data });
+    } catch (error) {
+      notification.error({
+        message: error.message,
+      });
+    }
   };
 
   const onFilter = () => {
@@ -93,19 +123,22 @@ export function SummaryPorto() {
       getData();
     }
   };
+
+  const onTabChange = (key) => {
+    setTab(key);
+  };
+
   const config = {
     appendPadding: 10,
     data: data?.data ?? [],
     angleField: "nominal",
-    colorField: "tipe",
+    colorField: "nama",
     radius: 1,
     innerRadius: 0.6,
     label: {
       type: "inner",
       offset: "-50%",
-      content: function content(_ref) {
-        return `${_ref.nominal.toLocaleString("id-ID")}`;
-      },
+      content: "{value}",
       style: {
         textAlign: "center",
         fontSize: 14,
@@ -121,22 +154,32 @@ export function SummaryPorto() {
     ],
     // hide statistic
     statistic: false,
-    // hover label format
-    tooltip: {
-      formatter: (datum) => {
-        return {
-          name: datum.tipe,
-          value: datum.nominal.toLocaleString("id-ID"),
-        };
-      },
-    },
   };
+
+  const tabList = [
+    {
+      key: "kbmi",
+      tab: "KBMI",
+    },
+    {
+      key: "tenor",
+      tab: "Tenor",
+    },
+    {
+      key: "kepemilikan",
+      tab: "Kepemilikan",
+    },
+    {
+      key: "pengelolaan",
+      tab: "Pengelolaan",
+    },
+  ];
 
   const columns = [
     {
       title: "Jenis",
-      dataIndex: "tipe",
-      key: "tipe",
+      dataIndex: "nama",
+      key: "nama",
     },
     {
       title: "Nominal",
@@ -150,36 +193,49 @@ export function SummaryPorto() {
       dataIndex: "presentase",
       key: "presentase",
     },
-    {
-      title: "Aksi",
-      dataIndex: "aksi",
-      key: "aksi",
-      render: (text, record) => {
-        let push;
-        if (record.tipe) {
-          push = `/porto/detail/${record.tipe.toLowerCase()}/?subtipe=${
-            record.tipe
-          }`;
-        }
-        return (
-          <Button
-            type="primary"
-            size="small"
-            onClick={() => {
-              history(push);
-            }}
-          >
-            Detail
-          </Button>
-        );
-      },
-    },
   ];
+
+  const contentList = tabList.reduce((acc, { key }) => {
+    acc[key] = (
+      <Table
+        bordered
+        columns={columns}
+        dataSource={data?.data ?? []}
+        pagination={{
+          hideOnSinglePage: true,
+        }}
+        style={{
+          width: "100%",
+        }}
+        summary={() => {
+          return (
+            <>
+              <Table.Summary.Row>
+                <Table.Summary.Cell colSpan={1}>Total</Table.Summary.Cell>
+                <Table.Summary.Cell colSpan={1}>
+                  <div style={{ textAlign: "right" }}>
+                    {data?.totalNominal?.toLocaleString("id-ID") ?? 0}
+                  </div>
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+            </>
+          );
+        }}
+      />
+    );
+    return acc;
+  }, {});
 
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
-        Summary
+        <Button
+          type="link"
+          className="icon-back"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => history(-1)}
+        />
+        Detail {subtipe.toUpperCase()}
       </Typography.Title>
       <Card className="mb-1" style={{ minHeight: "175px" }}>
         <Row gutter={[8, 8]}>
@@ -225,7 +281,14 @@ export function SummaryPorto() {
           </Col>
         </Row>
       </Card>
-      <Card>
+      <Card
+        tabList={tabList}
+        activeTabKey={tab}
+        onTabChange={(key) => {
+          getData(key);
+          onTabChange(key);
+        }}
+      >
         <Row gutter={[16, 16]}>
           <Col span={isMobile ? 24 : 8}>
             <Pie {...config} />
@@ -238,33 +301,7 @@ export function SummaryPorto() {
               justifyContent: "center",
             }}
           >
-            <Table
-              bordered
-              columns={columns}
-              dataSource={data?.data}
-              pagination={{
-                hideOnSinglePage: true,
-              }}
-              style={{
-                width: isMobile ? "100%" : "100%",
-              }}
-              summary={() => {
-                return (
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell index={0} colSpan={1}>
-                      Total
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={1} colSpan={1} align="right">
-                      {data?.totalNominal?.toLocaleString("id-ID") ?? 0}
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell
-                      index={2}
-                      colSpan={2}
-                    ></Table.Summary.Cell>
-                  </Table.Summary.Row>
-                );
-              }}
-            />
+            {contentList[tab]}
           </Col>
         </Row>
       </Card>

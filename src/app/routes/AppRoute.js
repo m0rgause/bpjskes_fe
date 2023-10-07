@@ -36,9 +36,7 @@ import { SBNPorto } from "../views/dashboard/porto/sbn";
 import { ObligasiPorto } from "../views/dashboard/porto/obligasi";
 import { SBIPorto } from "../views/dashboard/porto/sbi";
 import { ComparisonPorto } from "../views/dashboard/porto/comparison";
-import { DetailDepositoPorto } from "../views/dashboard/porto/detailDeposito";
-import { DetailSBIPorto } from "../views/dashboard/porto/detailSBI";
-import { DetailSBNPorto } from "../views/dashboard/porto/detailSBN";
+import { DetailPorto } from "../views/dashboard/porto/detail";
 
 // TWRR COA
 import { TWRRCOAList } from "../views/master/twrr_coa/twrrCoaList";
@@ -93,9 +91,7 @@ export function AppRoute() {
       <Route path="/porto/obligasi" Component={ObligasiPorto} />
       <Route path="/porto/sbi" Component={SBIPorto} />
       <Route path="/porto/comparison" Component={ComparisonPorto} />
-      <Route path="/porto/summary/deposito" Component={DetailDepositoPorto} />
-      <Route path="/porto/summary/sbi" Component={DetailSBIPorto} />
-      <Route path="/porto/summary/sbn" Component={DetailSBNPorto} />
+      <Route path="/porto/detail/:tipe" Component={DetailPorto} />
 
       <Route path="/setting/twrr_coa" Component={TWRRCOAList} />
       <Route path="/setting/twrr_coa/insert" Component={TWRRCOAInsert} />

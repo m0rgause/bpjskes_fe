@@ -72,9 +72,14 @@ import { KategoriUpdate } from "../views/master/kategori/kategoriUpdate";
 // TAB LIST
 import { TabList } from "../views/master/TabList";
 
+// Notification
+import { Notification } from "../views/dashboard/notification";
+
 export function AppRoute() {
   return (
     <Routes>
+      <Route path="/notification" Component={Notification} />
+
       <Route path="/twrr/external_cash" Component={ExternalCash} />
       <Route path="/twrr/comparison" Component={ComparisonTWRR} />
       <Route path="/twrr/detail" Component={DetailTWRR} />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Layout, Menu, Typography } from "antd";
+import { Badge, Button, Layout, Menu, Typography } from "antd";
 import logo from "../../assets/images/Logo/BPJS.svg";
 import logoMobile from "../../assets/images/Logo/BPJSMobile.png";
 import {
@@ -9,7 +9,8 @@ import {
   UserOutlined,
   PoweroffOutlined,
   KeyOutlined,
-  BellOutlined,
+  BellFilled,
+  ClockCircleFilled,
 } from "@ant-design/icons";
 import qs from "qs";
 import * as IconName from "@ant-design/icons";
@@ -177,7 +178,19 @@ export function AppLayout() {
               >
                 <Button
                   type="text"
-                  icon={<BellOutlined />}
+                  icon={
+                    <Badge
+                      count={
+                        <ClockCircleFilled
+                          style={{ color: "#f5222d", fontSize: 10 }}
+                        />
+                      }
+                      size="small"
+                    >
+                      <BellFilled />
+                    </Badge>
+                  }
+                  onClick={() => history("/notification")}
                   style={{ marginRight: 10 }}
                 />
                 <Menu mode="horizontal">

@@ -75,10 +75,16 @@ import { TabList } from "../views/master/TabList";
 // Notification
 import { Notification } from "../views/dashboard/notification";
 
+// Upload Porto
+import { ListUpload } from "../views/upload/porto/listUpload";
+import { DetailUpload } from "../views/upload/porto/detailUpload";
+
 export function AppRoute() {
   return (
     <Routes>
       <Route path="/notification" Component={Notification} />
+      <Route path="/upload/porto" Component={ListUpload} />
+      <Route path="/upload/porto/:id" Component={DetailUpload} />
 
       <Route path="/twrr/external_cash" Component={ExternalCash} />
       <Route path="/twrr/comparison" Component={ComparisonTWRR} />

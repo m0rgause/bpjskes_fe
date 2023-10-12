@@ -67,6 +67,11 @@ export function IssuerList() {
       key: "nama",
     },
     {
+      title: "PD",
+      dataIndex: "pd",
+      key: "pd",
+    },
+    {
       title: "LGD",
       dataIndex: "lgd",
       key: "lgd",
@@ -75,6 +80,14 @@ export function IssuerList() {
       title: "Urutan",
       dataIndex: "urutan",
       key: "urutan",
+    },
+    {
+      title: "Warna",
+      dataIndex: "warna",
+      key: "warna",
+      render: (text) => (
+        <Card style={{ backgroundColor: text, width: 50 }}></Card>
+      ),
     },
     {
       title: "Aksi",
@@ -116,16 +129,15 @@ export function IssuerList() {
           }}
         />
       </div>
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={data.rows}
-          onChange={onTableChange}
-          pagination={{
-            total: data.count,
-          }}
-        />
-      </Card>
+
+      <Table
+        columns={columns}
+        dataSource={data.rows}
+        onChange={onTableChange}
+        pagination={{
+          total: data.count,
+        }}
+      />
     </Spin>
   );
 }

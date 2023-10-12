@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Button, Input, Table, Spin, Typography } from "antd";
+import { Card, Button, Input, Table, Spin, Typography, Tag } from "antd";
 import { get } from "../../../functions/helper";
 import { PlusOutlined, SearchOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -68,6 +68,19 @@ export function TWRRCOAList() {
       title: "Urutan",
       dataIndex: "urutan",
       key: "urutan",
+    },
+    {
+      title: "Tampil",
+      dataIndex: "tampil",
+      key: "tampil",
+      render: (text) => (
+        <Tag color={text ? "green" : "red"}>{text ? "Show" : "Hide"}</Tag>
+      ),
+    },
+    {
+      title: "Kolom XLS",
+      dataIndex: "kolom_xls",
+      key: "kolom_xls",
     },
     {
       title: "Aksi",

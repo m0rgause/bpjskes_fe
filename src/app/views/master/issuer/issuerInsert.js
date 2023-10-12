@@ -123,6 +123,18 @@ export function IssuerInsert() {
             <Input />
           </Form.Item>
           <Form.Item
+            label="PD"
+            name="pd"
+            rules={[
+              {
+                required: true,
+                message: "PD harus diisi",
+              },
+            ]}
+          >
+            <Input type="number" min="0" max="999" />
+          </Form.Item>
+          <Form.Item
             label="LGD"
             name="lgd"
             rules={[
@@ -145,6 +157,19 @@ export function IssuerInsert() {
             ]}
           >
             <Input type="number" min="0" max="999" />
+          </Form.Item>
+          {/* add color picker output hex */}
+          <Form.Item
+            label="Warna"
+            name="warna"
+            rules={[
+              {
+                required: true,
+                message: "Warna harus diisi",
+              },
+            ]}
+          >
+            <Input type="color" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

@@ -109,6 +109,33 @@ export function TWRRCOAInsert() {
           >
             <Input type="number" min="0" max="999" />
           </Form.Item>
+          <Form.Item
+            label="Tampil"
+            name="tampil"
+            rules={[
+              {
+                required: true,
+                message: "Tampil harus diisi",
+              },
+            ]}
+          >
+            <Select placeholder="Pilih Tampil">
+              <Option value={true}>Show</Option>
+              <Option value={false}>Hide</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Kolom XLS"
+            name="kolom_xls"
+            rules={[
+              {
+                required: true,
+                message: "Kolom XLS harus diisi",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Simpan

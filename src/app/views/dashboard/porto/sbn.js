@@ -131,7 +131,7 @@ export function SBNPorto() {
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
     color: () => {
-      return "#3AA0FF";
+      return "#4ECB73";
     },
     columnStyle: {
       radius: [10, 10, 0, 0],

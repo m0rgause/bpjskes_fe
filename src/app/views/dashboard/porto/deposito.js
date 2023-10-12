@@ -145,7 +145,7 @@ export function DepositoPorto() {
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
     color: () => {
-      return "#3AA0FF";
+      return "#FAD337";
     },
     columnStyle: {
       radius: [10, 10, 0, 0],

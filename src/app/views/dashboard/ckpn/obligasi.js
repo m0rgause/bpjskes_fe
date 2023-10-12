@@ -201,7 +201,7 @@ export function ObligasiCKPN() {
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
     color: () => {
-      return "#FAD337";
+      return "#3AA0FF";
     },
     columnStyle: {
       radius: [10, 10, 0, 0],

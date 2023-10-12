@@ -217,7 +217,7 @@ export function ExternalCash() {
           <Card
             className="mb-1"
             style={{
-              minHeight: "175px",
+              minHeight: "115px",
             }}
           >
             <Row gutter={[8, 8]}>
@@ -225,22 +225,24 @@ export function ExternalCash() {
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
-                <DatePicker
-                  defaultValue={filterStartDate}
-                  onChange={(date) => setfilterStartDate(date)}
-                />{" "}
-                -{" "}
-                <DatePicker
-                  defaultValue={filterEndDate}
-                  onChange={(date) => setfilterEndDate(date)}
-                />
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <DatePicker
+                    defaultValue={filterStartDate}
+                    onChange={(date) => setfilterStartDate(date)}
+                  />{" "}
+                  -{" "}
+                  <DatePicker
+                    defaultValue={filterEndDate}
+                    onChange={(date) => setfilterEndDate(date)}
+                  />
+                </div>
               </Col>
               <Col span={isMobile ? 24 : 2}></Col>
-              <Col span={22}>
+              <Col span={isMobile ? 24 : 22}>
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
-                  style={{ maxWidth: "300px", width: "100%" }}
+                  style={{ maxWidth: "300px", width: "100%", marginLeft: 10 }}
                   onClick={onFilter}
                 >
                   Filter
@@ -251,13 +253,20 @@ export function ExternalCash() {
         </Col>
         <Col span={isMobile ? 24 : 6}>
           <Card
-            style={{ minHeight: "175px" }}
+            style={{ minHeight: "115px" }}
             className={isMobile ? "mb-1" : ""}
           >
             <Typography.Title level={5} className="page-header">
               Total Return Akumulasi
             </Typography.Title>
-            <Typography.Title level={3} className="page-header">
+            <Typography.Title
+              level={3}
+              className="page-header"
+              style={{
+                marginTop: "0",
+                marginBottom: "0",
+              }}
+            >
               {totalAkumulasi} %
             </Typography.Title>
           </Card>

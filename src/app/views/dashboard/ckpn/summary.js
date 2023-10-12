@@ -57,7 +57,6 @@ export function SummaryCKPN() {
       range: filterStartDate.diff(filterEndDate, "month"),
       issuer: filterBank,
     };
-
     try {
       setLoading(true);
       let {
@@ -72,6 +71,7 @@ export function SummaryCKPN() {
           key: index,
           bank: element.nama,
           return: Number(element.sum),
+          warna: element.warna,
         });
       });
       const totalECL = dataChart.reduce(
@@ -117,16 +117,13 @@ export function SummaryCKPN() {
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
     color: ({ bank }) => {
-      let list_color = [
-        "#4ECB73",
-        "#3AA0FF",
-        "#5A6ACF",
-        "#8C8C8C",
-        "#A6ABC9",
-        "#FFB649",
-      ];
-      let random = Math.floor(Math.random() * list_color.length);
-      return list_color[random];
+      let color = "#4ECB73";
+      dataChart.forEach((element) => {
+        if (element.bank === bank) {
+          color = element.warna;
+        }
+      });
+      return color;
     },
     columnStyle: {
       radius: [10, 10, 0, 0],

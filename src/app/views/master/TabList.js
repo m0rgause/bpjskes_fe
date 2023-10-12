@@ -25,7 +25,7 @@ export function TabList() {
   const TabList = [
     {
       key: "bank",
-      tab: "Bank",
+      tab: "Issuer",
     },
     {
       key: "rating",

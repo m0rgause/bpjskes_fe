@@ -79,12 +79,19 @@ import { Notification } from "../views/dashboard/notification";
 import { ListUpload } from "../views/upload/porto/listUpload";
 import { DetailUpload } from "../views/upload/porto/detailUpload";
 
+// Upload TWRR
+import { ListUploadTWRR } from "../views/upload/twrr/listUpload";
+import { DetailUploadTWRR } from "../views/upload/twrr/detailUpload";
+
 export function AppRoute() {
   return (
     <Routes>
       <Route path="/notification" Component={Notification} />
       <Route path="/upload/porto" Component={ListUpload} />
       <Route path="/upload/porto/:id" Component={DetailUpload} />
+
+      <Route path="/upload/twrr" Component={ListUploadTWRR} />
+      <Route path="/upload/twrr/:id" Component={DetailUploadTWRR} />
 
       <Route path="/twrr/external_cash" Component={ExternalCash} />
       <Route path="/twrr/comparison" Component={ComparisonTWRR} />

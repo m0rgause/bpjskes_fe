@@ -69,7 +69,7 @@ export function IssuerInsert() {
           icon={<ArrowLeftOutlined />}
           onClick={() => history(-1)}
         />
-        Tambah Bank
+        Tambah Issuer
       </Typography.Title>
       <Card>
         <Form form={form} layout="vertical" onFinish={onFinish}>
@@ -123,7 +123,7 @@ export function IssuerInsert() {
             <Input />
           </Form.Item>
           <Form.Item
-            label="PD"
+            label="PD (%)"
             name="pd"
             rules={[
               {
@@ -132,10 +132,10 @@ export function IssuerInsert() {
               },
             ]}
           >
-            <Input type="number" min="0" max="999" />
+            <Input type="number" />
           </Form.Item>
           <Form.Item
-            label="LGD"
+            label="LGD (%)"
             name="lgd"
             rules={[
               {
@@ -169,7 +169,18 @@ export function IssuerInsert() {
               },
             ]}
           >
-            <Input type="color" />
+            <Input
+              type="color"
+              style={{
+                width: "50px",
+                height: "50px",
+                borderRadius: "50%",
+                border: "none",
+                padding: "0px",
+                margin: "0px",
+                outline: "none",
+              }}
+            />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

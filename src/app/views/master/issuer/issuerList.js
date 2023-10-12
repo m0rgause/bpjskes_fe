@@ -67,12 +67,12 @@ export function IssuerList() {
       key: "nama",
     },
     {
-      title: "PD",
+      title: "PD (%)",
       dataIndex: "pd",
       key: "pd",
     },
     {
-      title: "LGD",
+      title: "LGD (%)",
       dataIndex: "lgd",
       key: "lgd",
     },

@@ -148,11 +148,17 @@ export function DetailCKPN() {
       title: "Issued Date",
       dataIndex: "start_date",
       key: "start_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Maturity Date",
       dataIndex: "end_date",
       key: "end_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Nominal",
@@ -165,6 +171,9 @@ export function DetailCKPN() {
       title: "Term of Interest",
       dataIndex: "interest_date",
       key: "interest_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Sisa Tenor",
@@ -175,14 +184,22 @@ export function DetailCKPN() {
       title: "Rate (%)",
       dataIndex: "rate",
       key: "rate",
+      render: (text) => {
+        // bulatkan ke 2 angka dibelakang koma
+        return Number(text).toFixed(2);
+      },
     },
     {
       title: "PD",
       dataIndex: "pd",
       key: "pd",
+      render: (text) => {
+        // bulatkan ke 2 angka dibelakang koma
+        return Number(text).toFixed(2);
+      },
     },
     {
-      title: "LGD",
+      title: "LGD (%)",
       dataIndex: "lgd",
       key: "lgd",
     },
@@ -215,9 +232,9 @@ export function DetailCKPN() {
         Nominal: Number(element.nominal).toLocaleString("id-ID"),
         "Term of Interest": element.interest_date,
         "Sisa Tenor": element.sisa_tenor,
-        "Rate (%)": element.rate,
-        PD: element.pd,
-        LGD: element.lgd,
+        "Rate (%)": element.rate.toFixed(2),
+        PD: element.pd.toFixed(2),
+        "LGD (%)": element.lgd,
         ECL: Number(element.ecl).toLocaleString("id-ID"),
       };
     });
@@ -238,7 +255,7 @@ export function DetailCKPN() {
       "Sisa Tenor": "",
       "Rate (%)": "",
       PD: "",
-      LGD: "",
+      "LGD (%)": "",
       ECL: Number(totalECL).toLocaleString("id-ID"),
     });
 
@@ -303,6 +320,10 @@ export function DetailCKPN() {
         <Table
           columns={columns}
           dataSource={data}
+          pagination={{
+            showSizeChanger: false,
+            hideOnSinglePage: true,
+          }}
           scroll={{ x: 2000 }}
           summary={() => {
             return (

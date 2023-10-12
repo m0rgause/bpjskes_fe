@@ -164,7 +164,7 @@ export function AppLayout() {
                   marginRight: "10px",
                 }}
               >
-                DASHBOARD MANAGEMENT SYSTEM
+                Dashboard Kustodi
               </Typography.Title>
             ) : null}
 

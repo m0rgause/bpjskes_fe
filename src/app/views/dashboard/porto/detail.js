@@ -138,7 +138,9 @@ export function DetailPorto() {
     label: {
       type: "inner",
       offset: "-50%",
-      content: "{value}",
+      content: function content(_ref) {
+        return `${_ref.presentase}`;
+      },
       style: {
         textAlign: "center",
         fontSize: 14,

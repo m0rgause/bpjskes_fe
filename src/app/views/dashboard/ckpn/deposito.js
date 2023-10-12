@@ -164,9 +164,9 @@ export function DepositoCKPN() {
         Nominal: item.nominal,
         "Term of Interest": item.interest_date,
         "Sisa Tenor": item.sisa_tenor,
-        "Rate (%)": item.rate,
-        PD: item.pd,
-        LGD: item.lgd,
+        "Rate (%)": item.rate.toFixed(2),
+        PD: item.pd.toFixed(2),
+        "LGD (%)": item.lgd,
         ECL: item.ecl,
       };
     });
@@ -186,7 +186,7 @@ export function DepositoCKPN() {
       "Sisa Tenor": "",
       "Rate (%)": "",
       PD: "",
-      LGD: "",
+      "LGD (%)": "",
       ECL: totalECL,
     });
 
@@ -259,11 +259,17 @@ export function DepositoCKPN() {
       title: "Issued Date",
       dataIndex: "start_date",
       key: "start_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Maturity Date",
       dataIndex: "end_date",
       key: "end_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Nominal",
@@ -275,6 +281,9 @@ export function DepositoCKPN() {
       title: "Term of Interest",
       dataIndex: "interest_date",
       key: "interest_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Sisa Tenor",
@@ -285,14 +294,22 @@ export function DepositoCKPN() {
       title: "Rate (%)",
       dataIndex: "rate",
       key: "rate",
+      render: (text) => {
+        // bulatkan ke 2 angka dibelakang koma
+        return Number(text).toFixed(2);
+      },
     },
     {
       title: "PD",
       dataIndex: "pd",
       key: "pd",
+      render: (text) => {
+        // bulatkan ke 2 angka dibelakang koma
+        return Number(text).toFixed(2);
+      },
     },
     {
-      title: "LGD",
+      title: "LGD (%)",
       dataIndex: "lgd",
       key: "lgd",
     },
@@ -382,6 +399,10 @@ export function DepositoCKPN() {
         <Table
           columns={columns}
           dataSource={dataSource}
+          pagination={{
+            showSizeChanger: false,
+            hideOnSinglePage: true,
+          }}
           className="mb-1"
           scroll={{ x: 2000 }}
           summary={() => {

@@ -207,11 +207,17 @@ export function ObligasiPorto() {
       title: "Issued Date ",
       dataIndex: "start_date",
       key: "start_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Maturity Date ",
       dataIndex: "end_date",
       key: "end_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Nominal",
@@ -226,6 +232,9 @@ export function ObligasiPorto() {
       title: "Term of Interest",
       dataIndex: "interest_date",
       key: "interest_date",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
     },
     {
       title: "Sisa Tenor",
@@ -236,6 +245,9 @@ export function ObligasiPorto() {
       title: "Rate (%)",
       dataIndex: "rate",
       key: "rate",
+      render: (text) => {
+        return text.toFixed(2);
+      },
     },
   ];
 
@@ -254,7 +266,7 @@ export function ObligasiPorto() {
         Nominal: item.nominal,
         "Term of Interest": item.interest_date,
         "Sisa Tenor": item.sisa_tenor,
-        "Rate (%)": item.rate,
+        "Rate (%)": item.rate.toFixed(2),
       };
     });
     newData.push({

@@ -104,8 +104,9 @@ export function SummaryPorto() {
       type: "inner",
       offset: "-50%",
       content: function content(_ref) {
-        return `${_ref.nominal.toLocaleString("id-ID")}`;
+        return `${_ref.presentase}`;
       },
+
       style: {
         textAlign: "center",
         fontSize: 14,

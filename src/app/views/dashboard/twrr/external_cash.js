@@ -59,7 +59,9 @@ export function ExternalCash() {
 
     setData(externalCash);
     setTotalAkumulasi(
-      externalCash.rows[externalCash.rows.length - 1]?.return_akumulasi ?? 0
+      (
+        externalCash.rows[externalCash.rows.length - 1]?.return_akumulasi ?? 0
+      ).toFixed(2)
     );
     setDataChart({
       data: transformData(externalCash),
@@ -165,8 +167,7 @@ export function ExternalCash() {
       dataIndex: "return_harian",
       key: "return_harian",
       render: (text) => {
-        // to percentage
-        return text + "%";
+        return text ? text.toFixed(2) + "%" : "0%";
       },
     },
   ];
@@ -195,8 +196,9 @@ export function ExternalCash() {
         "Total Sesudah External Cash": parseInt(
           item.total_after_cash
         ).toLocaleString("id-ID"),
-        "Return Harian": item.return_harian + "%",
-        "Total Return Akumulasi": item.return_akumulasi + "%",
+        "Return Harian": (item?.return_harian ?? 0).toFixed(2) + "%",
+        "Total Return Akumulasi":
+          (item?.return_akumulasi ?? 0).toFixed(2) + "%",
       };
     });
     const worksheet = XLXS.utils.json_to_sheet(data);
@@ -217,7 +219,7 @@ export function ExternalCash() {
           <Card
             className="mb-1"
             style={{
-              minHeight: "115px",
+              minHeight: "125px",
             }}
           >
             <Row gutter={[8, 8]}>
@@ -225,15 +227,26 @@ export function ExternalCash() {
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div>
                   <DatePicker
                     defaultValue={filterStartDate}
                     onChange={(date) => setfilterStartDate(date)}
-                  />{" "}
-                  -{" "}
+                    style={{
+                      marginRight: "5px",
+                      maxWidth: "150px",
+                      width: "100%",
+                      marginBottom: isMobile ? "5px" : "0",
+                    }}
+                  />
+                  {isMobile ? "" : "-"}
                   <DatePicker
                     defaultValue={filterEndDate}
                     onChange={(date) => setfilterEndDate(date)}
+                    style={{
+                      marginLeft: isMobile ? "0" : "5px",
+                      maxWidth: "150px",
+                      width: "100%",
+                    }}
                   />
                 </div>
               </Col>
@@ -242,7 +255,7 @@ export function ExternalCash() {
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
-                  style={{ maxWidth: "300px", width: "100%", marginLeft: 10 }}
+                  style={{ maxWidth: "150px", width: "100%" }}
                   onClick={onFilter}
                 >
                   Filter
@@ -253,7 +266,7 @@ export function ExternalCash() {
         </Col>
         <Col span={isMobile ? 24 : 6}>
           <Card
-            style={{ minHeight: "115px" }}
+            style={{ minHeight: "125px" }}
             className={isMobile ? "mb-1" : ""}
           >
             <Typography.Title level={5} className="page-header">

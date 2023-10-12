@@ -123,7 +123,6 @@ export function ComparisonTWRR() {
 
           let previousValue = record[previousDate] ?? 0;
           let currentValue = record[currentdate] ?? 0;
-          // console.log(record[previousDate], record[currentdate]);
           let diff = currentValue - previousValue;
           return (
             <div>
@@ -164,21 +163,21 @@ export function ComparisonTWRR() {
     if (type === "daily") {
       dataSource[0][item.tanggal] = item.total_before_cash ?? 0;
       dataSource[1][item.tanggal] = item.total_after_cash ?? 0;
-      dataSource[2][item.tanggal] = item.return_harian ?? 0;
+      dataSource[2][item.tanggal] = (item?.return_harian).toFixed(2) ?? 0;
     } else if (type === "monthly") {
       dataSource[0][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
         item.total_before_cash ?? 0;
       dataSource[1][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
         item.total_after_cash ?? 0;
       dataSource[2][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
-        item.return_harian ?? 0;
+        (item?.return_harian).toFixed(2) ?? 0;
     } else if (type === "yearly") {
       dataSource[0][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
         item.total_before_cash ?? 0;
       dataSource[1][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
         item.total_after_cash ?? 0;
       dataSource[2][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
-        item.return_harian ?? 0;
+        (item?.return_harian).toFixed(2) ?? 0;
     }
   });
 

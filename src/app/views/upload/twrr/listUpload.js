@@ -16,7 +16,7 @@ import QueryString from "qs";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
-export function ListUpload() {
+export function ListUploadTWRR() {
   const history = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState([]);
@@ -29,7 +29,7 @@ export function ListUpload() {
     setLoading(true);
     const {
       data: { data: res },
-    } = await post("/porto/file");
+    } = await post("/twrr/file");
 
     const data = res.map((item, index) => {
       return {
@@ -82,7 +82,7 @@ export function ListUpload() {
             type="primary"
             size="small"
             onClick={() => {
-              history(`/upload/porto/${record.id}`);
+              history(`/upload/twrr/${record.id}`);
             }}
           >
             Detail
@@ -97,7 +97,6 @@ export function ListUpload() {
     const { file } = info;
     const reader = new FileReader();
     reader.onload = async (e) => {
-      setLoading(true);
       const data = e.target.result;
       const workbook = XLSX.read(data, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
@@ -110,7 +109,7 @@ export function ListUpload() {
         QueryString.stringify({ data: json, fileName: file.name })
       )
         .then(({ data: { data } }) => {
-          setLoading(false);
+          // navigate to detail page
           notification.success({
             message: "Success",
             description: "Upload Success",
@@ -118,7 +117,6 @@ export function ListUpload() {
           history(`/upload/porto/${data.trx_porto_file_id}`);
         })
         .catch((err) => {
-          setLoading(false);
           notification.error({
             message: "Error",
             description: "Upload Failed",

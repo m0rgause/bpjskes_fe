@@ -55,7 +55,10 @@ export function DetailTWRR() {
   };
 
   let total_return_akumulasi =
-    data?.data?.rows[data?.data?.rows?.length - 1]?.return_akumulasi ?? 0;
+    Math.round(
+      (data?.data?.rows[data?.data?.rows?.length - 1]?.return_akumulasi ?? 0) *
+        100
+    ) / 10 ?? 0;
 
   let assets =
     data.dataCol?.rows?.filter((item) => item.tipe === "assets") || [];
@@ -72,6 +75,7 @@ export function DetailTWRR() {
           title: "Date",
           dataIndex: "tanggal",
           key: "tanggal",
+          render: (text) => dayjs(text).format("DD MMM YYYY"),
         },
         ...assets?.map((item) => {
           return {
@@ -118,11 +122,17 @@ export function DetailTWRR() {
       title: "Return Harian (%)",
       dataIndex: "return_harian",
       key: "return_harian",
+      render: (text) => {
+        return text.toFixed(2) + "%";
+      },
     },
     {
       title: "Return Akumulasi (%)",
       dataIndex: "return_akumulasi",
       key: "return_akumulasi",
+      render: (text) => {
+        return text.toFixed(2) + "%";
+      },
     },
   ];
 
@@ -181,7 +191,7 @@ export function DetailTWRR() {
           <Card
             className="mb-1"
             style={{
-              minHeight: "115px",
+              minHeight: "125px",
             }}
           >
             <Row gutter={[8, 8]}>
@@ -189,15 +199,26 @@ export function DetailTWRR() {
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div>
                   <DatePicker
                     defaultValue={filterStartDate}
                     onChange={(date) => setfilterStartDate(date)}
-                  />{" "}
-                  -{" "}
+                    style={{
+                      marginRight: "5px",
+                      maxWidth: "150px",
+                      width: "100%",
+                      marginBottom: isMobile ? "5px" : "0",
+                    }}
+                  />
+                  {isMobile ? "" : "-"}
                   <DatePicker
                     defaultValue={filterEndDate}
                     onChange={(date) => setfilterEndDate(date)}
+                    style={{
+                      marginLeft: isMobile ? "0" : "5px",
+                      maxWidth: "150px",
+                      width: "100%",
+                    }}
                   />
                 </div>
               </Col>
@@ -206,7 +227,7 @@ export function DetailTWRR() {
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
-                  style={{ maxWidth: "300px", width: "100%", marginLeft: 10 }}
+                  style={{ maxWidth: "150px", width: "100%" }}
                   onClick={onFilter}
                 >
                   Filter
@@ -217,7 +238,7 @@ export function DetailTWRR() {
         </Col>
         <Col span={isMobile ? 24 : 6}>
           <Card
-            style={{ minHeight: "120px" }}
+            style={{ minHeight: "125px" }}
             className={isMobile ? "mb-1" : ""}
           >
             <Typography.Title level={5} className="page-header">

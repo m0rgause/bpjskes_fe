@@ -317,6 +317,7 @@ export function ComparisonCKPN() {
           pagination={{
             hideOnSinglePage: true,
           }}
+          bordered
           className="mb-2"
           scroll={{ x: 500 }}
         />

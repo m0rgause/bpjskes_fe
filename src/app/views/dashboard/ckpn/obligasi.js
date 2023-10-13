@@ -313,7 +313,7 @@ export function ObligasiCKPN() {
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
-        Deposito
+        Obligasi
       </Typography.Title>
       <Card className="mb-1" style={{ minHeight: "175px" }}>
         <Row gutter={[8, 8]}>
@@ -369,7 +369,6 @@ export function ObligasiCKPN() {
             </Button>
           </Col>
         </Row>
-        ``
       </Card>
       <Card className="mb-1">
         <Column {...config} />
@@ -382,6 +381,7 @@ export function ObligasiCKPN() {
             showSizeChanger: false,
             hideOnSinglePage: true,
           }}
+          bordered
           className="mb-1"
           scroll={{ x: 2000 }}
           summary={() => {

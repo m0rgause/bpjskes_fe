@@ -403,6 +403,7 @@ export function DepositoCKPN() {
             showSizeChanger: false,
             hideOnSinglePage: true,
           }}
+          bordered
           className="mb-1"
           scroll={{ x: 2000 }}
           summary={() => {

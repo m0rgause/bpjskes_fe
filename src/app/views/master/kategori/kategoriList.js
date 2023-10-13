@@ -105,16 +105,16 @@ export function KategoriList() {
           }}
         />
       </div>
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={data.rows}
-          onChange={onTableChange}
-          pagination={{
-            total: data.count,
-          }}
-        />
-      </Card>
+
+      <Table
+        columns={columns}
+        dataSource={data.rows}
+        onChange={onTableChange}
+        bordered
+        pagination={{
+          total: data.count,
+        }}
+      />
     </Spin>
   );
 }

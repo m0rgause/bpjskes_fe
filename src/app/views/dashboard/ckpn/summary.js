@@ -230,6 +230,7 @@ export function SummaryCKPN() {
           columns={columns}
           dataSource={dataSource}
           className="mb-1"
+          bordered
           summary={() => {
             return (
               <>

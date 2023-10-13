@@ -143,3 +143,10 @@ canvas:hover {
     width: 100% !important;
     max-width: 250px !important;
 }
+
+/* change table header bg color*/
+th.ant-table-cell {
+    /* background-color: #3AA0FF !important; */
+    /* to rgba */
+    background-color: rgba(58, 160, 255, 0.5) !important;
+}

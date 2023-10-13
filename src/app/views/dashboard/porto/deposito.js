@@ -401,6 +401,7 @@ export function DepositoPorto() {
             pageSize: 10,
             showSizeChanger: false,
           }}
+          bordered
           scroll={{ x: 2000 }}
           summary={() => {
             return (

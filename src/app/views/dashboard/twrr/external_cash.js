@@ -289,7 +289,12 @@ export function ExternalCash() {
         <DualAxes {...config} />
       </Card>
       <Card className="mb-1">
-        <Table columns={columns} dataSource={data.rows} scroll={{ x: 500 }} />
+        <Table
+          bordered
+          columns={columns}
+          dataSource={data.rows}
+          scroll={{ x: 500 }}
+        />
         <Button
           type="primary"
           style={{

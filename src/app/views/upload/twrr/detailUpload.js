@@ -11,9 +11,11 @@ export function DetailUploadTWRR() {
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState([]);
   const [file, setFile] = React.useState({});
+  const [twrrCoa, setTwrrCoa] = React.useState([]);
 
   React.useEffect(() => {
     getData();
+    getTwrrCoa();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -26,143 +28,103 @@ export function DetailUploadTWRR() {
     } = await post("/twrr/file/detail", {
       id: params.id,
     });
-    console.log(file);
-    data = data.map((item, index) => {
-      return {
-        key: index,
-        unique_id: item.unique_id,
-        issuer: item.mst_issuer?.nama ?? "",
-        kbmi: item.mst_kbmi?.nama ?? "",
-        pengelolaan: item.mst_pengelolaan?.nama ?? "",
-        tenor: item.mst_tenor?.nama ?? "",
-        kepemilikan: item.mst_kepemilikan?.nama ?? "",
-        no_security: item.no_security,
-        tipe: item.tipe,
-        start_date: item.start_date,
-        end_date: item.end_date,
-        nominal: item.nominal,
-        interest_date: item.interest_date,
-        sisa_tenor: item.sisa_tenor,
-        rate: item.rate,
-        pd: item.pd,
-        lgd: item.lgd,
-        ecl: item.ecl,
-        status: item.status,
-        note: item.note,
-      };
-    });
     setData(data);
     setFile(file);
     setLoading(false);
   };
 
+  const getTwrrCoa = async () => {
+    setLoading(true);
+    let {
+      data: { data },
+    } = await post("/twrr/list-kolom");
+
+    setTwrrCoa(data);
+    setLoading(false);
+  };
+
+  let assets = twrrCoa.rows?.filter((item) => item.tipe === "assets") || [];
+  let liabilities =
+    twrrCoa.rows?.filter((item) => item.tipe === "liabilities") || [];
+
   const columns = [
     {
-      title: "Unique ID",
-      dataIndex: "unique_id",
-      key: "unique_id",
+      title: "Aset",
+      dataIndex: "aset",
+      key: "aset",
+      children: [
+        {
+          title: "Date",
+          dataIndex: "tanggal",
+          key: "tanggal",
+          render: (text) => dayjs(text).format("DD MMM YYYY"),
+        },
+        ...assets?.map((item) => {
+          return {
+            title: item.label,
+            dataIndex: item.kolom,
+            key: item.kolom,
+            align: "right",
+            render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
+          };
+        }),
+      ],
     },
     {
-      title: "Issuer",
-      dataIndex: "issuer",
-      key: "issuer",
+      title: "Liabilities",
+      dataIndex: "liabilities",
+      key: "liabilities",
+      children: [
+        ...liabilities?.map((item) => {
+          return {
+            title: item.label,
+            dataIndex: item.kolom,
+            key: item.kolom,
+            align: "right",
+            render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
+          };
+        }),
+      ],
     },
     {
-      title: "KBMI",
-      dataIndex: "kbmi",
-      key: "kbmi",
+      title: "Total Sebelum External Cash",
+      dataIndex: "total_before_cash",
+      key: "total_before_cash",
+      align: "right",
+      render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
     },
     {
-      title: "Pengelolaan",
-      dataIndex: "pengelolaan",
-      key: "pengelolaan",
+      title: "Total Sesudah External Cash",
+      dataIndex: "total_after_cash",
+      key: "total_after_cash",
+      align: "right",
+      render: (text) => (text ? Number(text).toLocaleString("id-ID") : 0),
     },
     {
-      title: "Tenor",
-      dataIndex: "tenor",
-      key: "tenor",
-    },
-    {
-      title: "Kepemilikan",
-      dataIndex: "kepemilikan",
-      key: "kepemilikan",
-    },
-    {
-      title: "No Security",
-      dataIndex: "no_security",
-      key: "no_security",
-    },
-    {
-      title: "Tipe",
-      dataIndex: "tipe",
-      key: "tipe",
-    },
-    {
-      title: "Issued Date",
-      dataIndex: "start_date",
-      key: "start_date",
+      title: "Return Harian (%)",
+      dataIndex: "return_harian",
+      key: "return_harian",
       render: (text) => {
-        return dayjs(text).format("DD MMM YYYY");
+        return text?.toFixed(2) + "%";
       },
     },
     {
-      title: "Maturity Date",
-      dataIndex: "end_date",
-      key: "end_date",
+      title: "Return Akumulasi (%)",
+      dataIndex: "return_akumulasi",
+      key: "return_akumulasi",
       render: (text) => {
-        return dayjs(text).format("DD MMM YYYY");
+        return text?.toFixed(2) + "%";
       },
     },
     {
-      title: "Nominal",
-      dataIndex: "nominal",
-      key: "nominal",
-      render: (text) => {
-        return <span>{text?.toLocaleString("id-ID") ?? 0}</span>;
-      },
-    },
-    {
-      title: "Interest Date",
-      dataIndex: "interest_date",
-      key: "interest_date",
-      render: (text) => {
-        return dayjs(text).format("DD MMM YYYY");
-      },
-    },
-    {
-      title: "Sisa Tenor",
-      dataIndex: "sisa_tenor",
-      key: "sisa_tenor",
-    },
-    {
-      title: "Rate (%)",
-      dataIndex: "rate",
-      key: "rate",
-    },
-    {
-      title: "PD",
-      dataIndex: "pd",
-      key: "pd",
-    },
-    {
-      title: "LGD",
-      dataIndex: "lgd",
-      key: "lgd",
-    },
-    {
-      title: "ECL",
-      dataIndex: "ecl",
-      key: "ecl",
-    },
-    {
-      title: "Status",
+      title: "status",
       dataIndex: "status",
       key: "status",
       render: (text) => {
-        return (
-          <Tag color={text ? "green" : "red"}>
-            {text ? "Success" : "Failed"}
-          </Tag>
+        return text ? (
+          <Tag color="green">Success</Tag>
+        ) : (
+          <Tag color="red">Failed</Tag>
         );
       },
     },
@@ -172,6 +134,12 @@ export function DetailUploadTWRR() {
       key: "note",
     },
   ];
+
+  const dataSource = [];
+  data?.forEach((item, index) => {
+    item.key = index;
+    dataSource.push(item);
+  });
 
   return (
     <Spin spinning={loading}>
@@ -211,11 +179,12 @@ export function DetailUploadTWRR() {
       <Card>
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={dataSource}
           pagination={{
             hideOnSinglePage: true,
           }}
-          scroll={{ x: 2500 }}
+          scroll={{ x: 3000 }}
+          bordered
         />
       </Card>
     </Spin>

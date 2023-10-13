@@ -99,7 +99,7 @@ export function SignIn() {
             <Button
               type="link"
               htmlType="button"
-              onClick={() => history.push("/auth/forgotpass")}
+              onClick={() => history("/auth/forgotpass")}
               style={{ width: "100%" }}
             >
               Forgot Password

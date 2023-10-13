@@ -105,8 +105,8 @@ export function ListUploadTWRR() {
 
       // send to backend
       await put(
-        "/porto/upload",
-        QueryString.stringify({ data: json, fileName: file.name })
+        "/twrr/upload",
+        QueryString.stringify({ data: sheet, fileName: file.name })
       )
         .then(({ data: { data } }) => {
           // navigate to detail page
@@ -114,7 +114,7 @@ export function ListUploadTWRR() {
             message: "Success",
             description: "Upload Success",
           });
-          history(`/upload/porto/${data.trx_porto_file_id}`);
+          history(`/upload/twrr/${data.trx_twrr_file_id}`);
         })
         .catch((err) => {
           notification.error({

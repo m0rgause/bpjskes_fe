@@ -130,6 +130,7 @@ export function GroupList() {
           dataSource={data}
           loading={isLoading}
           onChange={onTableChange}
+          bordered
           pagination={{
             total: dataTotal,
             showSizeChanger: false,

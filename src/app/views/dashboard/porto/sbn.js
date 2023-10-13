@@ -351,6 +351,7 @@ export function SBNPorto() {
             pageSize: 10,
             showSizeChanger: false,
           }}
+          bordered
           scroll={{ x: 2000 }}
           summary={() => {
             return (

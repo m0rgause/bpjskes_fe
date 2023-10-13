@@ -134,6 +134,7 @@ export function IssuerList() {
         columns={columns}
         dataSource={data.rows}
         onChange={onTableChange}
+        bordered
         pagination={{
           total: data.count,
         }}

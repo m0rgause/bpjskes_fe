@@ -329,6 +329,7 @@ export function ComparisonPorto() {
           pagination={{
             hideOnSinglePage: true,
           }}
+          bordered
           className="mb-2"
           scroll={{ x: 500 }}
         />

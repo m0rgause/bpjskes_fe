@@ -105,16 +105,17 @@ export function TenorList() {
           }}
         />
       </div>
-      <Card>
+      <>
         <Table
           columns={columns}
           dataSource={data.rows}
           onChange={onTableChange}
+          bordered
           pagination={{
             total: data.count,
           }}
         />
-      </Card>
+      </>
     </Spin>
   );
 }

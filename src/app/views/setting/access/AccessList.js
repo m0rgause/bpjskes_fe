@@ -117,6 +117,7 @@ export function AccessList() {
         <Table
           columns={columns}
           dataSource={data}
+          bordered
           loading={isLoading}
           pagination={{
             total: dataTotal,

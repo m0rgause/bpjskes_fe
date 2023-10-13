@@ -130,6 +130,7 @@ export function TWRRCOAList() {
           columns={columns}
           dataSource={data.rows}
           onChange={onTableChange}
+          bordered
           pagination={{
             total: data.count,
           }}

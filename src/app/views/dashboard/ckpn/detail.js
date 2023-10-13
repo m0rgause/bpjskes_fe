@@ -324,6 +324,7 @@ export function DetailCKPN() {
             showSizeChanger: false,
             hideOnSinglePage: true,
           }}
+          bordered
           scroll={{ x: 2000 }}
           summary={() => {
             return (

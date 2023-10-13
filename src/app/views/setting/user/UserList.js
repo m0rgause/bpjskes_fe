@@ -138,6 +138,7 @@ export function UserList() {
           dataSource={data}
           loading={isLoading}
           onChange={onTableChange}
+          bordered
           pagination={{
             total: dataTotal,
             showSizeChanger: false,

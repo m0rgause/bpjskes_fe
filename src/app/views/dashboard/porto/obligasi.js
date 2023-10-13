@@ -394,6 +394,7 @@ export function ObligasiPorto() {
       <Card className="mb-1">
         <Table
           dataSource={data}
+          bordered
           columns={column}
           pagination={{
             pageSize: 10,

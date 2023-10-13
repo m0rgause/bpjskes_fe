@@ -289,6 +289,7 @@ export function ComparisonTWRR() {
       </Card>
       <Card>
         <Table
+          bordered
           columns={columns}
           dataSource={dataSource}
           pagination={{

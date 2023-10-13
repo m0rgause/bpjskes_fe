@@ -186,25 +186,27 @@ export function DetailUpload() {
       </Typography.Title>
       <Card className="mb-1">
         <table className="table">
-          <tr>
-            <td style={{ width: "100px" }}>File Name</td>
-            <td style={{ textAlign: "center" }}>:</td>
-            <td>{file.file_name}</td>
-          </tr>
-          <tr>
-            <td>Status</td>
-            <td style={{ textAlign: "center" }}>:</td>
-            <td>
-              <Tag color={file.status ? "green" : "red"}>
-                {file.status ? "Success" : "Failed"}
-              </Tag>
-            </td>
-          </tr>
-          <tr>
-            <td>Upload Time</td>
-            <td style={{ textAlign: "center" }}>:</td>
-            <td>{dayjs(file.created_at).format("DD MMM YYYY HH:mm:ss")}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <td style={{ width: "100px" }}>File Name</td>
+              <td style={{ textAlign: "center" }}>:</td>
+              <td>{file.file_name}</td>
+            </tr>
+            <tr>
+              <td>Status</td>
+              <td style={{ textAlign: "center" }}>:</td>
+              <td>
+                <Tag color={file.status ? "green" : "red"}>
+                  {file.status ? "Success" : "Failed"}
+                </Tag>
+              </td>
+            </tr>
+            <tr>
+              <td>Upload Time</td>
+              <td style={{ textAlign: "center" }}>:</td>
+              <td>{dayjs(file.created_at).format("DD MMM YYYY HH:mm:ss")}</td>
+            </tr>
+          </tbody>
         </table>
       </Card>
 

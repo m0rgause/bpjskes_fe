@@ -83,6 +83,10 @@ import { DetailUpload } from "../views/upload/porto/detailUpload";
 import { ListUploadTWRR } from "../views/upload/twrr/listUpload";
 import { DetailUploadTWRR } from "../views/upload/twrr/detailUpload";
 
+// Custody
+import { CustodyInsert } from "../views/master/custody/insertCustody";
+import { CustodyUpdate } from "../views/master/custody/updateCustody";
+
 export function AppRoute() {
   return (
     <Routes>
@@ -119,6 +123,9 @@ export function AppRoute() {
 
       <Route path="/setting/kategori/insert" Component={KategoriInsert} />
       <Route path="/setting/kategori/:id" Component={KategoriUpdate} />
+
+      <Route path="/setting/custody/insert" Component={CustodyInsert} />
+      <Route path="/setting/custody/:id" Component={CustodyUpdate} />
 
       <Route path="/setting/kepemilikan/insert" Component={KepemilikanInsert} />
       <Route path="/setting/kepemilikan/:id" Component={KepemilikanUpdate} />

@@ -22,17 +22,32 @@ export function DetailCKPN() {
   const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
   const [filterIssuer, setFilterIssuer] = React.useState("all");
+  const [filterCustody, setFilterCustody] = React.useState("all");
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
   const [data, setData] = React.useState([]); // for table
   const [totalECL, setTotalECL] = React.useState(0);
+  const [custody, setCustody] = React.useState([]); // for filter
 
   const isMobile = window.innerWidth <= 768;
 
   React.useEffect(() => {
     getIssuer();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
+
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
 
   const onFilter = () => {
     if (filterStartDate.isAfter(filterEndDate)) {
@@ -52,6 +67,7 @@ export function DetailCKPN() {
       end: filterEndDate.format("YYYY-MM-DD"),
       range: filterStartDate.diff(filterEndDate, "month"),
       issuer: filterIssuer,
+      custody: filterCustody,
     };
 
     const {
@@ -64,6 +80,7 @@ export function DetailCKPN() {
         key: index,
         tipe: element.tipe,
         unique_id: element.unique_id,
+        custody_name: element.custody_name,
         issuer_name: element.issuer_name,
         kbmi_name: element.kbmi_name,
         tenor_name: element.tenor_name,
@@ -113,6 +130,11 @@ export function DetailCKPN() {
       title: "Unique ID",
       dataIndex: "unique_id",
       key: "unique_id",
+    },
+    {
+      title: "Bank Custody",
+      dataIndex: "custody_name",
+      key: "custody",
     },
     {
       title: "Issuer",
@@ -221,6 +243,7 @@ export function DetailCKPN() {
       return {
         Tipe: element.tipe,
         "Unique ID": element.unique_id,
+        "Bank Custody": element.custody_name,
         Issuer: element.issuer_name,
         KBMI: element.kbmi_name,
         Tenor: element.tenor_name,
@@ -242,6 +265,7 @@ export function DetailCKPN() {
     dataExport.push({
       Tipe: "Total",
       "Unique ID": "",
+      "Bank Custody": "",
       Issuer: "",
       KBMI: "",
       Tenor: "",
@@ -292,6 +316,17 @@ export function DetailCKPN() {
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setFilterCustody(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Issuer</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
@@ -329,7 +364,7 @@ export function DetailCKPN() {
           summary={() => {
             return (
               <Table.Summary.Row>
-                <Table.Summary.Cell colSpan={16}>
+                <Table.Summary.Cell colSpan={17}>
                   <strong>Total</strong>
                 </Table.Summary.Cell>
                 <Table.Summary.Cell colSpan={1}>

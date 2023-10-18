@@ -4,7 +4,7 @@ import { get } from "../../../functions/helper";
 import { PlusOutlined, SearchOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-export function TenorList() {
+export function CustodyList() {
   const history = useNavigate();
   const [data, setData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -31,7 +31,7 @@ export function TenorList() {
     const {
       data: { data },
     } = await get(
-      `master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=tenor`
+      `master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=bankCustody`
     );
     // add key to data
     data.rows = data.rows.map((item, index) => {
@@ -50,19 +50,9 @@ export function TenorList() {
 
   const columns = [
     {
-      title: "Kode",
-      dataIndex: "kode",
-      key: "kode",
-    },
-    {
       title: "Nama",
       dataIndex: "nama",
       key: "nama",
-    },
-    {
-      title: "Tipe",
-      dataIndex: "tipe",
-      key: "tipe",
     },
     {
       title: "Urutan",
@@ -77,7 +67,7 @@ export function TenorList() {
         <Button
           type="primary"
           icon={<EditOutlined />}
-          onClick={() => history(`/setting/tenor/${text}`)}
+          onClick={() => history(`/setting/custody/${text}`)}
         >
           Ubah
         </Button>
@@ -91,7 +81,7 @@ export function TenorList() {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => history("/setting/tenor/insert")}
+          onClick={() => history("/setting/custody/insert")}
           style={{ marginBottom: 10 }}
         >
           Tambah
@@ -109,17 +99,16 @@ export function TenorList() {
           }}
         />
       </div>
-      <>
-        <Table
-          columns={columns}
-          dataSource={data.rows}
-          onChange={onTableChange}
-          bordered
-          pagination={{
-            total: data.count,
-          }}
-        />
-      </>
+
+      <Table
+        columns={columns}
+        dataSource={data.rows}
+        onChange={onTableChange}
+        bordered
+        pagination={{
+          total: data.count,
+        }}
+      />
     </Spin>
   );
 }

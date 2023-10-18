@@ -34,7 +34,7 @@ export function DetailPorto() {
   const [data, setData] = React.useState([]); // for table
 
   const isMobile = window.innerWidth <= 768;
-  const [tab, setTab] = React.useState("kbmi");
+  const [tab, setTab] = React.useState("tenor");
   const history = useNavigate();
 
   React.useEffect(() => {
@@ -43,7 +43,7 @@ export function DetailPorto() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getData = async (key = "kbmi") => {
+  const getData = async (key = "tenor") => {
     setLoading(true);
     let eq = {
       start: filterStartDate.format("YYYY-MM"),
@@ -134,7 +134,7 @@ export function DetailPorto() {
     angleField: "nominal",
     colorField: "nama",
     radius: 1,
-    innerRadius: 0.6,
+    innerRadius: 0.4,
     label: {
       type: "inner",
       offset: "-50%",
@@ -145,6 +145,7 @@ export function DetailPorto() {
         textAlign: "center",
         fontSize: 14,
       },
+      autoRotate: false,
     },
     interactions: [
       {
@@ -156,26 +157,39 @@ export function DetailPorto() {
     ],
     // hide statistic
     statistic: false,
+    tooltip: {
+      formatter: (datum) => {
+        return {
+          name: datum.nama,
+          value: datum.nominal.toLocaleString("id-ID"),
+        };
+      },
+    },
   };
 
   const tabList = [
     {
-      key: "kbmi",
-      tab: "KBMI",
-    },
-    {
       key: "tenor",
       tab: "Tenor",
+    },
+    {
+      key: "pengelolaan",
+      tab: "Pengelolaan",
     },
     {
       key: "kepemilikan",
       tab: "Kepemilikan",
     },
     {
-      key: "pengelolaan",
-      tab: "Pengelolaan",
+      key: "kbmi",
+      tab: "KBMI",
     },
   ];
+  if (subtipe === "sbi" || subtipe === "sbn") {
+    // remove kbmi, kepemilikan
+    tabList.splice(3, 1);
+    tabList.splice(2, 1);
+  }
 
   const columns = [
     {
@@ -184,11 +198,11 @@ export function DetailPorto() {
       key: "nama",
     },
     {
-      title: "Nominal",
+      title: "Nominal (Jutaan)",
       dataIndex: "nominal",
       key: "nominal",
       align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      render: (text) => (text / 1000000).toLocaleString("id-ID"),
     },
     {
       title: "Presentase",
@@ -216,7 +230,8 @@ export function DetailPorto() {
                 <Table.Summary.Cell colSpan={1}>Total</Table.Summary.Cell>
                 <Table.Summary.Cell colSpan={1}>
                   <div style={{ textAlign: "right" }}>
-                    {data?.totalNominal?.toLocaleString("id-ID") ?? 0}
+                    {(data?.totalNominal / 1000000).toLocaleString("id-ID") ??
+                      0}
                   </div>
                 </Table.Summary.Cell>
               </Table.Summary.Row>

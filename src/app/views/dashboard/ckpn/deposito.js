@@ -6,53 +6,93 @@ import {
   Typography,
   Row,
   Col,
-  DatePicker,
   Button,
   Select,
   notification,
+  DatePicker,
+  Modal,
+  Radio,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
 import { post, get } from "../../../functions/helper";
-import QueryString from "qs";
 import * as XLSX from "xlsx";
 
 export function DepositoCKPN() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+
+  const [type, setType] = React.useState("monthly");
+  const [listDate, setListDate] = React.useState([]);
+  const [pickerDate, setPickerDate] = React.useState("month");
+
   const [filterBank, setfilterBank] = React.useState("all");
   const [filterKBMI, setfilterKBMI] = React.useState("all");
   const [filterTenor, setfilterTenor] = React.useState("all");
+  const [filterCustody, setfilterCustody] = React.useState("all");
 
   const [totalECL, setTotalECL] = React.useState(0);
   const [bank, setBank] = React.useState([]);
   const [data, setData] = React.useState([]);
   const [kbmi, setKBMI] = React.useState([]);
   const [tenor, setTenor] = React.useState([]);
+  const [custody, setCustody] = React.useState([]);
   const [dataChart, setDataChart] = React.useState([]);
   const [dataSource, setDataSource] = React.useState([]);
 
   React.useEffect(() => {
     getFilter();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
+
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
+
+  const onTypeChange = (e) => {
+    setListDate([]);
+
+    if (e.target.value === "monthly") {
+      setPickerDate("month");
+    } else if (e.target.value === "yearly") {
+      setPickerDate("year");
+    }
+  };
+
+  const onFilter = () => {
+    // sort date ascending
+    let list = [...listDate];
+    list.sort((a, b) => {
+      return dayjs(a).diff(dayjs(b));
+    });
+    setListDate(list);
+    getData();
+  };
 
   const getData = async () => {
     setLoading(true);
     let eq = {
-      start: filterStartDate.format("YYYY-MM-DD"),
-      end: filterEndDate.format("YYYY-MM-DD"),
-      range: filterStartDate.diff(filterEndDate, "month"),
+      type: type,
+      list_date: listDate,
+      custody: filterCustody,
       issuer: filterBank,
       kbmi: filterKBMI,
       tenor: filterTenor,
     };
 
     try {
-      const response = await post("/ckpn/deposito", QueryString.stringify(eq));
+      const response = await post("/ckpn/deposito", eq);
+      console.log(response);
+
       const data = response.data.data;
 
       const dataChart = data.data.map((item) => ({
@@ -63,6 +103,7 @@ export function DepositoCKPN() {
       const dataSource = data.table.map((item, index) => ({
         key: index,
         unique_id: item.unique_id,
+        nama_custody: item.nama_custody,
         nama_issuer: item.nama_issuer,
         nama_kbmi: item.nama_kbmi,
         nama_kepemilikan: item.nama_kepemilikan,
@@ -100,7 +141,7 @@ export function DepositoCKPN() {
       const [issuerResponse, kbmiResponse, tenorResponse] = await Promise.all([
         get("/issuer/select"),
         get("/master/select/kbmi"),
-        get("/master/select/tenor"),
+        get("/master/select/tenor?tipe=deposito"),
       ]);
 
       const issuerData = issuerResponse.data.data;
@@ -132,27 +173,38 @@ export function DepositoCKPN() {
       setLoading(false);
     }
   };
-
-  const onFilter = () => {
-    if (filterStartDate.isAfter(filterEndDate)) {
-      notification.error({
-        message: "Error",
-        description: "Period awal tidak boleh lebih besar dari period akhir",
-      });
-      return;
-    }
-    getData();
+  const onAddDate = () => {
+    Modal.info({
+      title: "Add Date",
+      content: (
+        <div>
+          <DatePicker
+            picker={pickerDate}
+            onChange={(date, dateString) => {
+              let list = [...listDate];
+              list.push(dateString);
+              setListDate(list);
+              Modal.destroyAll();
+            }}
+            style={{ width: "100%", maxWidth: "300px" }}
+          />
+        </div>
+      ),
+      // remove ok button
+      okButtonProps: { style: { display: "none" } },
+      // close modal when click outside
+      maskClosable: true,
+    });
   };
   const isMobile = window.innerWidth <= 768;
 
   const onExport = () => {
-    const fileName = `Deposito CKPN ${filterStartDate.format(
-      "YYYY-MM-DD"
-    )} - ${filterEndDate.format("YYYY-MM-DD")}.xlsx`;
+    const fileName = `Deposito CKPN .xlsx`;
 
     const dataExport = data.table.map((item) => {
       return {
         "Unique ID": item.unique_id,
+        "Bank Custody": item.nama_custody,
         Issuer: item.nama_issuer,
         KBMI: item.nama_kbmi,
         Tenor: item.nama_tenor,
@@ -173,6 +225,7 @@ export function DepositoCKPN() {
 
     dataExport.push({
       "Unique ID": "Total",
+      "Bank Custody": "",
       Issuer: "",
       KBMI: "",
       Tenor: "",
@@ -205,6 +258,21 @@ export function DepositoCKPN() {
         autoRotate: false,
       },
     },
+    yAxis: {
+      label: {
+        formatter: (v) => {
+          return Number(v).toLocaleString("id-ID");
+        },
+      },
+    },
+    tooltip: {
+      formatter: (datum) => {
+        return {
+          name: datum.tanggal,
+          value: Number(datum.return).toLocaleString("id-ID"),
+        };
+      },
+    },
     meta: {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
@@ -224,6 +292,11 @@ export function DepositoCKPN() {
       title: "Unique ID",
       dataIndex: "unique_id",
       key: "unique_id",
+    },
+    {
+      title: "Bank Custody",
+      dataIndex: "nama_custody",
+      key: "nama_custody",
     },
     {
       title: "Issuer",
@@ -329,21 +402,48 @@ export function DepositoCKPN() {
       <Card className="mb-1" style={{ minHeight: "175px" }}>
         <Row gutter={[8, 8]}>
           <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Type</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Radio.Group
+              defaultValue={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                onTypeChange(e);
+              }}
+            >
+              <Radio value="monthly">Monthly</Radio>
+              <Radio value="yearly">Yearly</Radio>
+            </Radio.Group>
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
-            <DatePicker
-              defaultValue={filterStartDate}
-              format={"MM-YYYY"}
-              picker="month"
-              onChange={(date) => setfilterStartDate(date)}
-            />{" "}
-            -{" "}
-            <DatePicker
-              defaultValue={filterEndDate}
-              format={"MM-YYYY"}
-              picker="month"
-              onChange={(date) => setfilterEndDate(date)}
+            <Select
+              mode="multiple"
+              placeholder="Select date"
+              style={{ width: "100%", maxWidth: "300px" }}
+              value={listDate}
+              onChange={(value) => {
+                setListDate(value);
+              }}
+              dropdownRender={() => null}
+              // when click on select, open modal
+              onClick={() => {
+                onAddDate();
+              }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setfilterCustody(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>
@@ -410,7 +510,7 @@ export function DepositoCKPN() {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={15}>
+                  <Table.Summary.Cell colSpan={16}>
                     <strong>Total</strong>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell colSpan={1}>

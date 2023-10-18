@@ -27,16 +27,30 @@ export function ComparisonPorto() {
   const [data, setData] = React.useState([]);
   const [type, setType] = React.useState("monthly");
   const [filterIssuer, setFilterIssuer] = React.useState("all");
+  const [filterCustody, setFilterCustody] = React.useState("all");
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
   const [listDate, setListDate] = React.useState([]);
   const [listDateFixed, setListDateFixed] = React.useState([]); // for table columns
   const [pickerDate, setPickerDate] = React.useState("month");
+  const [custody, setCustody] = React.useState([]); // for filter
 
   React.useEffect(() => {
     getIssuer();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
+
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
 
   const getIssuer = async () => {
     const {
@@ -59,6 +73,7 @@ export function ComparisonPorto() {
       type: type,
       list_date: listDate,
       issuer: filterIssuer,
+      custody: filterCustody,
     };
     let {
       data: { data: comparison },
@@ -88,6 +103,11 @@ export function ComparisonPorto() {
   };
 
   const columns = [
+    {
+      title: "Bank Custody",
+      dataIndex: "bank_custody",
+      key: "bank_custody",
+    },
     {
       title: "Comparison",
       dataIndex: "comparison",
@@ -134,7 +154,6 @@ export function ComparisonPorto() {
           let currentValue = record[currentdate]
             ? Number(record[currentdate])
             : 0;
-          // console.log(currentValue);
           let diff = currentValue - previousValue;
           return (
             <div>
@@ -259,7 +278,6 @@ export function ComparisonPorto() {
   };
 
   const isMobile = window.innerWidth <= 768;
-
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
@@ -297,6 +315,15 @@ export function ComparisonPorto() {
               onClick={() => {
                 onAddDate();
               }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>Bank Custody</Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setFilterCustody(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>Issuer</Col>

@@ -10,6 +10,8 @@ import {
   Card,
   Table,
   notification,
+  Modal,
+  Radio,
 } from "antd";
 import dayjs from "dayjs";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
@@ -20,19 +22,23 @@ import * as XLSX from "xlsx";
 
 export function DepositoPorto() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+
   const [filterIssuer, setFilterIssuer] = React.useState("all");
   const [filterKBMI, setFilterKBMI] = React.useState("all");
   const [filterTenor, setFilterTenor] = React.useState("all");
   const [filterKepemilikan, setFilterKepemilikan] = React.useState("all");
   const [filterPengelolaan, setFilterPengelolaan] = React.useState("all");
+  const [filterCustody, setFilterCustody] = React.useState("all");
+  const [listDate, setListDate] = React.useState([]); // for table columns
+  const [pickerDate, setPickerDate] = React.useState("month");
+  const [type, setType] = React.useState("monthly");
 
   const [issuer, setIssuer] = React.useState([]); // for filter
   const [kbmi, setKBMI] = React.useState([]); // for filter
   const [tenor, setTenor] = React.useState([]); // for filter
   const [kepemilikan, setKepemilikan] = React.useState([]); // for filter
   const [pengelolaan, setPengelolaan] = React.useState([]); // for filter
+  const [custody, setCustody] = React.useState([]); // for filter
 
   const [data, setData] = React.useState([]); // for table
   const [dataChart, setDataChart] = React.useState([]); // for chart
@@ -40,25 +46,37 @@ export function DepositoPorto() {
   React.useEffect(() => {
     getFilter();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
+
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
+
   const onFilter = () => {
-    if (filterStartDate.isAfter(filterEndDate)) {
-      notification.error({
-        message: "Error",
-        description: "Start date must be before end date",
-      });
-      return;
-    }
+    // sort date ascending
+    let list = [...listDate];
+    list.sort((a, b) => {
+      return dayjs(a).diff(dayjs(b));
+    });
+    setListDate(list);
     getData();
   };
 
   const getData = async () => {
     const eq = QueryString.stringify({
-      start: filterStartDate.format("YYYY-MM"),
-      end: filterEndDate.format("YYYY-MM"),
-      range: filterEndDate.diff(filterStartDate, "month") + 1,
+      type: type,
+      list_date: listDate,
+      custody: filterCustody,
       issuer: filterIssuer,
       kbmi: filterKBMI,
       tenor: filterTenor,
@@ -81,6 +99,17 @@ export function DepositoPorto() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onTypeChange = (e) => {
+    setListDate([]);
+    setData([]);
+    if (e.target.value === "monthly") {
+      setPickerDate("month");
+    } else if (e.target.value === "yearly") {
+      setPickerDate("year");
+    }
+    setType(e.target.value);
   };
 
   const fetchData = async (endpoint) => {
@@ -108,7 +137,7 @@ export function DepositoPorto() {
       ] = await Promise.all([
         fetchData("/issuer/select"),
         fetchData("/master/select/kbmi"),
-        fetchData("/master/select/tenor"),
+        fetchData("/master/select/tenor?tipe=deposito"),
         fetchData("/master/select/kepemilikan"),
         fetchData("/master/select/pengelolaan"),
       ]);
@@ -137,7 +166,6 @@ export function DepositoPorto() {
     data: dataChart,
     xField: "period",
     yField: "nominal",
-
     meta: {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
@@ -156,13 +184,13 @@ export function DepositoPorto() {
         formatter: (v) => `${Number(v).toLocaleString("id-ID")}`,
       },
     },
-    xAxis: {
-      label: {
-        formatter: (v) => `${dayjs(v).format("MMM YY")}`,
+    tooltip: {
+      formatter: (datum) => {
+        return {
+          name: datum.period,
+          value: Number(datum.nominal).toLocaleString("id-ID"),
+        };
       },
-    },
-    label: {
-      formatter: (v) => ``,
     },
   };
   // column
@@ -173,6 +201,11 @@ export function DepositoPorto() {
       title: "Unique ID",
       dataIndex: "unique_id",
       key: "unique_id",
+    },
+    {
+      title: "Bank Custody",
+      dataIndex: "custody",
+      key: "custody",
     },
     {
       title: "Issuer",
@@ -221,12 +254,12 @@ export function DepositoPorto() {
       },
     },
     {
-      title: "Nominal",
+      title: "Nominal (Jutaan)",
       dataIndex: "nominal",
       key: "nominal",
       align: "right",
       render: (value) => {
-        return Number(value).toLocaleString("id-ID");
+        return (value / 1000000).toLocaleString("id-ID");
       },
     },
     {
@@ -256,6 +289,7 @@ export function DepositoPorto() {
     const newData = data.map((item) => {
       return {
         "Unique ID": item.unique_id,
+        "Bank Custody": item.custody,
         Issuer: item.issuer,
         KBMI: item.kbmi,
         Tenor: item.tenor,
@@ -264,7 +298,7 @@ export function DepositoPorto() {
         "No Security": item.no_security,
         "Issued Date": item.start_date,
         "Maturity Date": item.end_date,
-        Nominal: item.nominal,
+        "Nominal (Jutaan)": (item.nominal / 1000000).toLocaleString("id-ID"),
         "Term of Interest": item.interest_date,
         "Sisa Tenor": item.sisa_tenor,
         "Rate (%)": item.rate.toFixed(2),
@@ -273,6 +307,7 @@ export function DepositoPorto() {
 
     newData.push({
       "Unique ID": "",
+      "Bank Custody": "",
       Issuer: "",
       KBMI: "",
       Tenor: "",
@@ -281,7 +316,9 @@ export function DepositoPorto() {
       "No Security": "",
       "Issued Date": "",
       "Maturity Date": "",
-      Nominal: data.reduce((a, b) => a + Number(b.nominal), 0),
+      "Nominal (Jutaan)": (
+        data.reduce((a, b) => a + Number(b.nominal), 0) / 1000000
+      ).toLocaleString("id-ID"),
       "Term of Interest": "",
       "Sisa Tenor": "",
       "Rate (%)": "",
@@ -294,30 +331,69 @@ export function DepositoPorto() {
     XLSX.writeFile(wb, "deposito.xlsx");
   };
 
+  const onAddDate = () => {
+    Modal.info({
+      title: "Add Date",
+      content: (
+        <div>
+          <DatePicker
+            picker={pickerDate}
+            onChange={(date, dateString) => {
+              let list = [...listDate];
+              list.push(dateString);
+              setListDate(list);
+              Modal.destroyAll();
+            }}
+            style={{ width: "100%", maxWidth: "300px" }}
+          />
+        </div>
+      ),
+      // remove ok button
+      okButtonProps: { style: { display: "none" } },
+      // close modal when click outside
+      maskClosable: true,
+    });
+  };
+
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
         Deposito
       </Typography.Title>
-
       <Card className="mb-1">
         <Row gutter={[8, 8]}>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Type</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Radio.Group
+              defaultValue={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                onTypeChange(e);
+              }}
+            >
+              <Radio value="monthly">Monthly</Radio>
+              <Radio value="yearly">Yearly</Radio>
+            </Radio.Group>
+          </Col>
           <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
-            <DatePicker
-              picker="month"
-              format={"MM-YYYY"}
-              defaultValue={filterStartDate}
-              onChange={(date) => setfilterStartDate(date)}
-            />{" "}
-            -{" "}
-            <DatePicker
-              picker="month"
-              format={"MM-YYYY"}
-              defaultValue={filterEndDate}
-              onChange={(date) => setfilterEndDate(date)}
+            <Select
+              mode="multiple"
+              placeholder="Select date"
+              style={{ width: "100%", maxWidth: "300px" }}
+              value={listDate}
+              onChange={(value) => {
+                setListDate(value);
+              }}
+              dropdownRender={() => null}
+              // when click on select, open modal
+              onClick={() => {
+                onAddDate();
+              }}
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>
@@ -328,6 +404,17 @@ export function DepositoPorto() {
               defaultValue={filterKBMI}
               options={kbmi}
               onChange={(value) => setFilterKBMI(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setFilterCustody(value)}
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
@@ -407,11 +494,11 @@ export function DepositoPorto() {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={9}>Total</Table.Summary.Cell>
+                  <Table.Summary.Cell colSpan={10}>Total</Table.Summary.Cell>
                   <Table.Summary.Cell align="right">
-                    {data
-                      ?.reduce((a, b) => a + Number(b.nominal), 0)
-                      .toLocaleString("id-ID")}
+                    {(
+                      data?.reduce((a, b) => a + Number(b.nominal), 0) / 1000000
+                    ).toLocaleString("id-ID")}
                   </Table.Summary.Cell>
                   <Table.Summary.Cell colSpan={3}></Table.Summary.Cell>
                 </Table.Summary.Row>

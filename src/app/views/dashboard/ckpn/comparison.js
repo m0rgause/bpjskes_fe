@@ -27,16 +27,30 @@ export function ComparisonCKPN() {
   const [data, setData] = React.useState([]);
   const [type, setType] = React.useState("monthly");
   const [filterIssuer, setFilterIssuer] = React.useState("all");
+  const [filterCustody, setfilterCustody] = React.useState("all"); // for filter
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
   const [listDate, setListDate] = React.useState([]);
   const [listDateFixed, setListDateFixed] = React.useState([]); // for table columns
   const [pickerDate, setPickerDate] = React.useState("month");
+  const [custody, setCustody] = React.useState([]);
 
   React.useEffect(() => {
     getIssuer();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
+
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
 
   const getIssuer = async () => {
     const {
@@ -59,10 +73,12 @@ export function ComparisonCKPN() {
       type: type,
       list_date: listDate,
       issuer: filterIssuer,
+      custody: filterCustody,
     };
     let {
       data: { data: comparison },
     } = await post("/ckpn/comparison", eq);
+    console.log(comparison);
 
     setData(comparison);
     setLoading(false);
@@ -90,7 +106,12 @@ export function ComparisonCKPN() {
 
   const columns = [
     {
-      title: "Comparison",
+      title: "Bank Custody",
+      dataIndex: "custody",
+      key: "custody",
+    },
+    {
+      title: "Issuer",
       dataIndex: "comparison",
       key: "comparison",
     },
@@ -178,6 +199,7 @@ export function ComparisonCKPN() {
           ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
           : ""
       ] = item.sum;
+      dataSource[index]["custody"] = item.custody;
     }
   });
 
@@ -187,6 +209,7 @@ export function ComparisonCKPN() {
     const data = dataSource.map((item) => {
       let obj = {
         comparison: item.comparison,
+        custody: item.custody,
       };
       listDateFixed.forEach((element) => {
         obj[
@@ -270,7 +293,9 @@ export function ComparisonCKPN() {
               <Radio value="yearly">Yearly</Radio>
             </Radio.Group>
           </Col>
-          <Col span={isMobile ? 24 : 2}>Period</Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Period</Typography.Text>
+          </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               mode="multiple"
@@ -287,7 +312,20 @@ export function ComparisonCKPN() {
               }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}>Issuer</Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setfilterCustody(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Issuer</Typography.Text>
+          </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterIssuer}

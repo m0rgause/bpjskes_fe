@@ -11,7 +11,6 @@ import {
   Typography,
   Space,
   Popconfirm,
-  Select,
 } from "antd";
 
 import {
@@ -21,13 +20,11 @@ import {
 } from "@ant-design/icons";
 import QueryString from "qs";
 
-export function TenorUpdate() {
+export function CustodyUpdate() {
   const { id } = useParams();
   const history = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = React.useState(false);
-  const [tag, setTag] = React.useState([]);
-  const dataTag = ["sbn", "sbi", "deposito", "obligasi"];
 
   React.useEffect(() => {
     getData();
@@ -38,36 +35,31 @@ export function TenorUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`master/tenor/${id}`, {});
-    if (data !== null && !error) {
-      form.setFieldsValue({
-        kode: data.kode,
-        nama: data.nama,
-        urutan: data.urutan,
-        tipe: data.tipe.split(","),
-      });
+    } = await get(`master/bankCustody/${id}`, {});
+    if (!error) {
+      //   setData(data);
+      form.setFieldsValue(data);
     } else {
       notification.error({
         message: "Error",
         description: "Data gagal diambil",
       });
-      history("/setting/bank?tab=tenor");
+      history("/setting/bank?tab=custody");
     }
     setLoading(false);
   };
 
   const onFinish = async (values) => {
     setLoading(true);
-    values.tipe = tag.join(",");
     const {
       data: { error },
-    } = await put(`master/tenor/${id}`, QueryString.stringify(values));
+    } = await put(`master/bankCustody/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
         description: "Data berhasil disimpan",
       });
-      history("/setting/bank?tab=tenor");
+      history("/setting/bank?tab=custody");
     } else {
       notification.error({
         message: "Error",
@@ -81,13 +73,13 @@ export function TenorUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`master/tenor/${id}`);
+    } = await del(`master/bankCustody/${id}`);
     if (!error) {
       notification.success({
         message: "Success",
         description: "Data berhasil dihapus",
       });
-      history("/setting/bank?tab=tenor");
+      history("/setting/bank?tab=custody");
     } else {
       notification.error({
         message: "Error",
@@ -105,17 +97,10 @@ export function TenorUpdate() {
           icon={<ArrowLeftOutlined />}
           onClick={() => history(-1)}
         />
-        Ubah Tenor
+        Ubah Bank Custody
       </Typography.Title>
       <Card>
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item
-            label="Kode"
-            name="kode"
-            rules={[{ required: true, message: "Kode harus diisi" }]}
-          >
-            <Input />
-          </Form.Item>
           <Form.Item
             label="Nama"
             name="nama"
@@ -123,25 +108,6 @@ export function TenorUpdate() {
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            label="Tipe"
-            name="tipe"
-            rules={[{ required: true, message: "Tipe harus diisi" }]}
-          >
-            {/* Multiple */}
-            <Select
-              mode="multiple"
-              allowClear
-              style={{ width: "100%" }}
-              placeholder="Pilih tipe"
-              onChange={(value) => setTag(value)}
-            >
-              {dataTag.map((item) => (
-                <Select.Option key={item}>{item}</Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
           <Form.Item
             label="Urutan"
             name="urutan"

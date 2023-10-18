@@ -23,17 +23,31 @@ export function SummaryPorto() {
   const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
   const [filterIssuer, setFilterIssuer] = React.useState("all");
+  const [filterCustody, setFilterCustody] = React.useState("all");
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
   const [data, setData] = React.useState([]); // for table
+  const [custody, setCustody] = React.useState([]); // for table
   const isMobile = window.innerWidth <= 768;
   const history = useNavigate();
 
   React.useEffect(() => {
     getIssuer();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
+
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
   const getData = async () => {
     setLoading(true);
     const body = {
@@ -41,6 +55,7 @@ export function SummaryPorto() {
       end: filterEndDate.format("YYYY-MM"),
       range: filterEndDate.diff(filterStartDate, "M") + 1,
       issuer: filterIssuer,
+      custody: filterCustody,
     };
 
     try {
@@ -99,18 +114,18 @@ export function SummaryPorto() {
     angleField: "nominal",
     colorField: "tipe",
     radius: 1,
-    innerRadius: 0.6,
+    innerRadius: 0.4,
     label: {
+      autoRotate: false,
       type: "inner",
-      offset: "-50%",
       content: function content(_ref) {
         return `${_ref.presentase}`;
       },
-
       style: {
         textAlign: "center",
         fontSize: 14,
       },
+      offset: "-50%",
     },
     interactions: [
       {
@@ -126,7 +141,7 @@ export function SummaryPorto() {
     tooltip: {
       formatter: (datum) => {
         return {
-          name: datum.tipe,
+          name: datum.tipe.toUpperCase(),
           value: datum.nominal.toLocaleString("id-ID"),
         };
       },
@@ -138,13 +153,16 @@ export function SummaryPorto() {
       title: "Jenis",
       dataIndex: "tipe",
       key: "tipe",
+      render: (text) => text.toUpperCase(),
     },
     {
-      title: "Nominal",
+      title: "Nominal (Jutaan)",
       dataIndex: "nominal",
       key: "nominal",
       align: "right",
-      render: (text) => text.toLocaleString("id-ID"),
+      render: (text) => {
+        return (text / 1000000).toLocaleString("id-ID");
+      },
     },
     {
       title: "Presentase",
@@ -152,7 +170,7 @@ export function SummaryPorto() {
       key: "presentase",
     },
     {
-      title: "Aksi",
+      title: "Action",
       dataIndex: "aksi",
       key: "aksi",
       render: (text, record) => {
@@ -200,6 +218,17 @@ export function SummaryPorto() {
               format={"MM-YYYY"}
               defaultValue={filterEndDate}
               onChange={(date) => setfilterEndDate(date)}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setFilterCustody(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>
@@ -256,7 +285,7 @@ export function SummaryPorto() {
                       Total
                     </Table.Summary.Cell>
                     <Table.Summary.Cell index={1} colSpan={1} align="right">
-                      {data?.totalNominal?.toLocaleString("id-ID") ?? 0}
+                      {(data?.totalNominal / 1000000).toLocaleString("id-ID")}
                     </Table.Summary.Cell>
                     <Table.Summary.Cell
                       index={2}

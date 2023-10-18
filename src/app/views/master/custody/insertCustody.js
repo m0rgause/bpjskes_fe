@@ -9,30 +9,26 @@ import {
   Card,
   Spin,
   Typography,
-  Select,
 } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import QueryString from "qs";
 
-export function TenorInsert() {
+export function CustodyInsert() {
   const history = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = React.useState(false);
-  const [tag, setTag] = React.useState([]);
-  const dataTag = ["sbn", "sbi", "deposito", "obligasi"];
 
   const onFinish = async (values) => {
     setLoading(true);
-    values.tipe = tag.join(",");
     const {
       data: { error },
-    } = await post("master/tenor", QueryString.stringify(values));
+    } = await post("master/bankCustody", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
         description: "Data berhasil disimpan",
       });
-      history("/setting/bank?tab=tenor");
+      history("/setting/bank?tab=custody");
     } else {
       notification.error({
         message: "Error",
@@ -41,7 +37,6 @@ export function TenorInsert() {
     }
     setLoading(false);
   };
-
   return (
     <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
@@ -51,17 +46,10 @@ export function TenorInsert() {
           icon={<ArrowLeftOutlined />}
           onClick={() => history(-1)}
         />
-        Tambah Tenor
+        Tambah Bank Custody
       </Typography.Title>
       <Card>
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item
-            label="Kode"
-            name="kode"
-            rules={[{ required: true, message: "Kode harus diisi" }]}
-          >
-            <Input />
-          </Form.Item>
           <Form.Item
             label="Nama"
             name="nama"
@@ -69,29 +57,6 @@ export function TenorInsert() {
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            label="Tipe"
-            name="tipe"
-            rules={[{ required: true, message: "Tipe harus diisi" }]}
-          >
-            {/* Multiple */}
-            <Select
-              mode="multiple"
-              allowClear
-              style={{ width: "100%" }}
-              placeholder="Pilih tipe"
-              onChange={(value) => {
-                setTag(value);
-              }}
-            >
-              {dataTag.map((item) => (
-                <Select.Option key={item} value={item}>
-                  {item}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
           <Form.Item
             label="Urutan"
             name="urutan"

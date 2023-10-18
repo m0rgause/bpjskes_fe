@@ -8,24 +8,60 @@ import {
   Row,
   Col,
   Button,
-  notification,
+  Radio,
+  Select,
+  Modal,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { DualAxes } from "@ant-design/plots";
 import { post } from "../../../functions/helper";
-import QueryString from "qs";
 import * as XLXS from "xlsx";
 
 export function ExternalCash() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().startOf("month")
-  );
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
+
   const [data, setData] = React.useState([]);
   const [totalAkumulasi, setTotalAkumulasi] = React.useState(0);
   const [dataChart, setDataChart] = React.useState({ data: [], uvBill: [] });
+  const [type, setType] = React.useState("daily");
+  const [listDate, setListDate] = React.useState([]);
+  const [pickerDate, setPickerDate] = React.useState("");
+
+  const onTypeChange = (e) => {
+    setListDate([]);
+    if (e.target.value === "daily") {
+      setPickerDate("date");
+    } else if (e.target.value === "monthly") {
+      setPickerDate("month");
+    } else if (e.target.value === "yearly") {
+      setPickerDate("year");
+    }
+  };
+
+  const onAddDate = () => {
+    Modal.info({
+      title: "Add Date",
+      content: (
+        <div>
+          <DatePicker
+            picker={pickerDate}
+            onChange={(date, dateString) => {
+              let list = [...listDate];
+              list.push(dateString);
+              setListDate(list);
+              Modal.destroyAll();
+            }}
+            style={{ width: "100%", maxWidth: "300px" }}
+          />
+        </div>
+      ),
+      // remove ok button
+      okButtonProps: { style: { display: "none" } },
+      // close modal when click outside
+      maskClosable: true,
+    });
+  };
 
   React.useEffect(() => {
     getData();
@@ -33,35 +69,35 @@ export function ExternalCash() {
   }, []);
 
   const onFilter = () => {
-    if (filterStartDate.isAfter(filterEndDate)) {
-      notification.error({
-        message: "Tanggal awal tidak boleh lebih besar dari tanggal akhir",
-      });
-      return;
-    } else {
-      getData();
-    }
+    // sort date ascending
+    let list = [...listDate];
+    list.sort((a, b) => {
+      return dayjs(a).diff(dayjs(b));
+    });
+    getData();
   };
 
   const getData = async () => {
     setLoading(true);
     let eq = {
-      start: filterStartDate.format("YYYY-MM-DD"),
-      end: filterEndDate.format("YYYY-MM-DD"),
+      type: type,
+      listDate: listDate,
     };
+
     let {
       data: { data: externalCash },
-    } = await post("/twrr/external-cash", QueryString.stringify(eq));
-    externalCash.rows = externalCash.rows.map((item, index) => {
+    } = await post("/twrr/external-cash", eq);
+
+    externalCash = externalCash?.map((item, index) => {
       item.key = index;
       return item;
     });
 
     setData(externalCash);
     setTotalAkumulasi(
-      (
-        externalCash.rows[externalCash.rows.length - 1]?.return_akumulasi ?? 0
-      ).toFixed(2)
+      (externalCash?.[externalCash?.length - 1]?.return_akumulasi ?? 0).toFixed(
+        2
+      )
     );
     setDataChart({
       data: transformData(externalCash),
@@ -73,7 +109,7 @@ export function ExternalCash() {
 
   const transformData = (data) => {
     let result = [];
-    data.rows.forEach((element) => {
+    data?.forEach((element) => {
       result.push({
         time: dayjs(element.tanggal).format("DD MMM YYYY"),
         Akumulasi: element.return_akumulasi,
@@ -84,7 +120,7 @@ export function ExternalCash() {
 
   const uvBillData = (data) => {
     let result = [];
-    data.rows.forEach((element) => {
+    data?.forEach((element) => {
       result.push({
         time: dayjs(element.tanggal).format("DD MMM YYYY"),
         value: parseInt(element.total_before_cash),
@@ -112,10 +148,18 @@ export function ExternalCash() {
         columnStyle: {
           radius: [10, 10, 0, 0],
         },
+        // format to localestring
+        tooltip: {
+          formatter: (datum) => {
+            return {
+              name: datum.type,
+              value: parseInt(datum.value).toLocaleString("id-ID"),
+            };
+          },
+        },
       },
       {
         geometry: "line",
-
         point: {
           shape: "circle",
           size: 4,
@@ -130,6 +174,25 @@ export function ExternalCash() {
         lineStyle: { lineWidth: 2 },
       },
     ],
+    // label on left side of chart
+    yAxis: {
+      Akumulasi: {
+        label: {
+          formatter: (text) => {
+            return text + "%";
+          },
+        },
+      },
+
+      value: {
+        label: {
+          formatter: (text) => {
+            return parseInt(text).toLocaleString("id-ID");
+          },
+        },
+      },
+    },
+
     legend: {
       position: "bottom",
     },
@@ -174,20 +237,19 @@ export function ExternalCash() {
 
   const onExport = async () => {
     let eq = {
-      start: filterStartDate.format("YYYY-MM-DD"),
-      end: filterEndDate.format("YYYY-MM-DD"),
+      type: type,
+      listDate: listDate,
     };
     let {
       data: { data: externalCash },
-    } = await post("/twrr/external-cash", QueryString.stringify(eq));
-    externalCash.rows = externalCash.rows.map((item, index) => {
+    } = await post("/twrr/external-cash", eq);
+    externalCash = externalCash.map((item, index) => {
       item.key = index;
       return item;
     });
-    const fileName = `External Cash ${filterStartDate.format(
-      "DD MMM YYYY"
-    )} - ${filterEndDate.format("DD MMM YYYY")}`;
-    const data = externalCash.rows.map((item) => {
+    const fileName = `External Cash ${type}`;
+
+    const data = externalCash.map((item) => {
       return {
         Periode: dayjs(item.tanggal).format("DD MMM YYYY"),
         "Total Sebelum External Cash": parseInt(
@@ -224,6 +286,39 @@ export function ExternalCash() {
           >
             <Row gutter={[8, 8]}>
               <Col span={isMobile ? 24 : 2}>
+                <Typography.Text strong>Type</Typography.Text>
+              </Col>
+              <Col span={isMobile ? 24 : 22}>
+                <Radio.Group
+                  defaultValue={type}
+                  onChange={(e) => {
+                    setType(e.target.value);
+                    onTypeChange(e);
+                  }}
+                >
+                  <Radio value="daily">Daily</Radio>
+                  <Radio value="monthly">Monthly</Radio>
+                  <Radio value="yearly">Yearly</Radio>
+                </Radio.Group>
+              </Col>
+              <Col span={isMobile ? 24 : 2}>Period</Col>
+              <Col span={isMobile ? 24 : 22}>
+                <Select
+                  mode="multiple"
+                  placeholder="Select date"
+                  style={{ width: "100%", maxWidth: "300px" }}
+                  value={listDate}
+                  onChange={(value) => {
+                    setListDate(value);
+                  }}
+                  dropdownRender={() => null}
+                  // when click on select, open modal
+                  onClick={() => {
+                    onAddDate();
+                  }}
+                />
+              </Col>
+              {/* <Col span={isMobile ? 24 : 2}>
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
@@ -249,7 +344,7 @@ export function ExternalCash() {
                     }}
                   />
                 </div>
-              </Col>
+              </Col> */}
               <Col span={isMobile ? 24 : 2}></Col>
               <Col span={isMobile ? 24 : 22}>
                 <Button
@@ -266,7 +361,10 @@ export function ExternalCash() {
         </Col>
         <Col span={isMobile ? 24 : 6}>
           <Card
-            style={{ minHeight: "125px" }}
+            style={{
+              minHeight: "125px",
+              height: "95% ",
+            }}
             className={isMobile ? "mb-1" : ""}
           >
             <Typography.Title level={5} className="page-header">
@@ -292,7 +390,7 @@ export function ExternalCash() {
         <Table
           bordered
           columns={columns}
-          dataSource={data.rows}
+          dataSource={data}
           scroll={{ x: 500 }}
         />
         <Button

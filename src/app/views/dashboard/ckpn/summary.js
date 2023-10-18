@@ -10,6 +10,8 @@ import {
   Button,
   Select,
   notification,
+  Modal,
+  Radio,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
@@ -20,43 +22,46 @@ import * as XLSX from "xlsx";
 
 export function SummaryCKPN() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().startOf("month")
-  );
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+
+  const [type, setType] = React.useState("monthly");
+  const [listDate, setListDate] = React.useState([]);
   const [filterBank, setfilterBank] = React.useState("all");
+  const [filterCustody, setfilterCustody] = React.useState("all");
+  const [pickerDate, setPickerDate] = React.useState("month");
+
+  const [custody, setCustody] = React.useState([]);
   const [totalECL, setTotalECL] = React.useState(0);
   const [dataChart, setDataChart] = React.useState([]);
   const [dataSource, setDataSource] = React.useState([]);
-
   const [bank, setBank] = React.useState([]);
 
   React.useEffect(() => {
     getBank();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onFilter = () => {
-    if (filterStartDate.isAfter(filterEndDate)) {
-      notification.error({
-        message: "Error",
-        description: "Period awal tidak boleh lebih besar dari period akhir",
-      });
-    } else {
-      getData();
-    }
+    // sort date ascending
+    let list = [...listDate];
+    list.sort((a, b) => {
+      return dayjs(a).diff(dayjs(b));
+    });
+    setListDate(list);
+    getData();
   };
 
   const isMobile = window.innerWidth <= 768;
 
   const getData = async () => {
     const eq = {
-      start: filterStartDate.format("YYYY-MM-DD"),
-      end: filterEndDate.format("YYYY-MM-DD"),
-      range: filterStartDate.diff(filterEndDate, "month"),
+      type: type,
+      listDate: listDate,
       issuer: filterBank,
+      custody: filterCustody,
     };
+    console.log(eq);
     try {
       setLoading(true);
       let {
@@ -69,6 +74,7 @@ export function SummaryCKPN() {
         element.key = index;
         dataChart.push({
           key: index,
+          custody: element.custody,
           bank: element.nama,
           return: Number(element.sum),
           warna: element.warna,
@@ -88,6 +94,19 @@ export function SummaryCKPN() {
     setLoading(false);
   };
 
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
+    console.log(data);
+
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
+
   const getBank = async () => {
     const {
       data: { data },
@@ -100,6 +119,38 @@ export function SummaryCKPN() {
     setBank(item);
   };
 
+  const onTypeChange = (e) => {
+    setListDate([]);
+    if (e.target.value === "monthly") {
+      setPickerDate("month");
+    } else if (e.target.value === "yearly") {
+      setPickerDate("year");
+    }
+  };
+
+  const onAddDate = () => {
+    Modal.info({
+      title: "Add Date",
+      content: (
+        <div>
+          <DatePicker
+            picker={pickerDate}
+            onChange={(date, dateString) => {
+              let list = [...listDate];
+              list.push(dateString);
+              setListDate(list);
+              Modal.destroyAll();
+            }}
+            style={{ width: "100%", maxWidth: "300px" }}
+          />
+        </div>
+      ),
+      // remove ok button
+      okButtonProps: { style: { display: "none" } },
+      // close modal when click outside
+      maskClosable: true,
+    });
+  };
   const config = {
     data: dataChart,
     xField: "bank",
@@ -113,6 +164,19 @@ export function SummaryCKPN() {
     meta: {
       bank: { alias: "Bank" },
       return: { alias: "Return" },
+    },
+    yAxis: {
+      label: {
+        formatter: (v) => Number(v).toLocaleString("id-ID"),
+      },
+    },
+    tooltip: {
+      formatter: (datum) => {
+        return {
+          name: datum.bank,
+          value: Number(datum.return).toLocaleString("id-ID"),
+        };
+      },
     },
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
@@ -132,6 +196,11 @@ export function SummaryCKPN() {
 
   const columns = [
     {
+      title: "Bank Custody",
+      dataIndex: "custody",
+      key: "custody",
+    },
+    {
       title: "Issuer",
       dataIndex: "nama",
       key: "nama",
@@ -145,19 +214,19 @@ export function SummaryCKPN() {
   ];
 
   const onExport = async () => {
-    const fileName = `Summary CKPN ${filterStartDate.format(
-      "MM-YYYY"
-    )} - ${filterEndDate.format("MM-YYYY")}.xlsx`;
+    const fileName = `Summary CKPN ${type}.xlsx`;
 
     const dataExport = dataChart.map((element) => {
       return {
-        Bank: element.bank,
+        "Bank Custody": element.custody,
+        Issuer: element.bank,
         ECL: Number(element.return).toLocaleString("id-ID"),
       };
     });
 
     dataExport.push({
-      Bank: "Total",
+      "Bank Custody": "Total",
+      Issuer: "",
       ECL: Number(totalECL).toLocaleString("id-ID"),
     });
 
@@ -177,23 +246,51 @@ export function SummaryCKPN() {
           <Card className="mb-1" style={{ minHeight: "175px" }}>
             <Row gutter={[8, 8]}>
               <Col span={isMobile ? 24 : 2}>
+                <Typography.Text strong>Type</Typography.Text>
+              </Col>
+              <Col span={isMobile ? 24 : 22}>
+                <Radio.Group
+                  defaultValue={type}
+                  onChange={(e) => {
+                    setType(e.target.value);
+                    onTypeChange(e);
+                  }}
+                >
+                  <Radio value="monthly">Monthly</Radio>
+                  <Radio value="yearly">Yearly</Radio>
+                </Radio.Group>
+              </Col>
+              <Col span={isMobile ? 24 : 2}>
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
-                <DatePicker
-                  picker="month"
-                  format={"MM-YYYY"}
-                  defaultValue={filterStartDate}
-                  onChange={(date) => setfilterStartDate(date)}
-                />{" "}
-                -{" "}
-                <DatePicker
-                  picker="month"
-                  format={"MM-YYYY"}
-                  defaultValue={filterEndDate}
-                  onChange={(date) => setfilterEndDate(date)}
+                <Select
+                  mode="multiple"
+                  placeholder="Select date"
+                  style={{ width: "100%", maxWidth: "300px" }}
+                  value={listDate}
+                  onChange={(value) => {
+                    setListDate(value);
+                  }}
+                  dropdownRender={() => null}
+                  // when click on select, open modal
+                  onClick={() => {
+                    onAddDate();
+                  }}
                 />
               </Col>
+              <Col span={isMobile ? 24 : 2}>
+                <Typography.Text strong>Bank Custody</Typography.Text>
+              </Col>
+              <Col span={isMobile ? 24 : 22}>
+                <Select
+                  defaultValue={filterCustody}
+                  options={custody}
+                  onChange={(value) => setfilterCustody(value)}
+                  style={{ maxWidth: "300px", width: "100%" }}
+                />
+              </Col>
+
               <Col span={isMobile ? 24 : 2}>
                 <Typography.Text strong>Issuer</Typography.Text>
               </Col>
@@ -235,7 +332,7 @@ export function SummaryCKPN() {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={1}>
+                  <Table.Summary.Cell colSpan={2}>
                     <strong>Total</strong>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell colSpan={1}>

@@ -10,6 +10,8 @@ import {
   Card,
   Table,
   notification,
+  Radio,
+  Modal,
 } from "antd";
 import dayjs from "dayjs";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
@@ -20,16 +22,18 @@ import * as XLSX from "xlsx";
 
 export function SBIPorto() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+  const [filterCustody, setFilterCustody] = React.useState("all"); // [all, bni, mandiri, bc
   const [filterIssuer, setFilterIssuer] = React.useState("all");
-
   const [filterTenor, setFilterTenor] = React.useState("all");
   const [filterPengelolaan, setFilterPengelolaan] = React.useState("all");
 
+  const [custody, setCustody] = React.useState([]); // for filter
   const [issuer, setIssuer] = React.useState([]); // for filter
   const [tenor, setTenor] = React.useState([]); // for filter
   const [pengelolaan, setPengelolaan] = React.useState([]); // for filter
+  const [listDate, setListDate] = React.useState([]);
+  const [type, setType] = React.useState("monthly");
+  const [pickerDate, setPickerDate] = React.useState("month");
 
   const [data, setData] = React.useState([]); // for table
   const [dataChart, setDataChart] = React.useState([]); // for chart
@@ -37,25 +41,35 @@ export function SBIPorto() {
   React.useEffect(() => {
     getFilter();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onFilter = () => {
-    if (filterStartDate.isAfter(filterEndDate)) {
-      notification.error({
-        message: "Error",
-        description: "Start date must be before end date",
-      });
-      return;
-    }
+    // sort date ascending
+    let list = [...listDate];
+    list.sort((a, b) => {
+      return dayjs(a).diff(dayjs(b));
+    });
+    setListDate(list);
     getData();
   };
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
 
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
   const getData = async () => {
     const eq = QueryString.stringify({
-      start: filterStartDate.format("YYYY-MM"),
-      end: filterEndDate.format("YYYY-MM"),
-      range: filterEndDate.diff(filterStartDate, "month") + 1,
+      type: type,
+      list_date: listDate,
+      custody: filterCustody,
       issuer: filterIssuer,
       kbmi: "all",
       kepemilikan: "all",
@@ -68,18 +82,44 @@ export function SBIPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
+      console.log(data);
+
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal);
       });
       setDataChart(data.data);
       setData(data.dataTable);
     } catch (error) {
-      notification.error({
-        message: error.message,
-      });
+      console.error(error);
+      // notification.error({
+      //   message: error.message,
+      // });
     } finally {
       setLoading(false);
     }
+  };
+  const onAddDate = () => {
+    Modal.info({
+      title: "Add Date",
+      content: (
+        <div>
+          <DatePicker
+            picker={pickerDate}
+            onChange={(date, dateString) => {
+              let list = [...listDate];
+              list.push(dateString);
+              setListDate(list);
+              Modal.destroyAll();
+            }}
+            style={{ width: "100%", maxWidth: "300px" }}
+          />
+        </div>
+      ),
+      // remove ok button
+      okButtonProps: { style: { display: "none" } },
+      // close modal when click outside
+      maskClosable: true,
+    });
   };
 
   const fetchData = async (endpoint) => {
@@ -100,7 +140,7 @@ export function SBIPorto() {
     try {
       const [issuerData, tenorData, pengelolaanData] = await Promise.all([
         fetchData("/issuer/select"),
-        fetchData("/master/select/tenor"),
+        fetchData("/master/select/tenor?tipe=sbi"),
         fetchData("/master/select/pengelolaan"),
       ]);
 
@@ -142,13 +182,16 @@ export function SBIPorto() {
         formatter: (v) => `${Number(v).toLocaleString("id-ID")}`,
       },
     },
-    xAxis: {
-      label: {
-        formatter: (v) => `${dayjs(v).format("MMM YY")}`,
-      },
-    },
     label: {
       formatter: (v) => ``,
+    },
+    tooltip: {
+      formatter: (datum) => {
+        return {
+          name: datum.period,
+          value: Number(datum.nominal).toLocaleString("id-ID"),
+        };
+      },
     },
   };
   // column
@@ -159,6 +202,11 @@ export function SBIPorto() {
       title: "Unique ID",
       dataIndex: "unique_id",
       key: "unique_id",
+    },
+    {
+      title: "Bank Custody",
+      dataIndex: "custody",
+      key: "bank_custody",
     },
     {
       title: "Issuer",
@@ -197,12 +245,12 @@ export function SBIPorto() {
       },
     },
     {
-      title: "Nominal",
+      title: "Nominal (Jutaan)",
       dataIndex: "nominal",
       key: "nominal",
       align: "right",
       render: (value) => {
-        return Number(value).toLocaleString("id-ID");
+        return (value / 1000000).toLocaleString("id-ID");
       },
     },
     {
@@ -232,13 +280,14 @@ export function SBIPorto() {
     const newData = data.map((item) => {
       return {
         "Unique ID": item.unique_id,
+        "Bank Custody": item.custody,
         Issuer: item.issuer,
         Tenor: item.tenor,
         Pengelolaan: item.pengelolaan,
         "No Security": item.no_security,
         "Issued Date": item.start_date,
         "Maturity Date": item.end_date,
-        Nominal: item.nominal,
+        "Nominal (Jutaan)": (item.nominal / 1000000).toLocaleString("id-ID"),
         "Term of Interest": item.interest_date,
         "Sisa Tenor": item.sisa_tenor,
         "Rate (%)": item.rate.toFixed(2),
@@ -247,13 +296,16 @@ export function SBIPorto() {
 
     newData.push({
       "Unique ID": "",
+      "Bank Custody": "",
       Issuer: "",
       Tenor: "",
       Pengelolaan: "",
       "No Security": "",
       "Issued Date": "",
       "Maturity Date": "",
-      Nominal: data.reduce((a, b) => a + Number(b.nominal), 0),
+      "Nominal (Jutaan)": (
+        data.reduce((a, b) => a + Number(b.nominal), 0) / 1000000
+      ).toLocaleString("id-ID"),
       "Term of Interest": "",
       "Sisa Tenor": "",
       "Rate (%)": "",
@@ -265,6 +317,16 @@ export function SBIPorto() {
 
     XLSX.writeFile(wb, "SBI.xlsx");
   };
+  const onTypeChange = (e) => {
+    setListDate([]);
+    setData([]);
+    if (e.target.value === "monthly") {
+      setPickerDate("month");
+    } else if (e.target.value === "yearly") {
+      setPickerDate("year");
+    }
+    setType(e.target.value);
+  };
 
   return (
     <Spin spinning={loading}>
@@ -275,21 +337,48 @@ export function SBIPorto() {
       <Card className="mb-1">
         <Row gutter={[8, 8]}>
           <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Type</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Radio.Group
+              defaultValue={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                onTypeChange(e);
+              }}
+            >
+              <Radio value="monthly">Monthly</Radio>
+              <Radio value="yearly">Yearly</Radio>
+            </Radio.Group>
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
-            <DatePicker
-              picker="month"
-              format={"MM-YYYY"}
-              defaultValue={filterStartDate}
-              onChange={(date) => setfilterStartDate(date)}
-            />{" "}
-            -{" "}
-            <DatePicker
-              picker="month"
-              format={"MM-YYYY"}
-              defaultValue={filterEndDate}
-              onChange={(date) => setfilterEndDate(date)}
+            <Select
+              mode="multiple"
+              placeholder="Select date"
+              style={{ width: "100%", maxWidth: "300px" }}
+              value={listDate}
+              onChange={(value) => {
+                setListDate(value);
+              }}
+              dropdownRender={() => null}
+              // when click on select, open modal
+              onClick={() => {
+                onAddDate();
+              }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setFilterCustody(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>
@@ -357,11 +446,11 @@ export function SBIPorto() {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={7}>Total</Table.Summary.Cell>
+                  <Table.Summary.Cell colSpan={8}>Total</Table.Summary.Cell>
                   <Table.Summary.Cell align="right">
-                    {data
-                      ?.reduce((a, b) => a + Number(b.nominal), 0)
-                      .toLocaleString("id-ID")}
+                    {(
+                      data?.reduce((a, b) => a + Number(b.nominal), 0) / 1000000
+                    ).toLocaleString("id-ID")}
                   </Table.Summary.Cell>
                   <Table.Summary.Cell colSpan={3}></Table.Summary.Cell>
                 </Table.Summary.Row>

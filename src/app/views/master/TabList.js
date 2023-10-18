@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { Card } from "antd";
 
+import { CustodyList } from "./custody/listCustody";
 import { IssuerList } from "./issuer/issuerList";
 import { RatingList } from "./rating/ratingList";
 import { TenorList } from "./tenor/tenorList";
@@ -16,13 +17,17 @@ const useQuery = () => {
 
 export function TabList() {
   const query = useQuery();
-  const [tab, setTab] = React.useState(query.get("tab") || "bank");
+  const [tab, setTab] = React.useState(query.get("tab") || "custody");
 
   const onTabChange = (key) => {
     setTab(key);
   };
 
   const TabList = [
+    {
+      key: "custody",
+      tab: "Bank Custody",
+    },
     {
       key: "bank",
       tab: "Issuer",
@@ -50,6 +55,7 @@ export function TabList() {
   ];
 
   const contentList = {
+    custody: <CustodyList />,
     bank: <IssuerList />,
     rating: <RatingList />,
     kategori: <KategoriList />,

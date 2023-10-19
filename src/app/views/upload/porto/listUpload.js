@@ -29,7 +29,9 @@ export function ListUpload() {
     setLoading(true);
     const {
       data: { data: res },
-    } = await post("/porto/file");
+    } = await post("/porto/file", {
+      session: localStorage.getItem("session"),
+    });
 
     const data = res.map((item, index) => {
       return {
@@ -42,7 +44,6 @@ export function ListUpload() {
     });
 
     setData(data);
-
     setLoading(false);
   };
 
@@ -107,7 +108,11 @@ export function ListUpload() {
       // send to backend
       await put(
         "/porto/upload",
-        QueryString.stringify({ data: json, fileName: file.name })
+        QueryString.stringify({
+          data: json,
+          fileName: file.name,
+          session: localStorage.getItem("session"),
+        })
       )
         .then(({ data: { data } }) => {
           setLoading(false);
@@ -123,6 +128,7 @@ export function ListUpload() {
             message: "Error",
             description: "Upload Failed",
           });
+          getData();
         });
     };
     reader.readAsBinaryString(file);

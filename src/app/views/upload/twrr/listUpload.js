@@ -29,7 +29,9 @@ export function ListUploadTWRR() {
     setLoading(true);
     const {
       data: { data: res },
-    } = await post("/twrr/file");
+    } = await post("/twrr/file", {
+      session: localStorage.getItem("session"),
+    });
 
     const data = res.map((item, index) => {
       return {
@@ -101,14 +103,19 @@ export function ListUploadTWRR() {
       const workbook = XLSX.read(data, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(sheet);
+      // const json = XLSX.utils.sheet_to_json(sheet);
 
       // send to backend
       await put(
         "/twrr/upload",
-        QueryString.stringify({ data: sheet, fileName: file.name })
+        QueryString.stringify({
+          data: sheet,
+          fileName: file.name,
+          session: localStorage.getItem("session"),
+        })
       )
         .then(({ data: { data } }) => {
+          setLoading(false);
           // navigate to detail page
           notification.success({
             message: "Success",
@@ -117,10 +124,13 @@ export function ListUploadTWRR() {
           history(`/upload/twrr/${data.trx_twrr_file_id}`);
         })
         .catch((err) => {
+          setLoading(false);
           notification.error({
             message: "Error",
-            description: "Upload Failed",
+            description: "Upload Failed!",
           });
+          // reload page
+          getData();
         });
     };
     reader.readAsBinaryString(file);

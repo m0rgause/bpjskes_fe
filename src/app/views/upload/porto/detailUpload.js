@@ -26,7 +26,6 @@ export function DetailUpload() {
     } = await post("/porto/file/detail", {
       id: params.id,
     });
-    console.log(file);
     data = data.map((item, index) => {
       return {
         key: index,

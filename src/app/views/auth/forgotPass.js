@@ -1,14 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  Form,
-  Input,
-  Button,
-  notification,
-  Spin,
-  Typography,
-} from "antd";
+import { Card, Form, Input, Button, notification, Spin } from "antd";
 import { LoginOutlined } from "@ant-design/icons";
 import { post } from "../../functions/helper";
 import QueryString from "qs";

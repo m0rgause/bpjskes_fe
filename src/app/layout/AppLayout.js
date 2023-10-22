@@ -8,7 +8,7 @@ import {
   // MenuUnfoldOutlined,
   UserOutlined,
   PoweroffOutlined,
-  KeyOutlined,
+  // KeyOutlined,
   BellFilled,
   ClockCircleFilled,
 } from "@ant-design/icons";
@@ -35,6 +35,8 @@ export function AppLayout() {
     getMenuItem();
     // eslint-disable-next-line
   }, []);
+
+  const session = JSON.parse(localStorage.getItem("session"));
 
   const getMenuItem = async () => {
     let email = user.email;
@@ -176,36 +178,38 @@ export function AppLayout() {
                   alignItems: "center",
                 }}
               >
-                <Button
-                  type="text"
-                  icon={
-                    <Badge
-                      count={
-                        <ClockCircleFilled
-                          style={{ color: "#f5222d", fontSize: 10 }}
-                        />
-                      }
-                      size="small"
-                    >
-                      <BellFilled />
-                    </Badge>
-                  }
-                  onClick={() => history("/notification")}
-                  style={{ marginRight: 10 }}
-                />
+                {!session?.actualLanding?.includes("setting") ? (
+                  <Button
+                    type="text"
+                    icon={
+                      <Badge
+                        count={
+                          <ClockCircleFilled
+                            style={{ color: "#f5222d", fontSize: 10 }}
+                          />
+                        }
+                        size="small"
+                      >
+                        <BellFilled />
+                      </Badge>
+                    }
+                    onClick={() => history("/notification")}
+                    style={{ marginRight: 10 }}
+                  />
+                ) : null}
                 <Menu mode="horizontal">
                   <Menu.SubMenu
                     key="SubMenu"
                     title={LoginName}
                     icon={<UserOutlined />}
                   >
-                    <Menu.Item
+                    {/* <Menu.Item
                       key="1"
                       icon={<KeyOutlined />}
                       onClick={() => history.push("/setting/user/resetpass")}
                     >
                       Reset Password
-                    </Menu.Item>
+                    </Menu.Item> */}
                     <Menu.Item
                       key="2"
                       icon={<PoweroffOutlined />}

@@ -31,6 +31,11 @@ export function UserList() {
       key: "aut_group.nama",
     },
     {
+      title: "Bank Custody",
+      dataIndex: "custody_nama",
+      key: "mst_bank_custody.nama",
+    },
+    {
       title: "Status",
       dataIndex: "is_active",
       key: "is_active",
@@ -79,6 +84,7 @@ export function UserList() {
           nama: row.nama,
           is_active: parseInt(row.is_active),
           aut_group_nama: row.aut_group.nama,
+          custody_nama: row.mst_bank_custody?.nama ?? "",
         });
         return true;
       });

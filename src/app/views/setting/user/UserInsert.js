@@ -19,6 +19,7 @@ export function UserInsert() {
   const history = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [groupData, setGroupData] = useState([]);
+  const [custodyData, setCustodyData] = useState([]);
 
   useEffect(() => {
     getData();
@@ -26,23 +27,31 @@ export function UserInsert() {
 
   const getData = async () => {
     setIsLoading(true);
-    await get(`/group/list/select`, {})
-      .then(({ data }) => {
-        let listData = [];
-        data.data.rows.map((val, index) => {
-          listData.push({
-            key: index,
-            id: val.id,
-            nama: val.nama,
-          });
-          return true;
-        });
-        setGroupData(listData);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.log(err.response.data);
-      });
+    const {
+      data: {
+        data: { rows: groupData },
+      },
+    } = await get(`/group/list/select`);
+
+    const {
+      data: {
+        data: { rows: custodyData },
+      },
+    } = await get(`/custody/select`);
+
+    custodyData.map((val) => {
+      val.key = val.id;
+      return val;
+    });
+
+    groupData.map((val) => {
+      val.key = val.id;
+      return val;
+    });
+
+    setGroupData(groupData);
+    setCustodyData(custodyData);
+    setIsLoading(false);
   };
 
   const onFinish = async (values) => {
@@ -56,6 +65,7 @@ export function UserInsert() {
         password: values.password,
         aut_group_id: values.group,
         nama: values.nama,
+        mst_bank_custody_id: values.custody,
       })
     )
       .then(({ data }) => {
@@ -105,7 +115,7 @@ export function UserInsert() {
           autoComplete="off"
         >
           <Form.Item
-            label="email"
+            label="Email"
             name="email"
             rules={[
               {
@@ -117,7 +127,7 @@ export function UserInsert() {
             <Input />
           </Form.Item>
           <Form.Item
-            label="password"
+            label="Password"
             name="password"
             rules={[
               {
@@ -130,11 +140,26 @@ export function UserInsert() {
             <Input.Password />
           </Form.Item>
           <Form.Item
+            label="Bank Custody"
+            name="custody"
+            rules={[
+              { required: true, message: "Form Bank Custody harus diisi!" },
+            ]}
+          >
+            <Select style={{ width: 200 }}>
+              {custodyData.map((val) => (
+                <Option key={val.key} value={val.id}>
+                  {val.nama}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
             label="Group"
             name="group"
             rules={[{ required: true, message: "Form Group harus diisi!" }]}
           >
-            <Select showSearch style={{ width: 200 }}>
+            <Select style={{ width: 200 }}>
               {groupData.map((val) => (
                 <Option key={val.key} value={val.id}>
                   {val.nama}
@@ -143,7 +168,7 @@ export function UserInsert() {
             </Select>
           </Form.Item>
           <Form.Item
-            label="nama"
+            label="Nama"
             name="nama"
             rules={[
               {

@@ -9,7 +9,6 @@ import {
   DatePicker,
   Button,
   Select,
-  notification,
   Modal,
   Radio,
 } from "antd";
@@ -17,7 +16,6 @@ import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
 import { post, get } from "../../../functions/helper";
-import QueryString from "qs";
 import * as XLSX from "xlsx";
 
 export function ObligasiCKPN() {

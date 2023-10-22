@@ -27,8 +27,7 @@ export function UserUpdate() {
   const history = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [groupData, setGroupData] = useState([]);
-  // eslint-disable-next-line
-  const [userData, setUserData] = useState([]);
+  const [custodyData, setCustodyData] = useState([]);
 
   useEffect(() => {
     getData();
@@ -37,35 +36,40 @@ export function UserUpdate() {
 
   const getData = async () => {
     setIsLoading(true);
+    const {
+      data: { data: userData },
+    } = await get(`/user/list/${params.id}`);
 
-    await get(`/user/list/${params.id}`, {})
-      .then(({ data: { data } }) => {
-        setUserData(data);
-        form.setFieldsValue({ nama: data.nama, group: data.aut_group_id });
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        notification.error({ message: "Contact Administrator", duration: 2 });
-        console.log(err);
-        history("/setting/user/list");
-      });
+    const {
+      data: {
+        data: { rows },
+      },
+    } = await get(`/group/list/select`);
 
-    await get(`/group/list/select`, {})
-      .then(({ data }) => {
-        let listData = [];
-        data.data.rows.map((val, index) => {
-          listData.push({
-            key: index,
-            id: val.id,
-            nama: val.nama,
-          });
-          return true;
-        });
-        setGroupData(listData);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    rows.map((val) => {
+      val.key = val.id;
+      return val;
+    });
+
+    const {
+      data: {
+        data: { rows: custody },
+      },
+    } = await get(`/custody/select`);
+    custody.map((val) => {
+      val.key = val.id;
+      return val;
+    });
+
+    form.setFieldsValue({
+      nama: userData.nama,
+      group: userData.aut_group_id,
+      custody: userData.mst_bank_custody_id,
+    });
+
+    setCustodyData(custody);
+    setGroupData(rows);
+    setIsLoading(false);
   };
 
   const onFinish = async (values) => {
@@ -149,11 +153,24 @@ export function UserUpdate() {
             <Input />
           </Form.Item>
           <Form.Item
+            label="Bank Custody"
+            name="custody"
+            rules={[{ required: true, message: "Form Custody harus diisi!" }]}
+          >
+            <Select style={{ width: 200 }}>
+              {custodyData.map((val) => (
+                <Option key={val.key} value={val.id}>
+                  {val.nama}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
             label="Group"
             name="group"
             rules={[{ required: true, message: "Form Group harus diisi!" }]}
           >
-            <Select showSearch style={{ width: 200 }}>
+            <Select style={{ width: 200 }}>
               {groupData.map((val) => (
                 <Option key={val.key} value={val.id}>
                   {val.nama}

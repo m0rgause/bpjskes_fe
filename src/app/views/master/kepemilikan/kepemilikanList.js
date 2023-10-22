@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Button, Input, Table, Spin } from "antd";
+import { Button, Input, Table, Spin } from "antd";
 import { get } from "../../../functions/helper";
 import { PlusOutlined, SearchOutlined, EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";

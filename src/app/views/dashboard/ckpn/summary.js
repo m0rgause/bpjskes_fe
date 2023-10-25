@@ -9,8 +9,8 @@ import {
   DatePicker,
   Button,
   Select,
-  Modal,
   Radio,
+  notification,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
@@ -21,9 +21,14 @@ import * as XLSX from "xlsx";
 
 export function SummaryCKPN() {
   const [loading, setLoading] = React.useState(false);
+  const [filterStartDate, setfilterStartDate] = React.useState(
+    dayjs().startOf("month")
+  );
+  const [filterEndDate, setfilterEndDate] = React.useState(
+    dayjs().add(4, "months")
+  );
 
   const [type, setType] = React.useState("monthly");
-  const [listDate, setListDate] = React.useState([]);
   const [filterBank, setfilterBank] = React.useState("all");
   const [filterCustody, setfilterCustody] = React.useState("all");
   const [pickerDate, setPickerDate] = React.useState("month");
@@ -42,13 +47,15 @@ export function SummaryCKPN() {
   }, []);
 
   const onFilter = () => {
-    // sort date ascending
-    let list = [...listDate];
-    list.sort((a, b) => {
-      return dayjs(a).diff(dayjs(b));
-    });
-    setListDate(list);
-    getData();
+    if (filterStartDate.isAfter(filterEndDate)) {
+      notification.error({
+        message: "Error",
+        description: "Periode awal tidak boleh lebih besar dari periode akhir",
+      });
+      return;
+    } else {
+      getData();
+    }
   };
 
   const isMobile = window.innerWidth <= 768;
@@ -56,11 +63,14 @@ export function SummaryCKPN() {
   const getData = async () => {
     const eq = {
       type: type,
-      listDate: listDate,
+      startDate: filterStartDate.format("YYYY-MM-DD"),
+      endDate: filterEndDate.format("YYYY-MM-DD"),
+      rangeDate:
+        filterEndDate.diff(filterStartDate, pickerDate) +
+        (pickerDate === "month" ? 1 : 2),
       issuer: filterBank,
       custody: filterCustody,
     };
-    console.log(eq);
     try {
       setLoading(true);
       let {
@@ -97,7 +107,6 @@ export function SummaryCKPN() {
     const {
       data: { data },
     } = await get("/custody");
-    console.log(data);
 
     let item = [{ value: "all", label: "All" }];
     data.forEach((element, index) => {
@@ -119,7 +128,6 @@ export function SummaryCKPN() {
   };
 
   const onTypeChange = (e) => {
-    setListDate([]);
     if (e.target.value === "monthly") {
       setPickerDate("month");
     } else if (e.target.value === "yearly") {
@@ -127,29 +135,6 @@ export function SummaryCKPN() {
     }
   };
 
-  const onAddDate = () => {
-    Modal.info({
-      title: "Add Date",
-      content: (
-        <div>
-          <DatePicker
-            picker={pickerDate}
-            onChange={(date, dateString) => {
-              let list = [...listDate];
-              list.push(dateString);
-              setListDate(list);
-              Modal.destroyAll();
-            }}
-            style={{ width: "100%", maxWidth: "300px" }}
-          />
-        </div>
-      ),
-      // remove ok button
-      okButtonProps: { style: { display: "none" } },
-      // close modal when click outside
-      maskClosable: true,
-    });
-  };
   const config = {
     data: dataChart,
     xField: "bank",
@@ -244,10 +229,10 @@ export function SummaryCKPN() {
         <Col span={24}>
           <Card className="mb-1" style={{ minHeight: "175px" }}>
             <Row gutter={[8, 8]}>
-              <Col span={isMobile ? 24 : 2}>
+              <Col span={isMobile ? 24 : 3}>
                 <Typography.Text strong>Type</Typography.Text>
               </Col>
-              <Col span={isMobile ? 24 : 22}>
+              <Col span={isMobile ? 24 : 21}>
                 <Radio.Group
                   defaultValue={type}
                   onChange={(e) => {
@@ -259,29 +244,39 @@ export function SummaryCKPN() {
                   <Radio value="yearly">Yearly</Radio>
                 </Radio.Group>
               </Col>
-              <Col span={isMobile ? 24 : 2}>
+              <Col span={isMobile ? 24 : 3}>
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
-              <Col span={isMobile ? 24 : 22}>
-                <Select
-                  mode="multiple"
-                  placeholder="Select date"
-                  style={{ width: "100%", maxWidth: "300px" }}
-                  value={listDate}
-                  onChange={(value) => {
-                    setListDate(value);
-                  }}
-                  dropdownRender={() => null}
-                  // when click on select, open modal
-                  onClick={() => {
-                    onAddDate();
-                  }}
-                />
+              <Col span={isMobile ? 24 : 21}>
+                <div>
+                  <DatePicker
+                    defaultValue={filterStartDate}
+                    picker={pickerDate}
+                    onChange={(date) => setfilterStartDate(date)}
+                    style={{
+                      marginRight: "5px",
+                      maxWidth: "150px",
+                      width: "100%",
+                      marginBottom: isMobile ? "5px" : "0",
+                    }}
+                  />
+                  {isMobile ? "" : "-"}
+                  <DatePicker
+                    defaultValue={filterEndDate}
+                    picker={pickerDate}
+                    onChange={(date) => setfilterEndDate(date)}
+                    style={{
+                      marginLeft: isMobile ? "0" : "5px",
+                      maxWidth: "150px",
+                      width: "100%",
+                    }}
+                  />
+                </div>
               </Col>
-              <Col span={isMobile ? 24 : 2}>
+              <Col span={isMobile ? 24 : 3}>
                 <Typography.Text strong>Bank Custody</Typography.Text>
               </Col>
-              <Col span={isMobile ? 24 : 22}>
+              <Col span={isMobile ? 24 : 21}>
                 <Select
                   defaultValue={filterCustody}
                   options={custody}
@@ -290,10 +285,10 @@ export function SummaryCKPN() {
                 />
               </Col>
 
-              <Col span={isMobile ? 24 : 2}>
+              <Col span={isMobile ? 24 : 3}>
                 <Typography.Text strong>Issuer</Typography.Text>
               </Col>
-              <Col span={isMobile ? 24 : 22}>
+              <Col span={isMobile ? 24 : 21}>
                 <Select
                   defaultValue={filterBank}
                   options={bank}
@@ -301,8 +296,8 @@ export function SummaryCKPN() {
                   style={{ maxWidth: "300px", width: "100%" }}
                 />
               </Col>
-              <Col span={isMobile ? 24 : 2}></Col>
-              <Col span={isMobile ? 24 : 22}>
+              <Col span={isMobile ? 24 : 3}></Col>
+              <Col span={isMobile ? 24 : 21}>
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}

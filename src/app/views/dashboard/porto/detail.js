@@ -10,6 +10,7 @@ import {
   DatePicker,
   Select,
   notification,
+  Radio,
 } from "antd";
 import { Pie } from "@ant-design/plots";
 import { ArrowLeftOutlined, SearchOutlined } from "@ant-design/icons";
@@ -26,10 +27,24 @@ const useQuery = () => {
 export function DetailPorto() {
   const query = useQuery();
   const subtipe = query.get("subtipe");
+  const start = query.get("start") ? dayjs(query.get("start")) : dayjs();
+  const end = query.get("end") ? dayjs(query.get("end")) : dayjs().add(6, "M");
+
+  const [type, setType] = React.useState(query.get("type") ?? "monthly");
+  const [pickerDate, setPickerDate] = React.useState(
+    query.get("picker") ?? "month"
+  );
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
-  const [filterIssuer, setFilterIssuer] = React.useState("all");
+  const [filterStartDate, setfilterStartDate] = React.useState(start);
+  const [filterEndDate, setfilterEndDate] = React.useState(end);
+  const [filterIssuer, setFilterIssuer] = React.useState(
+    query.get("issuer") ?? "all"
+  );
+  const [filterCustody, setFilterCustody] = React.useState(
+    query.get("custody") ?? "all"
+  );
+
+  const [custody, setCustody] = React.useState([]); // for filter
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
   const [data, setData] = React.useState([]); // for table
 
@@ -40,15 +55,37 @@ export function DetailPorto() {
   React.useEffect(() => {
     getIssuer();
     getData();
+    getBankCustody();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const onTypeChange = (e) => {
+    if (e.target.value === "monthly") {
+      setPickerDate("month");
+    } else if (e.target.value === "yearly") {
+      setPickerDate("year");
+    }
+  };
+  const getBankCustody = async () => {
+    const {
+      data: { data },
+    } = await get("/custody");
 
+    let item = [{ value: "all", label: "All" }];
+    data.forEach((element, index) => {
+      item.push({ key: index, value: element.id, label: element.nama });
+    });
+    setCustody(item);
+  };
   const getData = async (key = "tenor") => {
     setLoading(true);
     let eq = {
+      type: type,
       start: filterStartDate.format("YYYY-MM"),
       end: filterEndDate.format("YYYY-MM"),
-      range: filterEndDate.diff(filterStartDate, "M"),
+      range:
+        filterEndDate.diff(filterStartDate, pickerDate) +
+        (pickerDate === "month" ? 1 : 2),
+      custody: filterCustody,
       issuer: filterIssuer,
       tableName: "trx_porto",
       subtipe: subtipe,
@@ -256,28 +293,65 @@ export function DetailPorto() {
       </Typography.Title>
       <Card className="mb-1" style={{ minHeight: "175px" }}>
         <Row gutter={[8, 8]}>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
+            <Typography.Text strong>Type</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 21}>
+            <Radio.Group
+              defaultValue={type}
+              onChange={(e) => {
+                setType(e.target.value);
+                onTypeChange(e);
+              }}
+            >
+              <Radio value="monthly">Monthly</Radio>
+              <Radio value="yearly">Yearly</Radio>
+            </Radio.Group>
+          </Col>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
-            <DatePicker
-              picker="month"
-              format={"MM-YYYY"}
-              defaultValue={filterStartDate}
-              onChange={(date) => setfilterStartDate(date)}
-            />{" "}
-            -{" "}
-            <DatePicker
-              picker="month"
-              format={"MM-YYYY"}
-              defaultValue={filterEndDate}
-              onChange={(date) => setfilterEndDate(date)}
+          <Col span={isMobile ? 24 : 21}>
+            <div>
+              <DatePicker
+                defaultValue={filterStartDate}
+                picker={pickerDate}
+                onChange={(date) => setfilterStartDate(date)}
+                style={{
+                  marginRight: "5px",
+                  maxWidth: "150px",
+                  width: "100%",
+                  marginBottom: isMobile ? "5px" : "0",
+                }}
+              />
+              {isMobile ? "" : "-"}
+              <DatePicker
+                defaultValue={filterEndDate}
+                picker={pickerDate}
+                onChange={(date) => setfilterEndDate(date)}
+                style={{
+                  marginLeft: isMobile ? "0" : "5px",
+                  maxWidth: "150px",
+                  width: "100%",
+                }}
+              />
+            </div>
+          </Col>
+          <Col span={isMobile ? 24 : 3}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 21}>
+            <Select
+              defaultValue={filterCustody}
+              options={custody}
+              onChange={(value) => setFilterCustody(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Issuer</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterIssuer}
               options={issuer.item}
@@ -285,8 +359,8 @@ export function DetailPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}></Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 3}></Col>
+          <Col span={isMobile ? 24 : 21}>
             <Button
               type="primary"
               icon={<SearchOutlined />}

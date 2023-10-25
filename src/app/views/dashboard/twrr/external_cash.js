@@ -9,8 +9,7 @@ import {
   Col,
   Button,
   Radio,
-  Select,
-  Modal,
+  notification,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -20,16 +19,20 @@ import * as XLXS from "xlsx";
 
 export function ExternalCash() {
   const [loading, setLoading] = React.useState(false);
+  const [filterStartDate, setfilterStartDate] = React.useState(
+    dayjs().startOf("month")
+  );
+  const [filterEndDate, setfilterEndDate] = React.useState(
+    dayjs().add(4, "months")
+  );
 
   const [data, setData] = React.useState([]);
   const [totalAkumulasi, setTotalAkumulasi] = React.useState(0);
   const [dataChart, setDataChart] = React.useState({ data: [], uvBill: [] });
   const [type, setType] = React.useState("daily");
-  const [listDate, setListDate] = React.useState([]);
-  const [pickerDate, setPickerDate] = React.useState("");
+  const [pickerDate, setPickerDate] = React.useState("date");
 
   const onTypeChange = (e) => {
-    setListDate([]);
     if (e.target.value === "daily") {
       setPickerDate("date");
     } else if (e.target.value === "monthly") {
@@ -39,54 +42,38 @@ export function ExternalCash() {
     }
   };
 
-  const onAddDate = () => {
-    Modal.info({
-      title: "Add Date",
-      content: (
-        <div>
-          <DatePicker
-            picker={pickerDate}
-            onChange={(date, dateString) => {
-              let list = [...listDate];
-              list.push(dateString);
-              setListDate(list);
-              Modal.destroyAll();
-            }}
-            style={{ width: "100%", maxWidth: "300px" }}
-          />
-        </div>
-      ),
-      // remove ok button
-      okButtonProps: { style: { display: "none" } },
-      // close modal when click outside
-      maskClosable: true,
-    });
-  };
-
   React.useEffect(() => {
     getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onFilter = () => {
-    // sort date ascending
-    let list = [...listDate];
-    list.sort((a, b) => {
-      return dayjs(a).diff(dayjs(b));
-    });
+    if (filterStartDate.isAfter(filterEndDate)) {
+      notification.error({
+        message: "Error",
+        description: "Periode awal tidak boleh lebih besar dari periode akhir",
+      });
+      return;
+    }
     getData();
   };
 
   const getData = async () => {
     setLoading(true);
+    let diffType = pickerDate === "date" ? "day" : pickerDate;
     let eq = {
       type: type,
-      listDate: listDate,
+      startDate: filterStartDate.format("YYYY-MM-DD"),
+      endDate: filterEndDate.format("YYYY-MM-DD"),
+      rangeDate:
+        filterEndDate.diff(filterStartDate, diffType) +
+        (diffType === "year" ? 2 : 1),
     };
 
     let {
       data: { data: externalCash },
     } = await post("/twrr/external-cash", eq);
+    console.log(externalCash);
 
     externalCash = externalCash?.map((item, index) => {
       item.key = index;
@@ -110,8 +97,14 @@ export function ExternalCash() {
   const transformData = (data) => {
     let result = [];
     data?.forEach((element) => {
+      let period = dayjs(element.period);
       result.push({
-        time: dayjs(element.tanggal).format("DD MMM YYYY"),
+        time:
+          type === "daily"
+            ? period.format("DD MMM YYYY")
+            : type === "monthly"
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         Akumulasi: element.return_akumulasi,
       });
     });
@@ -121,13 +114,24 @@ export function ExternalCash() {
   const uvBillData = (data) => {
     let result = [];
     data?.forEach((element) => {
+      let period = dayjs(element.period);
       result.push({
-        time: dayjs(element.tanggal).format("DD MMM YYYY"),
+        time:
+          type === "daily"
+            ? period.format("DD MMM YYYY")
+            : type === "monthly"
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         value: parseInt(element.total_before_cash),
         type: "Total Sebelum External Cash",
       });
       result.push({
-        time: dayjs(element.tanggal).format("DD MMM YYYY"),
+        time:
+          type === "daily"
+            ? period.format("DD MMM YYYY")
+            : type === "monthly"
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         value: parseInt(element.total_after_cash),
         type: "Total Sesudah External Cash",
       });
@@ -201,10 +205,15 @@ export function ExternalCash() {
   const columns = [
     {
       title: "Periode",
-      dataIndex: "tanggal",
+      dataIndex: "period",
       key: "periode",
       render: (text) => {
-        return dayjs(text).format("DD MMM YYYY");
+        let period = dayjs(text);
+        return type === "daily"
+          ? period.format("DD MMM YYYY")
+          : type === "monthly"
+          ? period.format("MMM YYYY")
+          : period.format("YYYY");
       },
     },
     {
@@ -236,9 +245,14 @@ export function ExternalCash() {
   ];
 
   const onExport = async () => {
+    let diffType = pickerDate === "date" ? "day" : pickerDate;
     let eq = {
       type: type,
-      listDate: listDate,
+      startDate: filterStartDate.format("YYYY-MM-DD"),
+      endDate: filterEndDate.format("YYYY-MM-DD"),
+      rangeDate:
+        filterEndDate.diff(filterStartDate, diffType) +
+        (diffType === "year" ? 2 : 1),
     };
     let {
       data: { data: externalCash },
@@ -250,8 +264,14 @@ export function ExternalCash() {
     const fileName = `External Cash ${type}`;
 
     const data = externalCash.map((item) => {
+      let period = dayjs(item.period);
       return {
-        Periode: dayjs(item.tanggal).format("DD MMM YYYY"),
+        Periode:
+          type === "daily"
+            ? period.format("DD MMM YYYY")
+            : type === "monthly"
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         "Total Sebelum External Cash": parseInt(
           item.total_before_cash
         ).toLocaleString("id-ID"),
@@ -301,30 +321,14 @@ export function ExternalCash() {
                   <Radio value="yearly">Yearly</Radio>
                 </Radio.Group>
               </Col>
-              <Col span={isMobile ? 24 : 2}>Period</Col>
-              <Col span={isMobile ? 24 : 22}>
-                <Select
-                  mode="multiple"
-                  placeholder="Select date"
-                  style={{ width: "100%", maxWidth: "300px" }}
-                  value={listDate}
-                  onChange={(value) => {
-                    setListDate(value);
-                  }}
-                  dropdownRender={() => null}
-                  // when click on select, open modal
-                  onClick={() => {
-                    onAddDate();
-                  }}
-                />
-              </Col>
-              {/* <Col span={isMobile ? 24 : 2}>
+              <Col span={isMobile ? 24 : 2}>
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
                 <div>
                   <DatePicker
                     defaultValue={filterStartDate}
+                    picker={pickerDate}
                     onChange={(date) => setfilterStartDate(date)}
                     style={{
                       marginRight: "5px",
@@ -336,6 +340,7 @@ export function ExternalCash() {
                   {isMobile ? "" : "-"}
                   <DatePicker
                     defaultValue={filterEndDate}
+                    picker={pickerDate}
                     onChange={(date) => setfilterEndDate(date)}
                     style={{
                       marginLeft: isMobile ? "0" : "5px",
@@ -344,7 +349,7 @@ export function ExternalCash() {
                     }}
                   />
                 </div>
-              </Col> */}
+              </Col>
               <Col span={isMobile ? 24 : 2}></Col>
               <Col span={isMobile ? 24 : 22}>
                 <Button

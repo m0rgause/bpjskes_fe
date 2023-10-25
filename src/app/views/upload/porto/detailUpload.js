@@ -101,7 +101,7 @@ export function DetailUpload() {
       dataIndex: "start_date",
       key: "start_date",
       render: (text) => {
-        return dayjs(text).format("DD MMM YYYY");
+        return text ? dayjs(text).format("DD MMM YYYY") : "";
       },
     },
     {
@@ -109,7 +109,7 @@ export function DetailUpload() {
       dataIndex: "end_date",
       key: "end_date",
       render: (text) => {
-        return dayjs(text).format("DD MMM YYYY");
+        return text ? dayjs(text).format("DD MMM YYYY") : "";
       },
     },
     {
@@ -125,7 +125,7 @@ export function DetailUpload() {
       dataIndex: "interest_date",
       key: "interest_date",
       render: (text) => {
-        return dayjs(text).format("DD MMM YYYY");
+        return text ? dayjs(text).format("DD MMM YYYY") : "";
       },
     },
     {

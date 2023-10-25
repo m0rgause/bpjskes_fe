@@ -10,7 +10,7 @@ import {
   Card,
   Table,
   Radio,
-  Modal,
+  notification,
 } from "antd";
 import dayjs from "dayjs";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
@@ -21,6 +21,8 @@ import * as XLSX from "xlsx";
 
 export function SBIPorto() {
   const [loading, setLoading] = React.useState(false);
+  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
+  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
   const [filterCustody, setFilterCustody] = React.useState("all"); // [all, bni, mandiri, bc
   const [filterIssuer, setFilterIssuer] = React.useState("all");
   const [filterTenor, setFilterTenor] = React.useState("all");
@@ -30,7 +32,6 @@ export function SBIPorto() {
   const [issuer, setIssuer] = React.useState([]); // for filter
   const [tenor, setTenor] = React.useState([]); // for filter
   const [pengelolaan, setPengelolaan] = React.useState([]); // for filter
-  const [listDate, setListDate] = React.useState([]);
   const [type, setType] = React.useState("monthly");
   const [pickerDate, setPickerDate] = React.useState("month");
 
@@ -45,14 +46,14 @@ export function SBIPorto() {
   }, []);
 
   const onFilter = () => {
-    // sort date ascending
-    let list = [...listDate];
-    list.sort((a, b) => {
-      return dayjs(a).diff(dayjs(b));
-    });
-    setListDate(list);
-    getData();
+    if (filterStartDate.isAfter(filterEndDate)) {
+      notification.error({
+        message: "Periode awal tidak boleh lebih besar dari periode akhir",
+      });
+      return;
+    }
   };
+
   const getBankCustody = async () => {
     const {
       data: { data },
@@ -67,7 +68,11 @@ export function SBIPorto() {
   const getData = async () => {
     const eq = QueryString.stringify({
       type: type,
-      list_date: listDate,
+      start_date: filterStartDate.format("YYYY-MM"),
+      end_date: filterEndDate.format("YYYY-MM"),
+      range:
+        filterEndDate.diff(filterStartDate, pickerDate) +
+        (pickerDate === "month" ? 1 : 2),
       custody: filterCustody,
       issuer: filterIssuer,
       kbmi: "all",
@@ -96,29 +101,6 @@ export function SBIPorto() {
     } finally {
       setLoading(false);
     }
-  };
-  const onAddDate = () => {
-    Modal.info({
-      title: "Add Date",
-      content: (
-        <div>
-          <DatePicker
-            picker={pickerDate}
-            onChange={(date, dateString) => {
-              let list = [...listDate];
-              list.push(dateString);
-              setListDate(list);
-              Modal.destroyAll();
-            }}
-            style={{ width: "100%", maxWidth: "300px" }}
-          />
-        </div>
-      ),
-      // remove ok button
-      okButtonProps: { style: { display: "none" } },
-      // close modal when click outside
-      maskClosable: true,
-    });
   };
 
   const fetchData = async (endpoint) => {
@@ -317,7 +299,6 @@ export function SBIPorto() {
     XLSX.writeFile(wb, "SBI.xlsx");
   };
   const onTypeChange = (e) => {
-    setListDate([]);
     setData([]);
     if (e.target.value === "monthly") {
       setPickerDate("month");
@@ -335,10 +316,10 @@ export function SBIPorto() {
 
       <Card className="mb-1">
         <Row gutter={[8, 8]}>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Type</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 21}>
             <Radio.Group
               defaultValue={type}
               onChange={(e) => {
@@ -350,29 +331,39 @@ export function SBIPorto() {
               <Radio value="yearly">Yearly</Radio>
             </Radio.Group>
           </Col>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
-            <Select
-              mode="multiple"
-              placeholder="Select date"
-              style={{ width: "100%", maxWidth: "300px" }}
-              value={listDate}
-              onChange={(value) => {
-                setListDate(value);
-              }}
-              dropdownRender={() => null}
-              // when click on select, open modal
-              onClick={() => {
-                onAddDate();
-              }}
-            />
+          <Col span={isMobile ? 24 : 21}>
+            <div>
+              <DatePicker
+                defaultValue={filterStartDate}
+                picker={pickerDate}
+                onChange={(date) => setfilterStartDate(date)}
+                style={{
+                  marginRight: "5px",
+                  maxWidth: "150px",
+                  width: "100%",
+                  marginBottom: isMobile ? "5px" : "0",
+                }}
+              />
+              {isMobile ? "" : "-"}
+              <DatePicker
+                defaultValue={filterEndDate}
+                picker={pickerDate}
+                onChange={(date) => setfilterEndDate(date)}
+                style={{
+                  marginLeft: isMobile ? "0" : "5px",
+                  maxWidth: "150px",
+                  width: "100%",
+                }}
+              />
+            </div>
           </Col>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Bank Custody</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterCustody}
               options={custody}
@@ -380,10 +371,10 @@ export function SBIPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Issuer</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterIssuer}
               options={issuer}
@@ -391,10 +382,10 @@ export function SBIPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Tenor</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterTenor}
               options={tenor}
@@ -402,10 +393,10 @@ export function SBIPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Pengelolaan</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterPengelolaan}
               options={pengelolaan}
@@ -413,8 +404,8 @@ export function SBIPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}></Col>
-          <Col span={isMobile ? 24 : 22}>
+          <Col span={isMobile ? 24 : 3}></Col>
+          <Col span={isMobile ? 24 : 21}>
             <Button
               type="primary"
               icon={<SearchOutlined />}

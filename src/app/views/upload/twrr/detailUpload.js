@@ -150,7 +150,7 @@ export function DetailUploadTWRR() {
           icon={<ArrowLeftOutlined />}
           onClick={() => history(-1)}
         />
-        Detail File Porto
+        Detail File TWRR
       </Typography.Title>
       <Card className="mb-1">
         <table className="table">

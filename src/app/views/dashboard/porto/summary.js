@@ -72,7 +72,7 @@ export function SummaryPorto() {
 
       data.data.forEach((element, index) => {
         element.key = index;
-        element.nominal = Number(element.sum);
+        element.nominal = Number(element.sum / 1000000);
         element.presentase = `${(
           (element.sum / data.totalNominal) *
           100
@@ -176,7 +176,7 @@ export function SummaryPorto() {
       key: "nominal",
       align: "right",
       render: (text) => {
-        return (text / 1000000).toLocaleString("id-ID");
+        return text.toLocaleString("id-ID");
       },
     },
     {

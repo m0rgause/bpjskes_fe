@@ -78,8 +78,9 @@ export function ComparisonCKPN() {
     let {
       data: { data: comparison },
     } = await post("/ckpn/comparison", eq);
-    console.log(comparison);
-
+    comparison?.forEach((item) => {
+      item.sum = item.sum / 1000000;
+    });
     setData(comparison);
     setLoading(false);
   };
@@ -109,11 +110,13 @@ export function ComparisonCKPN() {
       title: "Bank Custody",
       dataIndex: "custody",
       key: "custody",
+      width: 250,
     },
     {
       title: "Issuer",
       dataIndex: "comparison",
       key: "comparison",
+      width: 250,
     },
     ...listDateFixed.map((item, index) => {
       return {
@@ -131,7 +134,6 @@ export function ComparisonCKPN() {
             : "",
         key: index,
         render: (text, record) => {
-          //   // next if first item
           if (index === 0) {
             return text ? Number(text).toLocaleString("id-ID") : 0;
           }
@@ -357,7 +359,7 @@ export function ComparisonCKPN() {
           }}
           bordered
           className="mb-2"
-          scroll={{ x: 500 }}
+          scroll={{ x: 1500 }}
         />
         <Button
           type="primary"

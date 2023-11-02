@@ -89,13 +89,13 @@ export function DetailCKPN() {
         no_security: element.no_security,
         start_date: element.start_date,
         end_date: element.end_date,
-        nominal: element.nominal,
+        nominal: element.nominal / 1000000,
         interest_date: element.interest_date,
         sisa_tenor: element.sisa_tenor,
         rate: element.rate,
         pd: element.pd,
         lgd: element.lgd,
-        ecl: element.ecl ? Number(element.ecl) : 0,
+        ecl: element.ecl ? Number(element.ecl / 1000000) : 0,
       });
     });
 
@@ -135,6 +135,7 @@ export function DetailCKPN() {
       title: "Bank Custody",
       dataIndex: "custody_name",
       key: "custody",
+      width: 200,
     },
     {
       title: "Issuer",
@@ -183,7 +184,7 @@ export function DetailCKPN() {
       },
     },
     {
-      title: "Nominal",
+      title: "Nominal (Jutaan)",
       dataIndex: "nominal",
       key: "nominal",
       align: "right",
@@ -226,7 +227,7 @@ export function DetailCKPN() {
       key: "lgd",
     },
     {
-      title: "ECL",
+      title: "ECL (Jutaan)",
       dataIndex: "ecl",
       key: "ecl",
       align: "right",
@@ -252,13 +253,13 @@ export function DetailCKPN() {
         "No Security": element.no_security,
         "Issued Date": element.start_date,
         "Maturity Date": element.end_date,
-        Nominal: Number(element.nominal).toLocaleString("id-ID"),
+        "Nominal (Jutaan)": Number(element.nominal).toLocaleString("id-ID"),
         "Term of Interest": element.interest_date,
         "Sisa Tenor": element.sisa_tenor,
         "Rate (%)": element.rate.toFixed(2),
         PD: element.pd.toFixed(2),
         "LGD (%)": element.lgd,
-        ECL: Number(element.ecl).toLocaleString("id-ID"),
+        "ECL (Jutaan)": Number(element.ecl).toLocaleString("id-ID"),
       };
     });
 
@@ -274,13 +275,13 @@ export function DetailCKPN() {
       "No Security": "",
       "Issued Date": "",
       "Maturity Date": "",
-      Nominal: "",
+      "Nominal (Jutaan)": "",
       "Term of Interest": "",
       "Sisa Tenor": "",
       "Rate (%)": "",
       PD: "",
       "LGD (%)": "",
-      ECL: Number(totalECL).toLocaleString("id-ID"),
+      "ECL (Jutaan)": Number(totalECL).toLocaleString("id-ID"),
     });
 
     const ws = XLSX.utils.json_to_sheet(dataExport);
@@ -360,7 +361,7 @@ export function DetailCKPN() {
             hideOnSinglePage: true,
           }}
           bordered
-          scroll={{ x: 2000 }}
+          scroll={{ x: 2500 }}
           summary={() => {
             return (
               <Table.Summary.Row>

@@ -76,6 +76,7 @@ export function ComparisonTWRR() {
       title: "Comparison",
       dataIndex: "comparison",
       key: "comparison",
+      width: 250,
     },
     ...listDateFixed.map((item, index) => {
       return {
@@ -99,7 +100,7 @@ export function ComparisonTWRR() {
         render: (text, record) => {
           // next if first item1
           if (index === 0) {
-            return text ? Number(text).toLocaleString("id-ID") : 0;
+            return text ? text.toLocaleString("id-ID") : 0;
           }
           let previousDate = "";
           let currentdate = "";
@@ -126,7 +127,7 @@ export function ComparisonTWRR() {
           let diff = currentValue - previousValue;
           return (
             <div>
-              {text ? Number(text).toLocaleString("id-ID") : 0}{" "}
+              {text ? text.toLocaleString("id-ID") : 0}{" "}
               {diff > 0 ? (
                 <span style={{ color: "green" }}>
                   <CaretUpOutlined />
@@ -161,21 +162,21 @@ export function ComparisonTWRR() {
   ];
   data?.forEach((item) => {
     if (type === "daily") {
-      dataSource[0][item.tanggal] = item.total_before_cash ?? 0;
-      dataSource[1][item.tanggal] = item.total_after_cash ?? 0;
+      dataSource[0][item.tanggal] = Number(item.total_before_cash) ?? 0;
+      dataSource[1][item.tanggal] = Number(item.total_after_cash) ?? 0;
       dataSource[2][item.tanggal] = (item?.return_harian).toFixed(2) ?? 0;
     } else if (type === "monthly") {
       dataSource[0][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
-        item.total_before_cash ?? 0;
+        Number(item.total_before_cash) ?? 0;
       dataSource[1][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
-        item.total_after_cash ?? 0;
+        Number(item.total_after_cash) ?? 0;
       dataSource[2][dayjs(item.tanggal).endOf("month").format("YYYY-MM-DD")] =
         (item?.return_harian).toFixed(2) ?? 0;
     } else if (type === "yearly") {
       dataSource[0][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
-        item.total_before_cash ?? 0;
+        Number(item.total_before_cash) ?? 0;
       dataSource[1][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
-        item.total_after_cash ?? 0;
+        Number(item.total_after_cash) ?? 0;
       dataSource[2][dayjs(item.tanggal).endOf("year").format("YYYY-MM-DD")] =
         (item?.return_harian).toFixed(2) ?? 0;
     }
@@ -257,7 +258,9 @@ export function ComparisonTWRR() {
               <Radio value="yearly">Yearly</Radio>
             </Radio.Group>
           </Col>
-          <Col span={isMobile ? 24 : 2}>Period</Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Period</Typography.Text>
+          </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               mode="multiple"
@@ -296,7 +299,7 @@ export function ComparisonTWRR() {
             hideOnSinglePage: true,
           }}
           className="mb-2"
-          scroll={{ x: 500 }}
+          scroll={{ x: 1500 }}
         />
         <Button
           type="primary"

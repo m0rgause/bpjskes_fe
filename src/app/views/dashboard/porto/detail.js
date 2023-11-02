@@ -105,12 +105,11 @@ export function DetailPorto() {
       const {
         data: { data },
       } = await post("/porto/detail", QueryString.stringify(eq));
-
       data.data.forEach((element, index) => {
         element.key = index;
-        element.nominal = Number(element.nominal);
+        element.nominal = Number(element.nominal / 1000000);
         element.presentase = `${(
-          (element.nominal / data.totalNominal) *
+          (element.nominal / (data.totalNominal / 1000000)) *
           100
         ).toFixed(2)}%`;
       });
@@ -239,7 +238,7 @@ export function DetailPorto() {
       dataIndex: "nominal",
       key: "nominal",
       align: "right",
-      render: (text) => (text / 1000000).toLocaleString("id-ID"),
+      render: (text) => text.toLocaleString("id-ID"),
     },
     {
       title: "Presentase",

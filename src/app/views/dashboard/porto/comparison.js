@@ -78,6 +78,11 @@ export function ComparisonPorto() {
     let {
       data: { data: comparison },
     } = await post("/porto/comparison", eq);
+
+    comparison?.forEach((element) => {
+      element.key = element.tipe;
+      element.sum = Number(element.sum / 1000000);
+    });
     setData(comparison);
     setLoading(false);
   };
@@ -107,6 +112,7 @@ export function ComparisonPorto() {
       title: "Bank Custody",
       dataIndex: "bank_custody",
       key: "bank_custody",
+      width: 250,
     },
     {
       title: "Comparison",
@@ -200,7 +206,6 @@ export function ComparisonPorto() {
     let index = dataSource.findIndex((element) => {
       return element.comparison.toLowerCase() === item.tipe;
     });
-
     if (index !== -1) {
       dataSource[index][
         type === "monthly"
@@ -209,6 +214,7 @@ export function ComparisonPorto() {
           ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
           : ""
       ] = item.sum;
+      dataSource[index]["bank_custody"] = item.custody;
     }
   });
 
@@ -300,7 +306,9 @@ export function ComparisonPorto() {
               <Radio value="yearly">Yearly</Radio>
             </Radio.Group>
           </Col>
-          <Col span={isMobile ? 24 : 2}>Period</Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Period</Typography.Text>
+          </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               mode="multiple"
@@ -317,7 +325,9 @@ export function ComparisonPorto() {
               }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}>Bank Custody</Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Bank Custody</Typography.Text>
+          </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterCustody}
@@ -326,7 +336,9 @@ export function ComparisonPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 2}>Issuer</Col>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Issuer</Typography.Text>
+          </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterIssuer}
@@ -358,7 +370,7 @@ export function ComparisonPorto() {
           }}
           bordered
           className="mb-2"
-          scroll={{ x: 500 }}
+          scroll={{ x: 1500 }}
         />
         <Button
           type="primary"

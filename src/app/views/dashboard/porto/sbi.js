@@ -86,10 +86,12 @@ export function SBIPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
-      console.log(data);
 
       data.data.forEach((item) => {
-        item.nominal = Number(item.nominal);
+        item.nominal = Number(item.nominal / 1000000);
+      });
+      data.dataTable.forEach((item) => {
+        item.nominal = Number(item.nominal / 1000000);
       });
       setDataChart(data.data);
       setData(data.dataTable);
@@ -188,6 +190,7 @@ export function SBIPorto() {
       title: "Bank Custody",
       dataIndex: "custody",
       key: "bank_custody",
+      width: 250,
     },
     {
       title: "Issuer",
@@ -231,7 +234,7 @@ export function SBIPorto() {
       key: "nominal",
       align: "right",
       render: (value) => {
-        return (value / 1000000).toLocaleString("id-ID");
+        return value.toLocaleString("id-ID");
       },
     },
     {
@@ -268,7 +271,7 @@ export function SBIPorto() {
         "No Security": item.no_security,
         "Issued Date": item.start_date,
         "Maturity Date": item.end_date,
-        "Nominal (Jutaan)": (item.nominal / 1000000).toLocaleString("id-ID"),
+        "Nominal (Jutaan)": item.nominal.toLocaleString("id-ID"),
         "Term of Interest": item.interest_date,
         "Sisa Tenor": item.sisa_tenor,
         "Rate (%)": item.rate.toFixed(2),
@@ -284,9 +287,9 @@ export function SBIPorto() {
       "No Security": "",
       "Issued Date": "",
       "Maturity Date": "",
-      "Nominal (Jutaan)": (
-        data.reduce((a, b) => a + Number(b.nominal), 0) / 1000000
-      ).toLocaleString("id-ID"),
+      "Nominal (Jutaan)": data
+        .reduce((a, b) => a + Number(b.nominal), 0)
+        .toLocaleString("id-ID"),
       "Term of Interest": "",
       "Sisa Tenor": "",
       "Rate (%)": "",
@@ -438,9 +441,9 @@ export function SBIPorto() {
                 <Table.Summary.Row>
                   <Table.Summary.Cell colSpan={8}>Total</Table.Summary.Cell>
                   <Table.Summary.Cell align="right">
-                    {(
-                      data?.reduce((a, b) => a + Number(b.nominal), 0) / 1000000
-                    ).toLocaleString("id-ID")}
+                    {data
+                      ?.reduce((a, b) => a + Number(b.nominal), 0)
+                      .toLocaleString("id-ID")}
                   </Table.Summary.Cell>
                   <Table.Summary.Cell colSpan={3}></Table.Summary.Cell>
                 </Table.Summary.Row>

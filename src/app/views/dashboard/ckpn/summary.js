@@ -78,24 +78,20 @@ export function SummaryCKPN() {
       } = await post("/ckpn/summary", QueryString.stringify(eq));
 
       // add key to data
-      let dataChart = [];
+      // let dataChart = [];
       data.forEach((element, index) => {
         element.key = index;
-        dataChart.push({
-          key: index,
-          custody: element.custody,
-          bank: element.nama,
-          return: Number(element.sum),
-          warna: element.warna,
-        });
+        element.sum = Number(element.sum / 1000000);
+        element.return = element.sum;
+        element.bank = element.nama;
       });
-      const totalECL = dataChart.reduce(
+      const totalECL = data.reduce(
         (total, element) => total + element.return,
         0
       );
 
       setTotalECL(totalECL);
-      setDataChart(dataChart);
+      setDataChart(data);
       setDataSource(data);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -183,6 +179,7 @@ export function SummaryCKPN() {
       title: "Bank Custody",
       dataIndex: "custody",
       key: "custody",
+      width: 200,
     },
     {
       title: "Issuer",
@@ -190,7 +187,7 @@ export function SummaryCKPN() {
       key: "nama",
     },
     {
-      title: "ECL",
+      title: "ECL (Jutaan)",
       dataIndex: "sum",
       key: "sum",
       render: (text) => Number(text).toLocaleString("id-ID"),
@@ -204,14 +201,14 @@ export function SummaryCKPN() {
       return {
         "Bank Custody": element.custody,
         Issuer: element.bank,
-        ECL: Number(element.return).toLocaleString("id-ID"),
+        "ECL (Jutaan)": Number(element.return).toLocaleString("id-ID"),
       };
     });
 
     dataExport.push({
       "Bank Custody": "Total",
       Issuer: "",
-      ECL: Number(totalECL).toLocaleString("id-ID"),
+      "ECL (Jutaan)": Number(totalECL).toLocaleString("id-ID"),
     });
 
     const ws = XLSX.utils.json_to_sheet(dataExport);

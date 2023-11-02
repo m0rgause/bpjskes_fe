@@ -73,7 +73,6 @@ export function ExternalCash() {
     let {
       data: { data: externalCash },
     } = await post("/twrr/external-cash", eq);
-    console.log(externalCash);
 
     externalCash = externalCash?.map((item, index) => {
       item.key = index;
@@ -152,7 +151,6 @@ export function ExternalCash() {
         columnStyle: {
           radius: [10, 10, 0, 0],
         },
-        // format to localestring
         tooltip: {
           formatter: (datum) => {
             return {

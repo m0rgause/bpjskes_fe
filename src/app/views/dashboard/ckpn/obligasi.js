@@ -30,15 +30,21 @@ export function ObligasiCKPN() {
   const [type, setType] = React.useState("monthly");
   const [pickerDate, setPickerDate] = React.useState("month");
 
+  const [filterKepemilikan, setFilterKepemilikan] = React.useState("all");
+  const [filterPengelolaan, setFilterPengelolaan] = React.useState("all");
   const [filterBank, setfilterBank] = React.useState("all");
+  const [filterKBMI, setfilterKBMI] = React.useState("all");
   const [filterTenor, setfilterTenor] = React.useState("all");
   const [filterCustody, setfilterCustody] = React.useState("all");
 
   const [totalECL, setTotalECL] = React.useState(0);
   const [custody, setCustody] = React.useState([]);
   const [bank, setBank] = React.useState([]);
+  const [kbmi, setKBMI] = React.useState([]);
   const [data, setData] = React.useState([]);
   const [tenor, setTenor] = React.useState([]);
+  const [kepemilikan, setKepemilikan] = React.useState([]);
+  const [pengelolaan, setPengelolaan] = React.useState([]);
   const [dataChart, setDataChart] = React.useState([]);
   const [dataSource, setDataSource] = React.useState([]);
 
@@ -92,6 +98,9 @@ export function ObligasiCKPN() {
       custody: filterCustody,
       issuer: filterBank,
       tenor: filterTenor,
+      kepemilikan: filterKepemilikan,
+      pengelolaan: filterPengelolaan,
+      kbmi: filterKBMI,
     };
 
     try {
@@ -99,7 +108,7 @@ export function ObligasiCKPN() {
       const data = response.data.data;
       const dataChart = data.data.map((item) => ({
         tanggal: item.period,
-        return: Number(item.sum),
+        return: Number(item.sum / 1000000),
       }));
 
       const dataSource = data.table.map((item, index) => ({
@@ -116,12 +125,12 @@ export function ObligasiCKPN() {
         start_date: item.start_date,
         end_date: item.end_date,
         interest_date: item.interest_date,
-        nominal: item.nominal,
+        nominal: item.nominal / 1000000,
         sisa_tenor: item.sisa_tenor,
         rate: item.rate,
         pd: item.pd,
         lgd: item.lgd,
-        ecl: Number(item.ecl),
+        ecl: Number(item.ecl / 1000000),
       }));
 
       const totalECL = dataSource.reduce((total, item) => total + item.ecl, 0);
@@ -130,7 +139,6 @@ export function ObligasiCKPN() {
       setData(data);
       setDataSource(dataSource);
     } catch (error) {
-      // Handle error appropriately
       console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
@@ -140,16 +148,31 @@ export function ObligasiCKPN() {
   const getFilter = async () => {
     setLoading(true);
     try {
-      const [issuerResponse, tenorResponse] = await Promise.all([
+      const [
+        issuerResponse,
+        tenorResponse,
+        pengelolaanResponse,
+        kepemilikanResponse,
+        kbmiResponse,
+      ] = await Promise.all([
         get("/issuer/select"),
         get("/master/select/tenor?tipe=obligasi"),
+        get("/master/select/kepemilikan"),
+        get("/master/select/pengelolaan"),
+        get("/master/select/kbmi"),
       ]);
 
       const issuerData = issuerResponse.data.data;
       const tenorData = tenorResponse.data.data;
+      const kepemilikanData = kepemilikanResponse.data.data;
+      const pengelolaanData = pengelolaanResponse.data.data;
+      const kbmiData = kbmiResponse.data.data;
 
       const bank = [{ value: "all", label: "All" }];
       const tenorList = [{ value: "all", label: "All" }];
+      const kepemilikan = [{ value: "all", label: "All" }];
+      const pengelolaan = [{ value: "all", label: "All" }];
+      const kbmi = [{ value: "all", label: "All" }];
 
       issuerData.rows.forEach((item) => {
         bank.push({ value: item.id, label: item.nama });
@@ -159,8 +182,23 @@ export function ObligasiCKPN() {
         tenorList.push({ value: item.id, label: item.nama });
       });
 
+      kepemilikanData.rows.forEach((item) => {
+        kepemilikan.push({ value: item.id, label: item.nama });
+      });
+
+      pengelolaanData.rows.forEach((item) => {
+        pengelolaan.push({ value: item.id, label: item.nama });
+      });
+
+      kbmiData.rows.forEach((item) => {
+        kbmi.push({ value: item.id, label: item.nama });
+      });
+
       setBank(bank);
       setTenor(tenorList);
+      setKepemilikan(kepemilikan);
+      setPengelolaan(pengelolaan);
+      setKBMI(kbmi);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -184,13 +222,13 @@ export function ObligasiCKPN() {
         "No. Security": item.no_security,
         "Issued Date": item.start_date,
         "Maturity Date": item.end_date,
-        Nominal: item.nominal,
+        "Nominal (Jutaan)": item.nominal / 1000000,
         "Term of Interest": item.interest_date,
         "Sisa Tenor": item.sisa_tenor,
         "Rate (%)": item.rate.toFixed(2),
         PD: item.pd.toFixed(2),
         "LGD (%)": item.lgd,
-        ECL: item.ecl,
+        "ECL (Jutaan)": item.ecl / 1000000,
       };
     });
 
@@ -205,13 +243,13 @@ export function ObligasiCKPN() {
       "No. Security": "",
       "Issued Date": "",
       "Maturity Date": "",
-      Nominal: "",
+      "Nominal (Jutaan)": "",
       "Term of Interest": "",
       "Sisa Tenor": "",
       "Rate (%)": "",
       PD: "",
       "LGD (%)": "",
-      ECL: totalECL,
+      "ECL (Jutaan)": totalECL,
     });
 
     const ws = XLSX.utils.json_to_sheet(dataExport);
@@ -268,6 +306,7 @@ export function ObligasiCKPN() {
       title: "Bank Custody",
       dataIndex: "nama_custody",
       key: "nama_custody",
+      width: 200,
     },
     {
       title: "Issuer",
@@ -316,7 +355,7 @@ export function ObligasiCKPN() {
       },
     },
     {
-      title: "Nominal",
+      title: "Nominal (Jutaan)",
       dataIndex: "nominal",
       key: "nominal",
       render: (text) => Number(text).toLocaleString("id-ID"),
@@ -358,7 +397,7 @@ export function ObligasiCKPN() {
       key: "lgd",
     },
     {
-      title: "ECL",
+      title: "ECL (Jutaan)",
       dataIndex: "ecl",
       key: "ecl",
       render: (text) => Number(text).toLocaleString("id-ID"),
@@ -428,6 +467,17 @@ export function ObligasiCKPN() {
             />
           </Col>
           <Col span={isMobile ? 24 : 3}>
+            <Typography.Text strong>KBMI</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 21}>
+            <Select
+              defaultValue={filterKBMI}
+              options={kbmi}
+              onChange={(value) => setfilterKBMI(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Issuer</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 21}>
@@ -446,6 +496,28 @@ export function ObligasiCKPN() {
               defaultValue={filterTenor}
               options={tenor}
               onChange={(value) => setfilterTenor(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 3}>
+            <Typography.Text strong>Kepemilikan</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 21}>
+            <Select
+              defaultValue={filterKepemilikan}
+              options={kepemilikan}
+              onChange={(value) => setFilterKepemilikan(value)}
+              style={{ maxWidth: "300px", width: "100%" }}
+            />
+          </Col>
+          <Col span={isMobile ? 24 : 3}>
+            <Typography.Text strong>Pengelolaan</Typography.Text>
+          </Col>
+          <Col span={isMobile ? 24 : 21}>
+            <Select
+              defaultValue={filterPengelolaan}
+              options={pengelolaan}
+              onChange={(value) => setFilterPengelolaan(value)}
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>

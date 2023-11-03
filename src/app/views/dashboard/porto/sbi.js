@@ -86,7 +86,6 @@ export function SBIPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
-
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal / 1000000);
       });

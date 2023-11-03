@@ -78,7 +78,6 @@ export function ComparisonPorto() {
     let {
       data: { data: comparison },
     } = await post("/porto/comparison", eq);
-
     comparison?.forEach((element) => {
       element.key = element.tipe;
       element.sum = Number(element.sum / 1000000);

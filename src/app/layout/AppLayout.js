@@ -43,10 +43,11 @@ export function AppLayout() {
     post("/user/menu", qs.stringify({ email: email }))
       .then(({ data: { data } }) => {
         // reordering menu by urutan
-        let access_list = data.aut_group.access_list.sort((a, b) => {
+        // console.log(data);
+        let access_list = JSON.parse(data.aut_group.access_list);
+        access_list = access_list.sort((a, b) => {
           return a.urutan - b.urutan;
         });
-
         setMenuItems(access_list);
         setLoginName(data.nama);
       })

@@ -174,6 +174,14 @@ export function ExternalCash() {
         color: "#4ECB73",
         smooth: true,
         lineStyle: { lineWidth: 2 },
+        tooltip: {
+          formatter: (datum) => {
+            return {
+              name: "Return Akumulasi",
+              value: datum.Akumulasi.toFixed(2) + "%",
+            };
+          },
+        },
       },
     ],
     // label on left side of chart

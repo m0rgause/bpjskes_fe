@@ -31,6 +31,7 @@ export function AuthProvider({ children }) {
     });
     await post("/user/checkauth", send)
       .then(({ data }) => {
+        // console.log(data);
         if (data.code === 401) {
           history(data.landing);
         }

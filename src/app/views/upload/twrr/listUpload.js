@@ -99,6 +99,7 @@ export function ListUploadTWRR() {
     const { file } = info;
     const reader = new FileReader();
     reader.onload = async (e) => {
+      setLoading(true);
       const data = e.target.result;
       const workbook = XLSX.read(data, { type: "binary" });
       const sheetName = workbook.SheetNames[0];

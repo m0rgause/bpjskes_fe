@@ -267,6 +267,12 @@ export function ObligasiCKPN() {
         autoRotate: false,
       },
     },
+    label: {
+      position: "middle",
+      formatter: (datum) => {
+        return Number(datum.return).toLocaleString("id-ID");
+      },
+    },
     yAxis: {
       label: {
         formatter: (v) => {

@@ -160,13 +160,16 @@ export function SBIPorto() {
       radius: [10, 10, 0, 0],
     },
     // format y axis
+    label: {
+      position: "middle",
+      formatter: (datum) => {
+        return Number(datum.nominal).toLocaleString("id-ID");
+      },
+    },
     yAxis: {
       label: {
         formatter: (v) => `${Number(v).toLocaleString("id-ID")}`,
       },
-    },
-    label: {
-      formatter: (v) => ``,
     },
     tooltip: {
       formatter: (datum) => {

@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Form, Input, Button, notification, Spin } from "antd";
-import { LoginOutlined } from "@ant-design/icons";
+import { LoginOutlined, RedoOutlined } from "@ant-design/icons";
 import { post } from "../../functions/helper";
 import QueryString from "qs";
+import captcha from "@bestdon/nodejs-captcha";
 import logo from "../../../assets/images/Logo/BPJS.svg";
 
 export function PassForgot() {
   const [isLoading, setIsLoading] = useState(false);
+  const [newCaptcha, setNewCaptcha] = useState(captcha());
   const history = useNavigate();
 
   const onFinish = async (values) => {
@@ -74,6 +76,53 @@ export function PassForgot() {
             >
               <Input />
             </Form.Item>
+            <Form.Item
+              label="Captcha"
+              name="captcha"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input the captcha you got!",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (value === newCaptcha.value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("The captcha that you entered is incorrect!")
+                    );
+                  },
+                }),
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "start",
+                alignItems: "center",
+                marginBottom: "10px",
+              }}
+            >
+              <img
+                src={newCaptcha.image}
+                alt="captcha"
+                style={{ width: "150px", height: "75px" }}
+              />
+              <Button
+                type="link"
+                htmlType="button"
+                onClick={() => {
+                  setNewCaptcha(captcha());
+                }}
+              >
+                <b>
+                  <RedoOutlined />
+                </b>
+              </Button>
+            </div>
 
             <Form.Item>
               <Button

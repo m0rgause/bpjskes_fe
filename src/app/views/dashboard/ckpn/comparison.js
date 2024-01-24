@@ -116,7 +116,7 @@ export function ComparisonCKPN() {
       title: "Issuer",
       dataIndex: "comparison",
       key: "comparison",
-      width: 250,
+      // width: 250,
     },
     ...listDateFixed.map((item, index) => {
       return {

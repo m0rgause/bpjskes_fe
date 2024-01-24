@@ -8,7 +8,7 @@ import {
   // MenuUnfoldOutlined,
   UserOutlined,
   PoweroffOutlined,
-  // KeyOutlined,
+  KeyOutlined,
   BellFilled,
   ClockCircleFilled,
 } from "@ant-design/icons";
@@ -203,13 +203,13 @@ export function AppLayout() {
                     title={LoginName}
                     icon={<UserOutlined />}
                   >
-                    {/* <Menu.Item
+                    <Menu.Item
                       key="1"
                       icon={<KeyOutlined />}
-                      onClick={() => history.push("/setting/user/resetpass")}
+                      onClick={() => history("/setting/user/resetpass")}
                     >
-                      Reset Password
-                    </Menu.Item> */}
+                      Ganti Password
+                    </Menu.Item>
                     <Menu.Item
                       key="2"
                       icon={<PoweroffOutlined />}

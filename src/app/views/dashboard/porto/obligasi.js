@@ -97,8 +97,9 @@ export function ObligasiPorto() {
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal / 1000000);
       });
-      data.dataTable.forEach((item) => {
+      data.dataTable.forEach((item, index) => {
         item.nominal = Number(item.nominal / 1000000);
+        item.key = index;
       });
       setDataChart(data.data);
       setData(data.dataTable);
@@ -186,6 +187,12 @@ export function ObligasiPorto() {
       radius: [10, 10, 0, 0],
     },
     // format y axis
+    label: {
+      position: "middle",
+      formatter: (datum) => {
+        return Number(datum.nominal).toLocaleString("id-ID");
+      },
+    },
     yAxis: {
       label: {
         formatter: (v) => `${Number(v).toLocaleString("id-ID")}`,
@@ -483,7 +490,7 @@ export function ObligasiPorto() {
             showSizeChanger: false,
           }}
           bordered
-          scroll={{ x: 2000 }}
+          scroll={{ x: 2500 }}
           summary={() => {
             return (
               <>

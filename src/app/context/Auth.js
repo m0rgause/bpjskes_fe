@@ -14,6 +14,19 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("session"));
+    if (session) {
+      console.log(session);
+      setTimeout(() => {
+        localStorage.removeItem("session");
+        setUser(null);
+        notification.error({
+          message: "Sesi anda telah berakhir, silahkan login kembali",
+          placement: "top",
+          duration: 2,
+        });
+        history("/auth/signin");
+      }, session?.exp * 1000 - Date.now());
+    }
     setUser(session?.user ?? null);
     setLoading(false);
     if (session !== null) {
@@ -36,17 +49,24 @@ export function AuthProvider({ children }) {
         }
       })
       .catch((error) => {
-        if (error.response.status === 401) {
-          localStorage.removeItem("session");
-          setUser(null);
-          notification.error({
-            message: "Sesi anda telah berakhir, silahkan login kembali",
-            placement: "top",
-            duration: 2,
-          });
-          history("/auth/signin");
-        }
-        console.log();
+        localStorage.removeItem("session");
+        setUser(null);
+        notification.error({
+          message: "Sesi anda telah berakhir, silahkan login kembali",
+          placement: "top",
+          duration: 2,
+        });
+        history("/auth/signin");
+        // if (error.response.status === 401) {
+        //   localStorage.removeItem("session");
+        //   setUser(null);
+        //   notification.error({
+        //     message: "Sesi anda telah berakhir, silahkan login kembali",
+        //     placement: "top",
+        //     duration: 2,
+        //   });
+        //   history("/auth/signin");
+        // }
       });
   };
 

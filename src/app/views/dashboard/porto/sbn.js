@@ -88,7 +88,6 @@ export function SBNPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
-
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal / 1000000);
       });
@@ -162,13 +161,16 @@ export function SBNPorto() {
       radius: [10, 10, 0, 0],
     },
     // format y axis
+    label: {
+      position: "middle",
+      formatter: (datum) => {
+        return Number(datum.nominal).toLocaleString("id-ID");
+      },
+    },
     yAxis: {
       label: {
         formatter: (v) => `${Number(v).toLocaleString("id-ID")}`,
       },
-    },
-    label: {
-      formatter: (v) => ``,
     },
     tooltip: {
       formatter: (datum) => {
@@ -219,6 +221,7 @@ export function SBNPorto() {
       dataIndex: "start_date",
       key: "start_date",
       render: (text) => {
+        if (!text) return "";
         return dayjs(text).format("DD MMM YYYY");
       },
     },
@@ -227,6 +230,7 @@ export function SBNPorto() {
       dataIndex: "end_date",
       key: "end_date",
       render: (text) => {
+        if (!text) return "";
         return dayjs(text).format("DD MMM YYYY");
       },
     },
@@ -244,6 +248,10 @@ export function SBNPorto() {
       dataIndex: "interest_date",
       key: "interest_date",
       render: (text) => {
+        // text sometimes null
+        if (!text) {
+          return "";
+        }
         return dayjs(text).format("DD MMM YYYY");
       },
     },
@@ -257,7 +265,7 @@ export function SBNPorto() {
       dataIndex: "rate",
       key: "rate",
       render: (text) => {
-        return text.toFixed(2);
+        return text?.toFixed(2) ?? 0;
       },
     },
   ];
@@ -276,7 +284,7 @@ export function SBNPorto() {
         "Nominal (Jutaan)": item.nominal.toLocaleString("id-ID"),
         "Term of Interest": item.interest_date,
         "Sisa Tenor": item.sisa_tenor,
-        "Rate (%)": item.rate.toFixed(2),
+        "Rate (%)": item.rate?.toFixed(2) ?? 0,
       };
     });
 

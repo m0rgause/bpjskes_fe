@@ -8,6 +8,7 @@ import {
   Tag,
   notification,
   Typography,
+  DatePicker,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import * as XLSX from "xlsx";
@@ -20,6 +21,7 @@ export function ListUpload() {
   const history = useNavigate();
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState([]);
+  const [tanggal, setTanggal] = React.useState(dayjs());
 
   React.useEffect(() => {
     getData();
@@ -40,6 +42,7 @@ export function ListUpload() {
         file_name: item.file_name,
         status: item.status,
         uploadTime: item.created_at,
+        tanggal: item.tanggal,
       };
     });
 
@@ -48,6 +51,14 @@ export function ListUpload() {
   };
 
   const columns = [
+    {
+      title: "Tanggal",
+      dataIndex: "tanggal",
+      key: "tanggal",
+      render: (text) => {
+        return text ? dayjs(text).format("DD MMM YYYY") : "-";
+      },
+    },
     {
       title: "File Name",
       dataIndex: "file_name",
@@ -105,6 +116,22 @@ export function ListUpload() {
       const sheet = workbook.Sheets[sheetName];
       const json = XLSX.utils.sheet_to_json(sheet);
 
+      // console.log(json);
+      // remove space from json key
+      json.forEach((item) => {
+        Object.keys(item).forEach((key) => {
+          // cek apakah ada spasi
+          if (key.indexOf(" ") > -1) {
+            // remove space
+            const newKey = key.replace(/\s/g, "");
+            // add new key
+            item[newKey] = item[key];
+            // delete old key
+            delete item[key];
+          }
+        });
+      });
+
       // send to backend
       await put(
         "/porto/upload",
@@ -112,6 +139,7 @@ export function ListUpload() {
           data: json,
           fileName: file.name,
           session: localStorage.getItem("session"),
+          date: tanggal.format("YYYY-MM-DD"),
         })
       )
         .then(({ data: { data } }) => {
@@ -140,6 +168,14 @@ export function ListUpload() {
       <Typography.Title level={3} className="page-header">
         List Upload
       </Typography.Title>
+      {/* Datepicker */}
+      <DatePicker
+        style={{ marginRight: 10 }}
+        defaultValue={tanggal}
+        onChange={(date) => {
+          setTanggal(date);
+        }}
+      />
       <Upload
         accept=".xls, .xlsx"
         onChange={uploadFile}

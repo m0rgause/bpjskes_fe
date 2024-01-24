@@ -135,12 +135,12 @@ export function SummaryCKPN() {
     data: dataChart,
     xField: "bank",
     yField: "return",
-    xAxis: {
-      label: {
-        autoHide: true,
-        autoRotate: false,
-      },
-    },
+    // xAxis: {
+    //   label: {
+    //     autoHide: true,
+    //     autoRotate: false,
+    //   },
+    // },
     meta: {
       bank: { alias: "Bank" },
       return: { alias: "Return" },
@@ -158,8 +158,8 @@ export function SummaryCKPN() {
         };
       },
     },
-    minColumnWidth: isMobile ? 24 : 100,
-    maxColumnWidth: isMobile ? 24 : 100,
+    // minColumnWidth: isMobile ? 24 : 100,
+    // maxColumnWidth: isMobile ? 24 : 100,
     color: ({ bank }) => {
       let color = "#4ECB73";
       dataChart.forEach((element) => {

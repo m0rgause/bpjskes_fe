@@ -22,6 +22,9 @@ export function DetailTWRR() {
     dayjs().startOf("month")
   );
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
+  const [total_return_akumulasi, setTotalReturnAkumulasi] = React.useState(0);
+  const [totalReturnAkumulasiRaw, setTotalReturnAkumulasiRaw] =
+    React.useState(0);
   const [data, setData] = React.useState([]);
 
   React.useEffect(() => {
@@ -38,7 +41,14 @@ export function DetailTWRR() {
     let {
       data: { data },
     } = await post("/twrr/detail", QueryString.stringify(eq));
-
+    let total_return_akumulasi = 0;
+    data["data"]["rows"] = data.data.rows.map((item, index) => {
+      item.key = index;
+      total_return_akumulasi += Number(item.return_harian);
+      return item;
+    });
+    setTotalReturnAkumulasiRaw(total_return_akumulasi);
+    setTotalReturnAkumulasi(total_return_akumulasi.toFixed(2));
     setData(data);
     setLoading(false);
   };
@@ -54,11 +64,11 @@ export function DetailTWRR() {
     }
   };
 
-  let total_return_akumulasi =
-    Math.round(
-      (data?.data?.rows[data?.data?.rows?.length - 1]?.return_akumulasi ?? 0) *
-        100
-    ) / 10 ?? 0;
+  // let total_return_akumulasi =
+  //   Math.round(
+  //     (data?.data?.rows[data?.data?.rows?.length - 1]?.return_akumulasi ?? 0) *
+  //       100
+  //   ) / 10 ?? 0;
 
   let assets =
     data.dataCol?.rows?.filter((item) => item.tipe === "assets") || [];
@@ -253,6 +263,15 @@ export function DetailTWRR() {
               }}
             >
               {total_return_akumulasi} %
+            </Typography.Title>
+            <Typography.Title
+              level={5}
+              className="page-header"
+              style={{
+                marginTop: "0",
+              }}
+            >
+              {totalReturnAkumulasiRaw}
             </Typography.Title>
           </Card>
         </Col>

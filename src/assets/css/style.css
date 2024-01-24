@@ -150,3 +150,7 @@ th.ant-table-cell {
     /* to rgba */
     background-color: rgba(58, 160, 255, 0.5) !important;
 }
+
+canvas {
+    height: 600px !important;
+}

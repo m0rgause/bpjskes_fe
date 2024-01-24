@@ -129,6 +129,11 @@ export function SummaryPorto() {
         return `${_ref.presentase}`;
       },
       style: {
+        fill: "#fff",
+        // if percentage is lower than 10%, hide label
+        opacity: (datum) => {
+          return datum.presentase < 10 ? 0 : 1;
+        },
         textAlign: "center",
         fontSize: 14,
       },
@@ -148,8 +153,8 @@ export function SummaryPorto() {
     tooltip: {
       formatter: (datum) => {
         return {
-          name: datum.tipe.toUpperCase(),
-          value: datum.nominal.toLocaleString("id-ID"),
+          name: datum.tipe?.toUpperCase() ?? datum.tipe,
+          value: datum.nominal?.toLocaleString("id-ID"),
         };
       },
     },
@@ -168,7 +173,7 @@ export function SummaryPorto() {
       title: "Jenis",
       dataIndex: "tipe",
       key: "tipe",
-      render: (text) => text.toUpperCase(),
+      render: (text) => text?.toUpperCase() ?? text,
     },
     {
       title: "Nominal (Jutaan)",

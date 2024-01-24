@@ -82,10 +82,12 @@ import { DetailUpload } from "../views/upload/porto/detailUpload";
 // Upload TWRR
 import { ListUploadTWRR } from "../views/upload/twrr/listUpload";
 import { DetailUploadTWRR } from "../views/upload/twrr/detailUpload";
+import { ConvertFile } from "../views/upload/twrr/convertFile";
 
 // Custody
 import { CustodyInsert } from "../views/master/custody/insertCustody";
 import { CustodyUpdate } from "../views/master/custody/updateCustody";
+import { UserResetPassword } from "../views/setting/user/UserResetPassword";
 
 export function AppRoute() {
   return (
@@ -96,6 +98,7 @@ export function AppRoute() {
 
       <Route path="/upload/twrr" Component={ListUploadTWRR} />
       <Route path="/upload/twrr/:id" Component={DetailUploadTWRR} />
+      <Route path="/upload/twrr/convert/" Component={ConvertFile} />
 
       <Route path="/twrr/external_cash" Component={ExternalCash} />
       <Route path="/twrr/comparison" Component={ComparisonTWRR} />
@@ -156,6 +159,8 @@ export function AppRoute() {
       <Route path="/setting/access/:id/:pid" Component={AccessList} />
       <Route path="/setting/access/:id" Component={AccessUpdate} />
       <Route path="/setting/access_child/:id" Component={AccessInsert} />
+
+      <Route path="/setting/user/resetpass" Component={UserResetPassword} />
     </Routes>
   );
 }

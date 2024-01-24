@@ -28,6 +28,7 @@ export function ExternalCash() {
 
   const [data, setData] = React.useState([]);
   const [totalAkumulasi, setTotalAkumulasi] = React.useState(0);
+  const [totalAkumulasiRaw, setTotalAkumulasiRaw] = React.useState(0);
   const [dataChart, setDataChart] = React.useState({ data: [], uvBill: [] });
   const [type, setType] = React.useState("daily");
   const [pickerDate, setPickerDate] = React.useState("date");
@@ -74,17 +75,16 @@ export function ExternalCash() {
       data: { data: externalCash },
     } = await post("/twrr/external-cash", eq);
 
+    let returnAkumulasi = 0;
     externalCash = externalCash?.map((item, index) => {
       item.key = index;
+      returnAkumulasi += Number(item.return_harian);
       return item;
     });
-
+    setTotalAkumulasiRaw(returnAkumulasi);
     setData(externalCash);
-    setTotalAkumulasi(
-      (externalCash?.[externalCash?.length - 1]?.return_akumulasi ?? 0).toFixed(
-        2
-      )
-    );
+    setTotalAkumulasi(returnAkumulasi.toFixed(2));
+
     setDataChart({
       data: transformData(externalCash),
       uvBill: uvBillData(externalCash),
@@ -382,6 +382,15 @@ export function ExternalCash() {
               }}
             >
               {totalAkumulasi} %
+            </Typography.Title>
+            <Typography.Title
+              level={5}
+              className="page-header"
+              style={{
+                marginTop: "0",
+              }}
+            >
+              {totalAkumulasiRaw}
             </Typography.Title>
           </Card>
         </Col>

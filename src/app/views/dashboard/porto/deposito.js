@@ -58,7 +58,9 @@ export function DepositoPorto() {
     let item = [{ value: "all", label: "All" }];
     data.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
+      // data[index].key = index;
     });
+    // setData(data);
     setCustody(item);
   };
 
@@ -95,16 +97,20 @@ export function DepositoPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
+
       data.data.forEach((item) => {
-        item.nominal = Number(item.nominal / 1000000);
+        item.nominal = Number(item.nominal) / 1000000;
       });
-      data.dataTable.forEach((item) => {
-        item.nominal = Number(item.nominal / 1000000);
+
+      data.dataTable.forEach((item, index) => {
+        item.nominal = Number(item.nominal) / 1000000;
+        item.key = index;
       });
+
       setDataChart(data.data);
       setData(data.dataTable);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -162,7 +168,7 @@ export function DepositoPorto() {
       setKepemilikan(kepemilikanList);
       setPengelolaan(pengelolaanList);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -178,6 +184,12 @@ export function DepositoPorto() {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
     },
+    label: {
+      position: "middle",
+      formatter: (datum) => {
+        return Number(datum.nominal).toLocaleString("id-ID");
+      },
+    },
     minColumnWidth: isMobile ? 24 : 100,
     maxColumnWidth: isMobile ? 24 : 100,
     color: () => {
@@ -192,6 +204,7 @@ export function DepositoPorto() {
         formatter: (v) => `${Number(v).toLocaleString("id-ID")}`,
       },
     },
+
     tooltip: {
       formatter: (datum) => {
         return {
@@ -484,7 +497,7 @@ export function DepositoPorto() {
             showSizeChanger: false,
           }}
           bordered
-          scroll={{ x: 2000 }}
+          scroll={{ x: 2500 }}
           summary={() => {
             return (
               <>

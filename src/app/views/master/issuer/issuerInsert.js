@@ -42,21 +42,22 @@ export function IssuerInsert() {
 
   const onFinish = async (values) => {
     setLoading(true);
-    const {
-      data: { error },
-    } = await post("issuer/", QueryString.stringify(values));
-    if (!error) {
-      notification.success({
-        message: "Success",
-        description: "Data berhasil disimpan",
+
+    await post("issuer/", QueryString.stringify(values))
+      .then((res) => {
+        notification.success({
+          message: "Success",
+          description: "Data berhasil disimpan",
+        });
+        history("/setting/issuer");
+      })
+      .catch((err) => {
+        notification.error({
+          message: "Error",
+          description: "Duplikat data",
+        });
       });
-      history("/setting/bank");
-    } else {
-      notification.error({
-        message: "Error",
-        description: "Data gagal disimpan",
-      });
-    }
+
     setLoading(false);
   };
 

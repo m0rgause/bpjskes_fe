@@ -106,7 +106,28 @@ export function PassReset() {
             <Form.Item
               label="Password Baru"
               name="newPass"
-              rules={[{ required: true, min: 6 }]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your password!",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (
+                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/.test(
+                        value
+                      )
+                    ) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error(
+                        "Password must be combination of letters and numbers and special characters"
+                      )
+                    );
+                  },
+                }),
+              ]}
             >
               <Input.Password />
             </Form.Item>

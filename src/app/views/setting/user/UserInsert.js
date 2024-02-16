@@ -127,17 +127,37 @@ export function UserInsert() {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Password"
+            label="password"
             name="password"
             rules={[
               {
                 required: true,
-                message: "Form Password harus diisi & minimal 6 karakter!",
-                min: 6,
+                message: "Form Password harus diisi",
               },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/.test(
+                      value
+                    )
+                  ) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      "Password must be combination of letters and numbers and special characters"
+                    )
+                  );
+                },
+              }),
             ]}
           >
-            <Input.Password />
+            <Input.Password
+              onPaste={e=>{
+                e.preventDefault();
+                return false
+              }}
+            />
           </Form.Item>
           <Form.Item
             label="Bank Custody"

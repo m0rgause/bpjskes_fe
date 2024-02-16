@@ -68,20 +68,7 @@ export function UserResetPassword() {
             rules={[
               {
                 required: true,
-                message: "Form Password Lama harus diisi",
-              },
-            ]}
-          >
-            <Input.Password />
-          </Form.Item>
-          <Form.Item
-            label="Password Baru"
-            name="newPass"
-            // combination of letters and numbers and special characters
-            rules={[
-              {
-                required: true,
-                message: "Please input your password!",
+                message: "Form Password Lama harus diisi & minimal 8 karakter!",
               },
               ({ getFieldValue }) => ({
                 validator(_, value) {
@@ -101,7 +88,46 @@ export function UserResetPassword() {
               }),
             ]}
           >
-            <Input.Password />
+            <Input.Password
+              onPaste={e=>{
+                e.preventDefault();
+                return false
+              }}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Password Baru"
+            name="newPass"
+            // combination of letters and numbers and special characters
+            rules={[
+              {
+                required: true,
+                message: "Form Password Baru harus diisi & minimal 8 karakter!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/.test(
+                      value
+                    )
+                  ) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      "Password must be combination of letters, numbers & special characters with minimum length of 8 characters"
+                    )
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              onPaste={e=>{
+                e.preventDefault();
+                return false
+              }}
+            />
           </Form.Item>
           <Form.Item
             label="Konfirmasi Password Baru"
@@ -127,7 +153,12 @@ export function UserResetPassword() {
               }),
             ]}
           >
-            <Input.Password />
+            <Input.Password
+              onPaste={e=>{
+                e.preventDefault();
+                return false
+              }}
+            />
           </Form.Item>
 
           <Form.Item>

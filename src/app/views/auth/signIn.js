@@ -104,7 +104,12 @@ export function SignIn() {
               }),
             ]}
           >
-            <Input.Password />
+            <Input.Password
+              onPaste={e=>{
+                e.preventDefault();
+                return false
+              }}
+            />
           </Form.Item>
           <Form.Item
             label="Captcha"

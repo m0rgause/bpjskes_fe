@@ -39,8 +39,8 @@ export function AppLayout() {
   const session = JSON.parse(localStorage.getItem("session"));
 
   const getMenuItem = async () => {
-    let email = user.email;
-    post("/user/menu", qs.stringify({ email: email }))
+    const session = JSON.parse(localStorage.getItem("session"));
+    post("/user/menu", qs.stringify({ token: session?.token }))
       .then(({ data: { data } }) => {
         // reordering menu by urutan
         let access_list = data.aut_group.access_list.sort((a, b) => {

@@ -4,7 +4,7 @@ const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
   headers: {
     "Content-Type": "application/x-www-form-urlencoded",
-    Authorization: `Basic ${process.env.REACT_APP_BASIC_AUTH}`,
+    // Authorization: `Basic ${process.env.REACT_APP_BASIC_AUTH}`,
   },
   maxBodyLength: Infinity,
 });

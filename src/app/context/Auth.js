@@ -15,7 +15,6 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const session = JSON.parse(localStorage.getItem("session"));
     if (session) {
-      console.log(session);
       setTimeout(() => {
         localStorage.removeItem("session");
         setUser(null);

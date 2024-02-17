@@ -20,10 +20,10 @@ import * as XLXS from "xlsx";
 export function ExternalCash() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().startOf("month")
+    dayjs().subtract(1, "months")
   );
   const [filterEndDate, setfilterEndDate] = React.useState(
-    dayjs().add(4, "months")
+    dayjs()
   );
 
   const [data, setData] = React.useState([]);
@@ -45,7 +45,6 @@ export function ExternalCash() {
 
   React.useEffect(() => {
     getData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onFilter = () => {
@@ -102,8 +101,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-            ? period.format("MMM YYYY")
-            : period.format("YYYY"),
+              ? period.format("MMM YYYY")
+              : period.format("YYYY"),
         Akumulasi: element.return_akumulasi,
       });
     });
@@ -119,8 +118,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-            ? period.format("MMM YYYY")
-            : period.format("YYYY"),
+              ? period.format("MMM YYYY")
+              : period.format("YYYY"),
         value: parseInt(element.total_before_cash),
         type: "Total Sebelum External Cash",
       });
@@ -129,8 +128,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-            ? period.format("MMM YYYY")
-            : period.format("YYYY"),
+              ? period.format("MMM YYYY")
+              : period.format("YYYY"),
         value: parseInt(element.total_after_cash),
         type: "Total Sesudah External Cash",
       });
@@ -194,7 +193,16 @@ export function ExternalCash() {
         },
       },
     },
-
+    xAxis: {
+      label: {
+        autoRotate: true,
+        offset: 10,
+        style: {
+          fontSize: 12,
+          fill: '#aaa',
+        }
+      }
+    },
     legend: {
       position: "bottom",
     },
@@ -210,8 +218,8 @@ export function ExternalCash() {
         return type === "daily"
           ? period.format("DD MMM YYYY")
           : type === "monthly"
-          ? period.format("MMM YYYY")
-          : period.format("YYYY");
+            ? period.format("MMM YYYY")
+            : period.format("YYYY");
       },
     },
     {
@@ -268,8 +276,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-            ? period.format("MMM YYYY")
-            : period.format("YYYY"),
+              ? period.format("MMM YYYY")
+              : period.format("YYYY"),
         "Total Sebelum External Cash": parseInt(
           item.total_before_cash
         ).toLocaleString("id-ID"),
@@ -325,6 +333,7 @@ export function ExternalCash() {
               <Col span={isMobile ? 24 : 22}>
                 <div>
                   <DatePicker
+                    id="startDate"
                     defaultValue={filterStartDate}
                     picker={pickerDate}
                     onChange={(date) => setfilterStartDate(date)}
@@ -337,6 +346,7 @@ export function ExternalCash() {
                   />
                   {isMobile ? "" : "-"}
                   <DatePicker
+                    id="endDate"
                     defaultValue={filterEndDate}
                     picker={pickerDate}
                     onChange={(date) => setfilterEndDate(date)}
@@ -395,8 +405,15 @@ export function ExternalCash() {
           </Card>
         </Col>
       </Row>
-      <Card className="mb-1">
-        <DualAxes {...config} />
+      <Card className="mb-1" style={{
+        maxWidth: "100%",
+      }}>
+        <DualAxes
+          style={{
+            minWidth: "100%",
+            maxWidth: '5000px'
+          }}
+          {...config} />
       </Card>
       <Card className="mb-1">
         <Table

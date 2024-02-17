@@ -15,16 +15,16 @@ import {
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
-import { post, get } from "../../../functions/helper";
+import { post, get, getFilterDate } from "../../../functions/helper";
 import * as XLSX from "xlsx";
 
 export function ObligasiCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().startOf("month")
+    getFilterDate().startDate
   );
   const [filterEndDate, setfilterEndDate] = React.useState(
-    dayjs().add(4, "month").endOf("month")
+    getFilterDate().endDate
   );
 
   const [type, setType] = React.useState("monthly");
@@ -113,6 +113,7 @@ export function ObligasiCKPN() {
 
       const dataSource = data.table.map((item, index) => ({
         key: index,
+        tanggal: item.tanggal,
         unique_id: item.unique_id,
         nama_custody: item.nama_custody,
         nama_issuer: item.nama_issuer,
@@ -212,6 +213,7 @@ export function ObligasiCKPN() {
 
     const dataExport = data.table.map((item) => {
       return {
+        Period: item.tanggal,
         "Unique ID": item.unique_id,
         "Bank Custody": item.nama_custody,
         Issuer: item.nama_issuer,
@@ -233,7 +235,8 @@ export function ObligasiCKPN() {
     });
 
     dataExport.push({
-      "Unique ID": "Total",
+      Period: "Total",
+      "Unique ID": "",
       "Bank Custody": "",
       Issuer: "",
       KBMI: "",
@@ -263,9 +266,13 @@ export function ObligasiCKPN() {
     yField: "return",
     xAxis: {
       label: {
-        autoHide: true,
-        autoRotate: false,
-      },
+        autoRotate: true,
+        offset: 10,
+        style: {
+          fontSize: 12,
+          fill: '#aaa',
+        }
+      }
     },
     label: {
       position: "middle",
@@ -292,8 +299,8 @@ export function ObligasiCKPN() {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
     },
-    minColumnWidth: isMobile ? 24 : 100,
-    maxColumnWidth: isMobile ? 24 : 100,
+    minColumnWidth: '100%',
+    maxColumnWidth: '100%',
     color: () => {
       return "#3AA0FF";
     },
@@ -303,6 +310,14 @@ export function ObligasiCKPN() {
   };
 
   const columns = [
+    {
+      title: "Period",
+      dataIndex: "tanggal",
+      key: "tanggal",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
+    },
     {
       title: "Unique ID",
       dataIndex: "unique_id",
@@ -552,13 +567,13 @@ export function ObligasiCKPN() {
             hideOnSinglePage: true,
           }}
           bordered
-          className="mb-1"
+          className="mb-1 text-nowrap"
           scroll={{ x: 2000 }}
           summary={() => {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={16}>
+                  <Table.Summary.Cell colSpan={17}>
                     <strong>Total</strong>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell colSpan={1}>

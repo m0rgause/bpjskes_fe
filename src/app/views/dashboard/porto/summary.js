@@ -16,13 +16,13 @@ import { Pie } from "@ant-design/plots";
 import { SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { get, post } from "../../../functions/helper";
+import { get, post, getFilterDate } from "../../../functions/helper";
 import QueryString from "qs";
 
 export function SummaryPorto() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+  const [filterStartDate, setfilterStartDate] = React.useState(getFilterDate().startDate);
+  const [filterEndDate, setfilterEndDate] = React.useState(getFilterDate().endDate);
   const [filterIssuer, setFilterIssuer] = React.useState("all");
   const [filterCustody, setFilterCustody] = React.useState("all");
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
@@ -196,13 +196,12 @@ export function SummaryPorto() {
       render: (text, record) => {
         let push;
         if (record.tipe) {
-          push = `/porto/detail/${record.tipe.toLowerCase()}/?subtipe=${
-            record.tipe
-          }&type=${type}&start=${filterStartDate.format(
-            "YYYY-MM"
-          )}&end=${filterEndDate.format(
-            "YYYY-MM"
-          )}&picker=${pickerDate}&issuer=${filterIssuer}&custody=${filterCustody}`;
+          push = `/porto/detail/${record.tipe.toLowerCase()}/?subtipe=${record.tipe
+            }&type=${type}&start=${filterStartDate.format(
+              "YYYY-MM"
+            )}&end=${filterEndDate.format(
+              "YYYY-MM"
+            )}&picker=${pickerDate}&issuer=${filterIssuer}&custody=${filterCustody}`;
         }
         return (
           <Button

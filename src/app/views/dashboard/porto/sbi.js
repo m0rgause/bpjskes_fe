@@ -15,14 +15,14 @@ import {
 import dayjs from "dayjs";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
-import { get, post } from "../../../functions/helper";
+import { get, post, getFilterDate } from "../../../functions/helper";
 import QueryString from "qs";
 import * as XLSX from "xlsx";
 
 export function SBIPorto() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+  const [filterStartDate, setfilterStartDate] = React.useState(getFilterDate().startDate);
+  const [filterEndDate, setfilterEndDate] = React.useState(getFilterDate().endDate);
   const [filterCustody, setFilterCustody] = React.useState("all"); // [all, bni, mandiri, bc
   const [filterIssuer, setFilterIssuer] = React.useState("all");
   const [filterTenor, setFilterTenor] = React.useState("all");
@@ -151,8 +151,8 @@ export function SBIPorto() {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
     },
-    minColumnWidth: isMobile ? 24 : 100,
-    maxColumnWidth: isMobile ? 24 : 100,
+    minColumnWidth: '100%',
+    maxColumnWidth: '100%',
     color: () => {
       return "#5A6ACF";
     },
@@ -171,6 +171,16 @@ export function SBIPorto() {
         formatter: (v) => `${Number(v).toLocaleString("id-ID")}`,
       },
     },
+    xAxis: {
+      label: {
+        autoRotate: true,
+        offset: 10,
+        style: {
+          fontSize: 12,
+          fill: '#aaa',
+        }
+      }
+    },
     tooltip: {
       formatter: (datum) => {
         return {
@@ -184,6 +194,11 @@ export function SBIPorto() {
   // Unique ID, Issuer, Tenor, Pengelolaan, No Security, Issued Date (start_date), Maturity Date (end_date), Nominal, Term of Interest (interest date), Sisa Tenor, Rate (%)
 
   const column = [
+    {
+      title: "Period",
+      dataIndex: "tanggal",
+      key: "tanggal",
+    },
     {
       title: "Unique ID",
       dataIndex: "unique_id",
@@ -266,6 +281,7 @@ export function SBIPorto() {
   const onExport = () => {
     const newData = data.map((item) => {
       return {
+        Period: item.tanggal,
         "Unique ID": item.unique_id,
         "Bank Custody": item.custody,
         Issuer: item.issuer,
@@ -282,6 +298,7 @@ export function SBIPorto() {
     });
 
     newData.push({
+      Period: "",
       "Unique ID": "",
       "Bank Custody": "",
       Issuer: "",
@@ -442,7 +459,7 @@ export function SBIPorto() {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={8}>Total</Table.Summary.Cell>
+                  <Table.Summary.Cell colSpan={9}>Total</Table.Summary.Cell>
                   <Table.Summary.Cell align="right">
                     {data
                       ?.reduce((a, b) => a + Number(b.nominal), 0)

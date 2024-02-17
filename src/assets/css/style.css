@@ -154,3 +154,7 @@ th.ant-table-cell {
 canvas {
     height: 600px !important;
 }
+
+table {
+    white-space: nowrap;
+}

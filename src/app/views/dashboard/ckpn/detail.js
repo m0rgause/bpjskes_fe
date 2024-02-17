@@ -13,14 +13,14 @@ import {
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { get, post } from "../../../functions/helper";
+import { get, post, getFilterDate } from "../../../functions/helper";
 import QueryString from "qs";
 import * as XLSX from "xlsx";
 
 export function DetailCKPN() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(dayjs());
-  const [filterEndDate, setfilterEndDate] = React.useState(dayjs().add(6, "M"));
+  const [filterStartDate, setfilterStartDate] = React.useState(getFilterDate().startDate);
+  const [filterEndDate, setfilterEndDate] = React.useState(getFilterDate().endDate);
   const [filterIssuer, setFilterIssuer] = React.useState("all");
   const [filterCustody, setFilterCustody] = React.useState("all");
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
@@ -78,6 +78,7 @@ export function DetailCKPN() {
     data.forEach((element, index) => {
       dataSource.push({
         key: index,
+        tanggal: element.tanggal,
         tipe: element.tipe,
         unique_id: element.unique_id,
         custody_name: element.custody_name,
@@ -121,6 +122,14 @@ export function DetailCKPN() {
   };
 
   const columns = [
+    {
+      title: "Tanggal",
+      dataIndex: "tanggal",
+      key: "tanggal",
+      render: (text) => {
+        return dayjs(text).format("DD MMM YYYY");
+      },
+    },
     {
       title: "Tipe",
       dataIndex: "tipe",
@@ -242,6 +251,7 @@ export function DetailCKPN() {
 
     const dataExport = data.map((element) => {
       return {
+        Period: dayjs(element.tanggal).format("DD MMM YYYY"),
         Tipe: element.tipe,
         "Unique ID": element.unique_id,
         "Bank Custody": element.custody_name,
@@ -264,7 +274,8 @@ export function DetailCKPN() {
     });
 
     dataExport.push({
-      Tipe: "Total",
+      Period: "Total",
+      Tipe: "",
       "Unique ID": "",
       "Bank Custody": "",
       Issuer: "",
@@ -304,14 +315,12 @@ export function DetailCKPN() {
           <Col span={isMobile ? 24 : 22}>
             <DatePicker
               picker="month"
-              format={"MM-YYYY"}
               defaultValue={filterStartDate}
               onChange={(date) => setfilterStartDate(date)}
             />{" "}
             -{" "}
             <DatePicker
               picker="month"
-              format={"MM-YYYY"}
               defaultValue={filterEndDate}
               onChange={(date) => setfilterEndDate(date)}
             />
@@ -365,7 +374,7 @@ export function DetailCKPN() {
           summary={() => {
             return (
               <Table.Summary.Row>
-                <Table.Summary.Cell colSpan={17}>
+                <Table.Summary.Cell colSpan={18}>
                   <strong>Total</strong>
                 </Table.Summary.Cell>
                 <Table.Summary.Cell colSpan={1}>

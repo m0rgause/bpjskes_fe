@@ -19,7 +19,7 @@ import * as XLSX from "xlsx";
 export function DetailTWRR() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().startOf("month")
+    dayjs().subtract(1, "month")
   );
   const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
   const [total_return_akumulasi, setTotalReturnAkumulasi] = React.useState(0);
@@ -201,7 +201,7 @@ export function DetailTWRR() {
           <Card
             className="mb-1"
             style={{
-              minHeight: "125px",
+              minHeight: "135px",
             }}
           >
             <Row gutter={[8, 8]}>
@@ -248,7 +248,7 @@ export function DetailTWRR() {
         </Col>
         <Col span={isMobile ? 24 : 6}>
           <Card
-            style={{ minHeight: "125px" }}
+            style={{ minHeight: "135px" }}
             className={isMobile ? "mb-1" : ""}
           >
             <Typography.Title level={5} className="page-header">

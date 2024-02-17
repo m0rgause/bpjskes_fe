@@ -17,6 +17,7 @@ import {
   DownloadOutlined,
   CaretUpOutlined,
   CaretDownOutlined,
+  MinusCircleOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { post } from "../../../functions/helper";
@@ -84,18 +85,18 @@ export function ComparisonTWRR() {
           type === "daily"
             ? dayjs(item).format("DD MMM YYYY")
             : type === "monthly"
-            ? dayjs(item).format("MMM YYYY")
-            : type === "yearly"
-            ? dayjs(item).format("YYYY")
-            : "",
+              ? dayjs(item).format("MMM YYYY")
+              : type === "yearly"
+                ? dayjs(item).format("YYYY")
+                : "",
         dataIndex:
           type === "daily"
             ? item
             : type === "monthly"
-            ? dayjs(item).endOf("month").format("YYYY-MM-DD")
-            : type === "yearly"
-            ? dayjs(item).endOf("year").format("YYYY-MM-DD")
-            : "",
+              ? dayjs(item).endOf("month").format("YYYY-MM-DD")
+              : type === "yearly"
+                ? dayjs(item).endOf("year").format("YYYY-MM-DD")
+                : "",
         key: index,
         render: (text, record) => {
           // next if first item1
@@ -137,7 +138,9 @@ export function ComparisonTWRR() {
                   <CaretDownOutlined />
                 </span>
               ) : (
-                ""
+                <span>
+                  <MinusCircleOutlined />
+                </span>
               )}
             </div>
           );
@@ -194,10 +197,10 @@ export function ComparisonTWRR() {
           type === "daily"
             ? date
             : type === "monthly"
-            ? dayjs(date).endOf("month").format("YYYY-MM-DD")
-            : type === "yearly"
-            ? dayjs(date).endOf("year").format("YYYY-MM-DD")
-            : "";
+              ? dayjs(date).endOf("month").format("YYYY-MM-DD")
+              : type === "yearly"
+                ? dayjs(date).endOf("year").format("YYYY-MM-DD")
+                : "";
         obj[key] = item[key] ?? 0;
       });
       return obj;

@@ -1,4 +1,5 @@
 import axios from "axios";
+import dayjs from "dayjs";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
@@ -54,4 +55,12 @@ function handleRequestError(error) {
   console.error("Request Error:", error.response.data);
 }
 
-export { get, post, put, del };
+function getFilterDate() {
+  let filterDate = {
+    startDate: dayjs(),
+    endDate: dayjs(),
+  };
+  return filterDate;
+}
+
+export { get, post, put, del, getFilterDate };

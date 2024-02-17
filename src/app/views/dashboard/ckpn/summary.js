@@ -15,17 +15,17 @@ import {
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
-import { post, get } from "../../../functions/helper";
+import { post, get, getFilterDate } from "../../../functions/helper";
 import QueryString from "qs";
 import * as XLSX from "xlsx";
 
 export function SummaryCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().startOf("month")
+    getFilterDate().startDate
   );
   const [filterEndDate, setfilterEndDate] = React.useState(
-    dayjs().add(4, "months")
+    getFilterDate().endDate
   );
 
   const [type, setType] = React.useState("monthly");
@@ -135,12 +135,17 @@ export function SummaryCKPN() {
     data: dataChart,
     xField: "bank",
     yField: "return",
-    // xAxis: {
-    //   label: {
-    //     autoHide: true,
-    //     autoRotate: false,
-    //   },
-    // },
+    xAxis: {
+      label: {
+        autoRotate: true,
+        offset: 15,
+        style: {
+          fontSize: 12,
+          fill: '#aaa',
+          zIndex: 2,
+        }
+      }
+    },
     meta: {
       bank: { alias: "Bank" },
       return: { alias: "Return" },
@@ -158,8 +163,8 @@ export function SummaryCKPN() {
         };
       },
     },
-    // minColumnWidth: isMobile ? 24 : 100,
-    // maxColumnWidth: isMobile ? 24 : 100,
+    minColumnWidth: '100%',
+    maxColumnWidth: '100%',
     color: ({ bank }) => {
       let color = "#4ECB73";
       dataChart.forEach((element) => {
@@ -218,7 +223,7 @@ export function SummaryCKPN() {
   };
 
   return (
-    <Spin spinning={loading}>
+    <Spin spinning={loading} >
       <Typography.Title level={4} className="page-header">
         Summary
       </Typography.Title>
@@ -345,6 +350,6 @@ export function SummaryCKPN() {
           Export Excel
         </Button>
       </Card>
-    </Spin>
+    </Spin >
   );
 }

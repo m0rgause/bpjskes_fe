@@ -15,16 +15,16 @@ import {
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
 import { Column } from "@ant-design/plots";
 import dayjs from "dayjs";
-import { post, get } from "../../../functions/helper";
+import { post, get, getFilterDate } from "../../../functions/helper";
 import * as XLSX from "xlsx";
 
 export function DepositoCKPN() {
   const [loading, setLoading] = React.useState(false);
   const [filterStartDate, setfilterStartDate] = React.useState(
-    dayjs().startOf("month")
+    getFilterDate().startDate
   );
   const [filterEndDate, setfilterEndDate] = React.useState(
-    dayjs().add(4, "months")
+    getFilterDate().endDate
   );
 
   const [type, setType] = React.useState("monthly");
@@ -111,9 +111,9 @@ export function DepositoCKPN() {
         tanggal: item.period,
         return: Number(item.sum / 1000000),
       }));
-
       const dataSource = data.table.map((item, index) => ({
         key: index,
+        tanggal: item.tanggal,
         unique_id: item.unique_id,
         nama_custody: item.nama_custody,
         nama_issuer: item.nama_issuer,
@@ -215,6 +215,7 @@ export function DepositoCKPN() {
 
     const dataExport = data.table.map((item) => {
       return {
+        Period: item.tanggal,
         "Unique ID": item.unique_id,
         "Bank Custody": item.nama_custody,
         Issuer: item.nama_issuer,
@@ -236,7 +237,8 @@ export function DepositoCKPN() {
     });
 
     dataExport.push({
-      "Unique ID": "Total",
+      Period: "Total",
+      "Unique ID": "",
       "Bank Custody": "",
       Issuer: "",
       KBMI: "",
@@ -266,9 +268,13 @@ export function DepositoCKPN() {
     yField: "return",
     xAxis: {
       label: {
-        autoHide: true,
-        autoRotate: false,
-      },
+        autoRotate: true,
+        offset: 10,
+        style: {
+          fontSize: 12,
+          fill: '#aaa',
+        }
+      }
     },
     label: {
       position: "middle",
@@ -281,6 +287,7 @@ export function DepositoCKPN() {
         formatter: (v) => {
           return Number(v).toLocaleString("id-ID");
         },
+        autoRotate: true,
       },
     },
     tooltip: {
@@ -295,8 +302,8 @@ export function DepositoCKPN() {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
     },
-    minColumnWidth: isMobile ? 24 : 100,
-    maxColumnWidth: isMobile ? 24 : 100,
+    minColumnWidth: '100%',
+    maxColumnWidth: '100%',
     color: () => {
       return "#FAD337";
     },
@@ -306,6 +313,11 @@ export function DepositoCKPN() {
   };
 
   const columns = [
+    {
+      title: "Period",
+      dataIndex: "tanggal",
+      key: "tanggal",
+    },
     {
       title: "Unique ID",
       dataIndex: "unique_id",

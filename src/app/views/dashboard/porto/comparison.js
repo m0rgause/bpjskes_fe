@@ -17,6 +17,7 @@ import {
   DownloadOutlined,
   CaretUpOutlined,
   CaretDownOutlined,
+  MinusCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { get, post } from "../../../functions/helper";
@@ -125,14 +126,14 @@ export function ComparisonPorto() {
           type === "monthly"
             ? dayjs(item).format("MMM YYYY")
             : type === "yearly"
-            ? dayjs(item).format("YYYY")
-            : "",
+              ? dayjs(item).format("YYYY")
+              : "",
         dataIndex:
           type === "monthly"
             ? dayjs(item).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-            ? dayjs(item).endOf("year").format("YYYY-MM-DD")
-            : "",
+              ? dayjs(item).endOf("year").format("YYYY-MM-DD")
+              : "",
         key: index,
         render: (text, record) => {
           //   // next if first item
@@ -173,7 +174,9 @@ export function ComparisonPorto() {
                   <CaretDownOutlined />
                 </span>
               ) : (
-                ""
+                <span>
+                  <MinusCircleOutlined />
+                </span>
               )}
             </div>
           );
@@ -211,8 +214,8 @@ export function ComparisonPorto() {
         type === "monthly"
           ? dayjs(item.period).endOf("month").format("YYYY-MM-DD")
           : type === "yearly"
-          ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
-          : ""
+            ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
+            : ""
       ] = item.sum;
       dataSource[index]["bank_custody"] = item.custody;
     }
@@ -223,32 +226,33 @@ export function ComparisonPorto() {
 
     const data = dataSource.map((item) => {
       let obj = {
-        comparison: item.comparison,
+        "Bank Custody": item.bank_custody,
+        Comparison: item.comparison,
       };
       listDateFixed.forEach((element) => {
         obj[
           type === "monthly"
             ? dayjs(element).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-            ? dayjs(element).endOf("year").format("YYYY-MM-DD")
-            : ""
+              ? dayjs(element).endOf("year").format("YYYY-MM-DD")
+              : ""
         ] = item[
           type === "monthly"
             ? dayjs(element).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-            ? dayjs(element).endOf("year").format("YYYY-MM-DD")
-            : ""
+              ? dayjs(element).endOf("year").format("YYYY-MM-DD")
+              : ""
         ]
-          ? Number(
+            ? Number(
               item[
-                type === "monthly"
-                  ? dayjs(element).endOf("month").format("YYYY-MM-DD")
-                  : type === "yearly"
+              type === "monthly"
+                ? dayjs(element).endOf("month").format("YYYY-MM-DD")
+                : type === "yearly"
                   ? dayjs(element).endOf("year").format("YYYY-MM-DD")
                   : ""
               ]
             )
-          : 0;
+            : 0;
       });
       return obj;
     });

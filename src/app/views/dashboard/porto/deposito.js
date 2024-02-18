@@ -76,6 +76,7 @@ export function DepositoPorto() {
   };
 
   const getData = async () => {
+    setLoading(true);
     const eq = QueryString.stringify({
       type: type,
       // list_date: listDate,
@@ -97,7 +98,6 @@ export function DepositoPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
-
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal) / 1000000;
       });

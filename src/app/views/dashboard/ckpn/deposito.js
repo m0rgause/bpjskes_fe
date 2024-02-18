@@ -573,7 +573,7 @@ export function DepositoCKPN() {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={16}>
+                  <Table.Summary.Cell colSpan={17}>
                     <strong>Total</strong>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell colSpan={1}>

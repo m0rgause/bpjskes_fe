@@ -66,6 +66,7 @@ export function SBIPorto() {
     setCustody(item);
   };
   const getData = async () => {
+    setLoading(true);
     const eq = QueryString.stringify({
       type: type,
       start_date: filterStartDate.format("YYYY-MM"),

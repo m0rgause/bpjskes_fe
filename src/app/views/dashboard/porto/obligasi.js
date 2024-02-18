@@ -74,6 +74,7 @@ export function ObligasiPorto() {
   };
 
   const getData = async () => {
+    setLoading(true);
     const eq = QueryString.stringify({
       type: type,
       start_date: filterStartDate.format("YYYY-MM-DD"),
@@ -512,7 +513,7 @@ export function ObligasiPorto() {
             return (
               <>
                 <Table.Summary.Row>
-                  <Table.Summary.Cell colSpan={10}>Total</Table.Summary.Cell>
+                  <Table.Summary.Cell colSpan={11}>Total</Table.Summary.Cell>
                   <Table.Summary.Cell align="right">
                     {data
                       ?.reduce((a, b) => a + Number(b.nominal), 0)

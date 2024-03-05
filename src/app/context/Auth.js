@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { notification } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-import { post } from "../functions/helper";
+import { post, postPublic } from "../functions/helper";
 import QueryString from "qs";
 
 const AuthContext = React.createContext();
@@ -76,7 +76,7 @@ export function AuthProvider({ children }) {
         password,
         path: location.pathname,
       });
-      await post("/user/signin", send)
+      await postPublic("/user/signin", send)
         .then(({ data }) => {
           if (data.code === 200) {
             let user = data.data;

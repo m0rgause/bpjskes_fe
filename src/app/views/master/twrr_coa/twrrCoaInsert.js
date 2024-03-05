@@ -26,7 +26,7 @@ export function TWRRCOAInsert() {
     setLoading(true);
     const {
       data: { error },
-    } = await post("twrr_coa", QueryString.stringify(values));
+    } = await post("/twrr_coa", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",

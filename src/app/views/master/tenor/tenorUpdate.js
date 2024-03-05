@@ -38,7 +38,7 @@ export function TenorUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`master/tenor/${id}`, {});
+    } = await get(`/master/tenor/${id}`, {});
     if (data !== null && !error) {
       form.setFieldsValue({
         kode: data.kode,
@@ -61,7 +61,7 @@ export function TenorUpdate() {
     values.tipe = tag.join(",");
     const {
       data: { error },
-    } = await put(`master/tenor/${id}`, QueryString.stringify(values));
+    } = await put(`/master/tenor/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -81,7 +81,7 @@ export function TenorUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`master/tenor/${id}`);
+    } = await del(`/master/tenor/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

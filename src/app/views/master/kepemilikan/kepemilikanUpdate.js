@@ -35,7 +35,7 @@ export function KepemilikanUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`master/kepemilikan/${id}`, {});
+    } = await get(`/master/kepemilikan/${id}`, {});
     if (data !== null && !error) {
       form.setFieldsValue(data);
     } else {
@@ -52,7 +52,7 @@ export function KepemilikanUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await put(`master/kepemilikan/${id}`, QueryString.stringify(values));
+    } = await put(`/master/kepemilikan/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -72,7 +72,7 @@ export function KepemilikanUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`master/kepemilikan/${id}`);
+    } = await del(`/master/kepemilikan/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

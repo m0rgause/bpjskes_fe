@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, Form, Input, Button, notification, Spin } from "antd";
 import { LoginOutlined } from "@ant-design/icons";
-import { put, post } from "../../functions/helper";
+import { put, post, postPublic } from "../../functions/helper";
 import QueryString from "qs";
 import logo from "../../../assets/images/Logo/BPJS.svg";
 
@@ -25,7 +25,7 @@ export function PassReset() {
   }, []);
 
   const checkToken = async () => {
-    await post(
+    await postPublic(
       `/user/authToken`,
       QueryString.stringify({ token: query.get("token") })
     )

@@ -31,7 +31,7 @@ export function TenorList() {
     const {
       data: { data },
     } = await get(
-      `master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=tenor`
+      `/master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=tenor`
     );
     // add key to data
     data.rows = data.rows.map((item, index) => {

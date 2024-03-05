@@ -35,7 +35,7 @@ export function KategoriUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`master/kbmi/${id}`, {});
+    } = await get(`/master/kbmi/${id}`, {});
     if (data !== null && !error) {
       form.setFieldsValue(data);
     } else {
@@ -52,7 +52,7 @@ export function KategoriUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await put(`master/kbmi/${id}`, QueryString.stringify(values));
+    } = await put(`/master/kbmi/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -72,7 +72,7 @@ export function KategoriUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`master/kbmi/${id}`);
+    } = await del(`/master/kbmi/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

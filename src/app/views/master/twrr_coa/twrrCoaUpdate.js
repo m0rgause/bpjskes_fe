@@ -40,7 +40,7 @@ export function TWRRCOAUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`twrr_coa/${id}`, {});
+    } = await get(`/twrr_coa/${id}`, {});
     if (!error) {
       //   setData(data);
       console.log(data);
@@ -59,7 +59,7 @@ export function TWRRCOAUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await put(`twrr_coa/${id}`, QueryString.stringify(values));
+    } = await put(`/twrr_coa/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -79,7 +79,7 @@ export function TWRRCOAUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`twrr_coa/${id}`);
+    } = await del(`/twrr_coa/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

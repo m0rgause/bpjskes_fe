@@ -22,7 +22,7 @@ export function KepemilikanInsert() {
     setLoading(true);
     const {
       data: { error },
-    } = await post("master/kepemilikan", QueryString.stringify(values));
+    } = await post("/master/kepemilikan", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",

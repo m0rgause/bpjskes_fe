@@ -22,7 +22,7 @@ export function KategoriInsert() {
     setLoading(true);
     const {
       data: { error },
-    } = await post("master/kbmi", QueryString.stringify(values));
+    } = await post("/master/kbmi", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",

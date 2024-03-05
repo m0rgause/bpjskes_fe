@@ -31,7 +31,7 @@ export function IssuerInsert() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get("rating/select", {});
+    } = await get("/rating/select", {});
     if (!error) {
       setData(data);
     } else {
@@ -43,7 +43,7 @@ export function IssuerInsert() {
   const onFinish = async (values) => {
     setLoading(true);
 
-    await post("issuer/", QueryString.stringify(values))
+    await post("/issuer/", QueryString.stringify(values))
       .then((res) => {
         notification.success({
           message: "Success",

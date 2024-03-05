@@ -35,7 +35,7 @@ export function RatingUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`rating/${id}`, {});
+    } = await get(`/rating/${id}`, {});
     if (!error) {
       //   setData(data);
       form.setFieldsValue(data);
@@ -53,7 +53,7 @@ export function RatingUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await put(`rating/${id}`, QueryString.stringify(values));
+    } = await put(`/rating/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -73,7 +73,7 @@ export function RatingUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`rating/${id}`);
+    } = await del(`/rating/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

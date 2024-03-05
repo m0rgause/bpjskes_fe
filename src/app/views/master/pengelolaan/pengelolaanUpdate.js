@@ -35,7 +35,7 @@ export function PengelolaanUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`master/pengelolaan/${id}`, {});
+    } = await get(`/master/pengelolaan/${id}`, {});
     if (data !== null && !error) {
       form.setFieldsValue(data);
     } else {
@@ -52,7 +52,7 @@ export function PengelolaanUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await put(`master/pengelolaan/${id}`, QueryString.stringify(values));
+    } = await put(`/master/pengelolaan/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -72,7 +72,7 @@ export function PengelolaanUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`master/pengelolaan/${id}`);
+    } = await del(`/master/pengelolaan/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

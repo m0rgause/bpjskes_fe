@@ -35,7 +35,7 @@ export function CustodyUpdate() {
     setLoading(true);
     const {
       data: { data, error },
-    } = await get(`master/bankCustody/${id}`, {});
+    } = await get(`/master/bankCustody/${id}`, {});
     if (!error) {
       //   setData(data);
       form.setFieldsValue(data);
@@ -53,7 +53,7 @@ export function CustodyUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await put(`master/bankCustody/${id}`, QueryString.stringify(values));
+    } = await put(`/master/bankCustody/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -73,7 +73,7 @@ export function CustodyUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`master/bankCustody/${id}`);
+    } = await del(`/master/bankCustody/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

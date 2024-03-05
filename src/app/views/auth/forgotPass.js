@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Form, Input, Button, notification, Spin } from "antd";
 import { LoginOutlined, RedoOutlined } from "@ant-design/icons";
-import { post } from "../../functions/helper";
+import { post, postPublic } from "../../functions/helper";
 import QueryString from "qs";
 import captcha from "@bestdon/nodejs-captcha";
 import logo from "../../../assets/images/Logo/BPJS.svg";
@@ -14,7 +14,7 @@ export function PassForgot() {
 
   const onFinish = async (values) => {
     setIsLoading(true);
-    await post(`/user/resetpassword`, QueryString.stringify(values))
+    await postPublic(`/user/resetpassword`, QueryString.stringify(values))
       .then((res) => {
         notification.success({
           message: "Berhasil! Buka email untuk reset password!",

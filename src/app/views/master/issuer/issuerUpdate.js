@@ -39,10 +39,10 @@ export function IssuerUpdate() {
     setLoading(true);
     const {
       data: { data: issuer, error: issuerError },
-    } = await get(`issuer/${id}`, {});
+    } = await get(`/issuer/${id}`, {});
     const {
       data: { data: rating, error: ratingError },
-    } = await get("rating/select", {});
+    } = await get("/rating/select", {});
     if (!issuerError || !ratingError) {
       setRating(rating);
       form.setFieldsValue({
@@ -68,7 +68,7 @@ export function IssuerUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await put(`issuer/${id}`, QueryString.stringify(values));
+    } = await put(`/issuer/${id}`, QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",
@@ -88,7 +88,7 @@ export function IssuerUpdate() {
     setLoading(true);
     const {
       data: { error },
-    } = await del(`issuer/${id}`);
+    } = await del(`/issuer/${id}`);
     if (!error) {
       notification.success({
         message: "Success",

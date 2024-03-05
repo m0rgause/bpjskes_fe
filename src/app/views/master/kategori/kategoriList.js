@@ -31,7 +31,7 @@ export function KategoriList() {
     const {
       data: { data },
     } = await get(
-      `master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=kbmi`
+      `/master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=kbmi`
     );
     // add key to data
     data.rows = data.rows.map((item, index) => {

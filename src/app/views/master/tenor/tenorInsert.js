@@ -26,7 +26,7 @@ export function TenorInsert() {
     values.tipe = tag.join(",");
     const {
       data: { error },
-    } = await post("master/tenor", QueryString.stringify(values));
+    } = await post("/master/tenor", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",

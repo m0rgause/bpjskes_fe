@@ -22,7 +22,7 @@ export function CustodyInsert() {
     setLoading(true);
     const {
       data: { error },
-    } = await post("master/bankCustody", QueryString.stringify(values));
+    } = await post("/master/bankCustody", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",

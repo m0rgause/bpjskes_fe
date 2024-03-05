@@ -31,7 +31,7 @@ export function RatingList() {
     const {
       data: { data },
     } = await get(
-      `rating/?start=${dataRange.start}&end=${dataRange.end}&search=${search}`
+      `/rating/?start=${dataRange.start}&end=${dataRange.end}&search=${search}`
     );
     // add key to data
     data.rows = data.rows.map((item, index) => {

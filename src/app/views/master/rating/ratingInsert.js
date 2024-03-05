@@ -22,7 +22,7 @@ export function RatingInsert() {
     setLoading(true);
     const {
       data: { error },
-    } = await post("rating", QueryString.stringify(values));
+    } = await post("/rating", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",

@@ -31,7 +31,7 @@ export function KepemilikanList() {
     const {
       data: { data },
     } = await get(
-      `master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=kepemilikan`
+      `/master/?start=${dataRange.start}&end=${dataRange.end}&search=${search}&table=kepemilikan`
     );
     // add key to data
     data.rows = data.rows.map((item, index) => {

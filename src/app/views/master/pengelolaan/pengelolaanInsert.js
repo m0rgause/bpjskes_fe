@@ -22,7 +22,7 @@ export function PengelolaanInsert() {
     setLoading(true);
     const {
       data: { error },
-    } = await post("master/pengelolaan", QueryString.stringify(values));
+    } = await post("/master/pengelolaan", QueryString.stringify(values));
     if (!error) {
       notification.success({
         message: "Success",

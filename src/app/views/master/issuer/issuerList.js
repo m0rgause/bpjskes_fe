@@ -31,7 +31,7 @@ export function IssuerList() {
     const {
       data: { data },
     } = await get(
-      `issuer/?start=${dataRange.start}&end=${dataRange.end}&search=${search}`
+      `/issuer/?start=${dataRange.start}&end=${dataRange.end}&search=${search}`
     );
     // add key to data
     data.rows = data.rows.map((item, index) => {

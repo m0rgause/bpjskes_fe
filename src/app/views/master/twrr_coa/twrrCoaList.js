@@ -31,7 +31,7 @@ export function TWRRCOAList() {
     const {
       data: { data },
     } = await get(
-      `twrr_coa/?start=${dataRange.start}&end=${dataRange.end}&search=${search}`
+      `/twrr_coa/?start=${dataRange.start}&end=${dataRange.end}&search=${search}`
     );
     // add key to data
     data.rows = data.rows.map((item, index) => {

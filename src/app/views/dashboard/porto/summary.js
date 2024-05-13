@@ -124,20 +124,21 @@ export function SummaryPorto() {
     innerRadius: 0.4,
     label: {
       autoRotate: false,
-      type: "inner",
+      // type: "inner",
+      position: "outside",
       content: function content(_ref) {
         return `${_ref.presentase}`;
       },
       style: {
-        fill: "#fff",
+        // fill: "#fff",
         // if percentage is lower than 10%, hide label
         opacity: (datum) => {
           return datum.presentase < 10 ? 0 : 1;
         },
-        textAlign: "center",
-        fontSize: 14,
+        // textAlign: "center",
+        // fontSize: 14,
       },
-      offset: "-50%",
+      // offset: "-50%",
     },
     interactions: [
       {

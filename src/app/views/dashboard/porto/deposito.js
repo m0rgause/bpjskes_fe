@@ -149,7 +149,7 @@ export function DepositoPorto() {
         kepemilikanData,
         pengelolaanData,
       ] = await Promise.all([
-        fetchData("/issuer/select"),
+        fetchData("/issuer/select?tipe=deposito"),
         fetchData("/master/select/kbmi"),
         fetchData("/master/select/tenor?tipe=deposito"),
         fetchData("/master/select/kepemilikan"),

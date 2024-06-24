@@ -393,7 +393,7 @@ export function ExternalCash() {
             >
               {totalAkumulasi} %
             </Typography.Title>
-            <Typography.Title
+            {/*<Typography.Title
               level={5}
               className="page-header"
               style={{
@@ -401,7 +401,7 @@ export function ExternalCash() {
               }}
             >
               {totalAkumulasiRaw}
-            </Typography.Title>
+            </Typography.Title>*/}
           </Card>
         </Col>
       </Row>

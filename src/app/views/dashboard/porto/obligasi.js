@@ -144,7 +144,7 @@ export function ObligasiPorto() {
         kepemilikanData,
         pengelolaanData,
       ] = await Promise.all([
-        fetchData("/issuer/select"),
+        fetchData("/issuer/select?tipe=obligasi"),
         fetchData("/master/select/kbmi"),
         fetchData("/master/select/tenor?tipe=obligasi"),
         fetchData("/master/select/kepemilikan"),
@@ -426,7 +426,7 @@ export function ObligasiPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 3}>
+          {/*<Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>KBMI</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 21}>
@@ -436,7 +436,7 @@ export function ObligasiPorto() {
               onChange={(value) => setFilterKBMI(value)}
               style={{ maxWidth: "300px", width: "100%" }}
             />
-          </Col>
+          </Col>*/}
           <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Issuer</Typography.Text>
           </Col>

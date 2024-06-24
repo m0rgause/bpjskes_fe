@@ -264,7 +264,7 @@ export function DetailTWRR() {
             >
               {total_return_akumulasi} %
             </Typography.Title>
-            <Typography.Title
+            {/*<Typography.Title
               level={5}
               className="page-header"
               style={{
@@ -272,7 +272,7 @@ export function DetailTWRR() {
               }}
             >
               {totalReturnAkumulasiRaw}
-            </Typography.Title>
+            </Typography.Title>*/}
           </Card>
         </Col>
       </Row>

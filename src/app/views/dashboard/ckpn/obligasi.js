@@ -156,7 +156,7 @@ export function ObligasiCKPN() {
         kepemilikanResponse,
         kbmiResponse,
       ] = await Promise.all([
-        get("/issuer/select"),
+        get("/issuer/select?tipe=obligasi"),
         get("/master/select/tenor?tipe=obligasi"),
         get("/master/select/kepemilikan"),
         get("/master/select/pengelolaan"),
@@ -487,7 +487,7 @@ export function ObligasiCKPN() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 3}>
+          {/*<Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>KBMI</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 21}>
@@ -497,7 +497,7 @@ export function ObligasiCKPN() {
               onChange={(value) => setfilterKBMI(value)}
               style={{ maxWidth: "300px", width: "100%" }}
             />
-          </Col>
+          </Col>*/}
           <Col span={isMobile ? 24 : 3}>
             <Typography.Text strong>Issuer</Typography.Text>
           </Col>

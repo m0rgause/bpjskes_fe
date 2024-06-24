@@ -124,7 +124,7 @@ export function SBNPorto() {
     setLoading(true);
     try {
       const [issuerData, tenorData, pengelolaanData] = await Promise.all([
-        fetchData("/issuer/select"),
+        fetchData("/issuer/select?tipe=sbn"),
         fetchData("/master/select/tenor?tipe=sbn"),
         fetchData("/master/select/pengelolaan"),
       ]);

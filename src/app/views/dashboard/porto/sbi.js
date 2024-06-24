@@ -123,7 +123,7 @@ export function SBIPorto() {
     setLoading(true);
     try {
       const [issuerData, tenorData, pengelolaanData] = await Promise.all([
-        fetchData("/issuer/select"),
+        fetchData("/issuer/select?tipe=sbi"),
         fetchData("/master/select/tenor?tipe=sbi"),
         fetchData("/master/select/pengelolaan"),
       ]);

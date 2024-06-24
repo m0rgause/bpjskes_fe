@@ -157,8 +157,8 @@ export function DepositoCKPN() {
         kepemilikanResponse,
         kbmiResponse,
       ] = await Promise.all([
-        get("/issuer/select"),
-        get("/master/select/tenor?tipe=obligasi"),
+        get("/issuer/select?tipe=deposito"),
+        get("/master/select/tenor?tipe=deposito"),
         get("/master/select/kepemilikan"),
         get("/master/select/pengelolaan"),
         get("/master/select/kbmi"),

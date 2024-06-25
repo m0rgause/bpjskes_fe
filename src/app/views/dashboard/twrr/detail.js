@@ -41,6 +41,14 @@ export function DetailTWRR() {
     let {
       data: { data },
     } = await post("/twrr/detail", QueryString.stringify(eq));
+
+    if (data.data.rows.length === 0) {
+      notification.warning({
+        message: "Warning",
+        description: "Data Belum Tersedia",
+      });
+    }
+
     let total_return_akumulasi = 0;
     data["data"]["rows"] = data.data.rows.map((item, index) => {
       item.key = index;

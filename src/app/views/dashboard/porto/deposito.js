@@ -98,6 +98,14 @@ export function DepositoPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
+
+       if(data.data.length === 0) {
+        notification.warning({
+          message: "Warning",
+          description: "Data Belum Tersedia",
+        });
+      }
+
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal) / 1000000;
       });
@@ -110,7 +118,7 @@ export function DepositoPorto() {
       setDataChart(data.data);
       setData(data.dataTable);
     } catch (error) {
-      // console.error("Error fetching data:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -307,7 +315,7 @@ export function DepositoPorto() {
       },
     },
     {
-      title: "Sisa Tenor",
+      title: "Sisa Tenor (Hari)",
       dataIndex: "sisa_tenor",
       key: "sisa_tenor",
     },
@@ -337,7 +345,7 @@ export function DepositoPorto() {
         "Maturity Date": item.end_date,
         "Nominal (Jutaan)": item.nominal.toLocaleString("id-ID"),
         "Term of Interest": item.interest_date,
-        "Sisa Tenor": item.sisa_tenor,
+        "Sisa Tenor (Hari)": item.sisa_tenor,
         "Rate (%)": item.rate.toFixed(2),
       };
     });
@@ -358,7 +366,7 @@ export function DepositoPorto() {
         .reduce((a, b) => a + Number(b.nominal), 0)
         .toLocaleString("id-ID"),
       "Term of Interest": "",
-      "Sisa Tenor": "",
+      "Sisa Tenor (Hari)": "",
       "Rate (%)": "",
     });
 

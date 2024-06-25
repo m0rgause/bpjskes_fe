@@ -70,6 +70,13 @@ export function SummaryPorto() {
         data: { data },
       } = await post("/porto/summary", QueryString.stringify(body));
 
+      if(data.data.length === 0) {
+        notification.warning({
+          message: "Warning",
+          description: "Data Belum Tersedia",
+        });
+      }
+
       data.data.forEach((element, index) => {
         element.key = index;
         element.nominal = Number(element.sum / 1000000);

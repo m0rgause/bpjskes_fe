@@ -105,6 +105,13 @@ export function DetailPorto() {
       const {
         data: { data },
       } = await post("/porto/detail", QueryString.stringify(eq));
+
+      if (data.data.length === 0) {
+        notification.warning({
+          message: "Data belum tersedia",
+        });
+      }
+
       data.data.forEach((element, index) => {
         element.key = index;
         element.nominal = Number(element.nominal / 1000000);

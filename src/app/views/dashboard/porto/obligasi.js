@@ -95,6 +95,12 @@ export function ObligasiPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
+       if(data.data.length === 0) {
+        notification.warning({
+          message: "Warning",
+          description: "Data Belum Tersedia",
+        });
+      }
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal / 1000000);
       });
@@ -302,7 +308,7 @@ export function ObligasiPorto() {
       },
     },
     {
-      title: "Sisa Tenor",
+      title: "Sisa Tenor (Hari)",
       dataIndex: "sisa_tenor",
       key: "sisa_tenor",
     },
@@ -332,7 +338,7 @@ export function ObligasiPorto() {
         "Maturity Date": item.end_date,
         "Nominal (Jutaan)": item.nominal.toLocaleString("id-ID"),
         "Term of Interest": item.interest_date,
-        "Sisa Tenor": item.sisa_tenor,
+        "Sisa Tenor (Hari)": item.sisa_tenor,
         "Rate (%)": item.rate.toFixed(2),
       };
     });
@@ -353,7 +359,7 @@ export function ObligasiPorto() {
         .reduce((a, b) => a + Number(b.nominal), 0)
         .toLocaleString("id-ID"),
       "Term of Interest": "",
-      "Sisa Tenor": "",
+      "Sisa Tenor (Hari)": "",
       "Rate (%)": "",
     });
 

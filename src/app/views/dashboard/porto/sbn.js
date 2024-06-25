@@ -21,8 +21,12 @@ import * as XLSX from "xlsx";
 
 export function SBNPorto() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(getFilterDate().startDate);
-  const [filterEndDate, setfilterEndDate] = React.useState(getFilterDate().endDate);
+  const [filterStartDate, setfilterStartDate] = React.useState(
+    getFilterDate().startDate
+  );
+  const [filterEndDate, setfilterEndDate] = React.useState(
+    getFilterDate().endDate
+  );
 
   const [filterCustody, setFilterCustody] = React.useState("all"); // [all, bni, mandiri, bc
   const [filterIssuer, setFilterIssuer] = React.useState("all");
@@ -89,6 +93,13 @@ export function SBNPorto() {
       const {
         data: { data },
       } = await post("/porto/multi", eq);
+      if (data.data.length === 0) {
+        notification.warning({
+          message: "Warning",
+          description: "Data Belum Tersedia",
+        });
+      }
+
       data.data.forEach((item) => {
         item.nominal = Number(item.nominal / 1000000);
       });
@@ -153,8 +164,8 @@ export function SBNPorto() {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
     },
-    minColumnWidth: '100%',
-    maxColumnWidth: '100%',
+    minColumnWidth: "100%",
+    maxColumnWidth: "100%",
     color: () => {
       return "#4ECB73";
     },
@@ -179,9 +190,9 @@ export function SBNPorto() {
         offset: 10,
         style: {
           fontSize: 12,
-          fill: '#aaa',
-        }
-      }
+          fill: "#aaa",
+        },
+      },
     },
     tooltip: {
       formatter: (datum) => {
@@ -272,7 +283,7 @@ export function SBNPorto() {
       },
     },
     {
-      title: "Sisa Tenor",
+      title: "Sisa Tenor (Hari)",
       dataIndex: "sisa_tenor",
       key: "sisa_tenor",
     },
@@ -289,7 +300,7 @@ export function SBNPorto() {
   const onExport = () => {
     const newData = data.map((item) => {
       return {
-        "Period": item.tanggal,
+        Period: item.tanggal,
         "Unique ID": item.unique_id,
         "Bank Custody": item.custody,
         Issuer: item.issuer,
@@ -300,13 +311,13 @@ export function SBNPorto() {
         "Maturity Date": item.end_date,
         "Nominal (Jutaan)": item.nominal.toLocaleString("id-ID"),
         "Term of Interest": item.interest_date,
-        "Sisa Tenor": item.sisa_tenor,
+        "Sisa Tenor (Hari)": item.sisa_tenor,
         "Rate (%)": item.rate?.toFixed(2) ?? 0,
       };
     });
 
     newData.push({
-      "Period": "",
+      Period: "",
       "Unique ID": "",
       "Bank Custody": "",
       Issuer: "",
@@ -319,7 +330,7 @@ export function SBNPorto() {
         .reduce((a, b) => a + Number(b.nominal), 0)
         .toLocaleString("id-ID"),
       "Term of Interest": "",
-      "Sisa Tenor": "",
+      "Sisa Tenor (Hari)": "",
       "Rate (%)": "",
     });
 

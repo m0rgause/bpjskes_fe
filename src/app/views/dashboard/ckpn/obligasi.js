@@ -104,8 +104,15 @@ export function ObligasiCKPN() {
     };
 
     try {
-      const response = await post("/ckpn/obligasi", eq);
-      const data = response.data.data;
+      const {
+        data: { data },
+      } = await post("/ckpn/obligasi", eq);
+      if (data.data.length === 0) {
+        notification.warning({
+          message: "Warning",
+          description: "Data Belum Tersedia",
+        });
+      }
       const dataChart = data.data.map((item) => ({
         tanggal: item.period,
         return: Number(item.sum / 1000000),
@@ -226,7 +233,7 @@ export function ObligasiCKPN() {
         "Maturity Date": item.end_date,
         "Nominal (Jutaan)": item.nominal / 1000000,
         "Term of Interest": item.interest_date,
-        "Sisa Tenor": item.sisa_tenor,
+        "Sisa Tenor (Hari)": item.sisa_tenor,
         "Rate (%)": item.rate.toFixed(2),
         PD: item.pd.toFixed(2),
         "LGD (%)": item.lgd,
@@ -248,7 +255,7 @@ export function ObligasiCKPN() {
       "Maturity Date": "",
       "Nominal (Jutaan)": "",
       "Term of Interest": "",
-      "Sisa Tenor": "",
+      "Sisa Tenor (Hari)": "",
       "Rate (%)": "",
       PD: "",
       "LGD (%)": "",
@@ -270,9 +277,9 @@ export function ObligasiCKPN() {
         offset: 10,
         style: {
           fontSize: 12,
-          fill: '#aaa',
-        }
-      }
+          fill: "#aaa",
+        },
+      },
     },
     label: {
       position: "middle",
@@ -299,8 +306,8 @@ export function ObligasiCKPN() {
       tanggal: { alias: "Tanggal" },
       return: { alias: "Return" },
     },
-    minColumnWidth: '100%',
-    maxColumnWidth: '100%',
+    minColumnWidth: "100%",
+    maxColumnWidth: "100%",
     color: () => {
       return "#3AA0FF";
     },
@@ -390,7 +397,7 @@ export function ObligasiCKPN() {
       },
     },
     {
-      title: "Sisa Tenor",
+      title: "Sisa Tenor (Hari)",
       dataIndex: "sisa_tenor",
       key: "sisa_tenor",
     },

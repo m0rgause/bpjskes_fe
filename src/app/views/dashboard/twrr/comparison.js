@@ -17,7 +17,7 @@ import {
   DownloadOutlined,
   CaretUpOutlined,
   CaretDownOutlined,
-  MinusCircleOutlined
+  MinusCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { post } from "../../../functions/helper";
@@ -29,7 +29,7 @@ export function ComparisonTWRR() {
   const [type, setType] = React.useState("daily");
   const [listDate, setListDate] = React.useState([]);
   const [listDateFixed, setListDateFixed] = React.useState([]); // for table columns
-  const [pickerDate, setPickerDate] = React.useState("");
+  const [pickerDate, setPickerDate] = React.useState("daily");
 
   React.useEffect(() => {
     getData();
@@ -45,7 +45,10 @@ export function ComparisonTWRR() {
     let {
       data: { data: comparison },
     } = await post("/twrr/comparison", eq);
-
+    comparison?.forEach((item) => {
+      item.total_before_cash = item.total_before_cash / 1000000;
+      item.total_after_cash = item.total_after_cash / 1000000;
+    });
     setData(comparison);
     setLoading(false);
   };
@@ -85,18 +88,18 @@ export function ComparisonTWRR() {
           type === "daily"
             ? dayjs(item).format("DD MMM YYYY")
             : type === "monthly"
-              ? dayjs(item).format("MMM YYYY")
-              : type === "yearly"
-                ? dayjs(item).format("YYYY")
-                : "",
+            ? dayjs(item).format("MMM YYYY")
+            : type === "yearly"
+            ? dayjs(item).format("YYYY")
+            : "",
         dataIndex:
           type === "daily"
             ? item
             : type === "monthly"
-              ? dayjs(item).endOf("month").format("YYYY-MM-DD")
-              : type === "yearly"
-                ? dayjs(item).endOf("year").format("YYYY-MM-DD")
-                : "",
+            ? dayjs(item).endOf("month").format("YYYY-MM-DD")
+            : type === "yearly"
+            ? dayjs(item).endOf("year").format("YYYY-MM-DD")
+            : "",
         key: index,
         render: (text, record) => {
           // next if first item1
@@ -111,14 +114,22 @@ export function ComparisonTWRR() {
             previousDate = listDateFixed[index - 1];
           } else if (type === "monthly") {
             currentdate = dayjs(item).endOf("month").format("YYYY-MM-DD");
-            previousDate = dayjs(item)
-              .subtract(1, "month")
+            // previousDate = dayjs(item)
+            //   .subtract(1, "month")
+            //   .endOf("month")
+            //   .format("YYYY-MM-DD");
+
+            previousDate = dayjs(listDateFixed[index - 1])
               .endOf("month")
               .format("YYYY-MM-DD");
           } else if (type === "yearly") {
             currentdate = dayjs(item).endOf("year").format("YYYY-MM-DD");
-            previousDate = dayjs(item)
-              .subtract(1, "year")
+            //   previousDate = dayjs(item)
+            //     .subtract(1, "year")
+            //     .endOf("year")
+            //     .format("YYYY-MM-DD");
+
+            previousDate = dayjs(listDateFixed[index - 1])
               .endOf("year")
               .format("YYYY-MM-DD");
           }
@@ -152,11 +163,11 @@ export function ComparisonTWRR() {
   const dataSource = [
     {
       key: 0,
-      comparison: "Total Sebelum External Cash",
+      comparison: "Total Sebelum External Cash (Jutaan)",
     },
     {
       key: 1,
-      comparison: "Total Sesudah External Cash",
+      comparison: "Total Sesudah External Cash (Jutaan)",
     },
     {
       key: 2,
@@ -197,10 +208,10 @@ export function ComparisonTWRR() {
           type === "daily"
             ? date
             : type === "monthly"
-              ? dayjs(date).endOf("month").format("YYYY-MM-DD")
-              : type === "yearly"
-                ? dayjs(date).endOf("year").format("YYYY-MM-DD")
-                : "";
+            ? dayjs(date).endOf("month").format("YYYY-MM-DD")
+            : type === "yearly"
+            ? dayjs(date).endOf("year").format("YYYY-MM-DD")
+            : "";
         obj[key] = item[key] ?? 0;
       });
       return obj;

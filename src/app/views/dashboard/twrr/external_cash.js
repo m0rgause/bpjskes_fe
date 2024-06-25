@@ -22,9 +22,7 @@ export function ExternalCash() {
   const [filterStartDate, setfilterStartDate] = React.useState(
     dayjs().subtract(1, "months")
   );
-  const [filterEndDate, setfilterEndDate] = React.useState(
-    dayjs()
-  );
+  const [filterEndDate, setfilterEndDate] = React.useState(dayjs());
 
   const [data, setData] = React.useState([]);
   const [totalAkumulasi, setTotalAkumulasi] = React.useState(0);
@@ -74,6 +72,13 @@ export function ExternalCash() {
       data: { data: externalCash },
     } = await post("/twrr/external-cash", eq);
 
+    if (externalCash.length === 0) {
+      notification.warning({
+        message: "Warning",
+        description: "Data Belum Tersedia",
+      });
+    }
+
     let returnAkumulasi = 0;
     externalCash = externalCash?.map((item, index) => {
       item.key = index;
@@ -101,8 +106,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-              ? period.format("MMM YYYY")
-              : period.format("YYYY"),
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         Akumulasi: element.return_akumulasi,
       });
     });
@@ -118,8 +123,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-              ? period.format("MMM YYYY")
-              : period.format("YYYY"),
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         value: parseInt(element.total_before_cash),
         type: "Total Sebelum External Cash",
       });
@@ -128,8 +133,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-              ? period.format("MMM YYYY")
-              : period.format("YYYY"),
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         value: parseInt(element.total_after_cash),
         type: "Total Sesudah External Cash",
       });
@@ -199,9 +204,9 @@ export function ExternalCash() {
         offset: 10,
         style: {
           fontSize: 12,
-          fill: '#aaa',
-        }
-      }
+          fill: "#aaa",
+        },
+      },
     },
     legend: {
       position: "bottom",
@@ -218,8 +223,8 @@ export function ExternalCash() {
         return type === "daily"
           ? period.format("DD MMM YYYY")
           : type === "monthly"
-            ? period.format("MMM YYYY")
-            : period.format("YYYY");
+          ? period.format("MMM YYYY")
+          : period.format("YYYY");
       },
     },
     {
@@ -276,8 +281,8 @@ export function ExternalCash() {
           type === "daily"
             ? period.format("DD MMM YYYY")
             : type === "monthly"
-              ? period.format("MMM YYYY")
-              : period.format("YYYY"),
+            ? period.format("MMM YYYY")
+            : period.format("YYYY"),
         "Total Sebelum External Cash": parseInt(
           item.total_before_cash
         ).toLocaleString("id-ID"),
@@ -405,15 +410,19 @@ export function ExternalCash() {
           </Card>
         </Col>
       </Row>
-      <Card className="mb-1" style={{
-        maxWidth: "100%",
-      }}>
+      <Card
+        className="mb-1"
+        style={{
+          maxWidth: "100%",
+        }}
+      >
         <DualAxes
           style={{
             minWidth: "100%",
-            maxWidth: '5000px'
+            maxWidth: "5000px",
           }}
-          {...config} />
+          {...config}
+        />
       </Card>
       <Card className="mb-1">
         <Table

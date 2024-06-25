@@ -11,6 +11,7 @@ import {
   Radio,
   DatePicker,
   Modal,
+  notification,
 } from "antd";
 import {
   SearchOutlined,
@@ -123,17 +124,17 @@ export function ComparisonPorto() {
     ...listDateFixed.map((item, index) => {
       return {
         title:
-          type === "monthly"
+          (type === "monthly"
             ? dayjs(item).format("MMM YYYY")
             : type === "yearly"
-              ? dayjs(item).format("YYYY")
-              : "",
+            ? dayjs(item).format("YYYY")
+            : "") + " (Jutaan)",
         dataIndex:
           type === "monthly"
             ? dayjs(item).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-              ? dayjs(item).endOf("year").format("YYYY-MM-DD")
-              : "",
+            ? dayjs(item).endOf("year").format("YYYY-MM-DD")
+            : "",
         key: index,
         render: (text, record) => {
           //   // next if first item
@@ -144,14 +145,27 @@ export function ComparisonPorto() {
           let currentdate = "";
           if (type === "monthly") {
             currentdate = dayjs(item).endOf("month").format("YYYY-MM-DD");
-            previousDate = dayjs(item)
-              .subtract(1, "month")
+
+            // previousDate = dayjs(item)
+            //   .subtract(1, "month")
+            //   .endOf("month")
+            //   .format("YYYY-MM-DD");
+            // console.log(currentdate);
+            // console.log(previousDate);
+            // console.log(listDateFixed[index - 1]);
+
+            previousDate = dayjs(listDateFixed[index - 1])
               .endOf("month")
               .format("YYYY-MM-DD");
+            console.log(previousDate);
           } else if (type === "yearly") {
             currentdate = dayjs(item).endOf("year").format("YYYY-MM-DD");
-            previousDate = dayjs(item)
-              .subtract(1, "year")
+            // previousDate = dayjs(item)
+            //   .subtract(1, "year")
+            //   .endOf("year")
+            //   .format("YYYY-MM-DD");
+
+            previousDate = dayjs(listDateFixed[index - 1])
               .endOf("year")
               .format("YYYY-MM-DD");
           }
@@ -161,6 +175,7 @@ export function ComparisonPorto() {
           let currentValue = record[currentdate]
             ? Number(record[currentdate])
             : 0;
+          // let diff = currentValue - previousValue;
           let diff = currentValue - previousValue;
           return (
             <div>
@@ -214,8 +229,8 @@ export function ComparisonPorto() {
         type === "monthly"
           ? dayjs(item.period).endOf("month").format("YYYY-MM-DD")
           : type === "yearly"
-            ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
-            : ""
+          ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
+          : ""
       ] = item.sum;
       dataSource[index]["bank_custody"] = item.custody;
     }
@@ -234,25 +249,25 @@ export function ComparisonPorto() {
           type === "monthly"
             ? dayjs(element).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-              ? dayjs(element).endOf("year").format("YYYY-MM-DD")
-              : ""
+            ? dayjs(element).endOf("year").format("YYYY-MM-DD")
+            : ""
         ] = item[
           type === "monthly"
             ? dayjs(element).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-              ? dayjs(element).endOf("year").format("YYYY-MM-DD")
-              : ""
+            ? dayjs(element).endOf("year").format("YYYY-MM-DD")
+            : ""
         ]
-            ? Number(
+          ? Number(
               item[
-              type === "monthly"
-                ? dayjs(element).endOf("month").format("YYYY-MM-DD")
-                : type === "yearly"
+                type === "monthly"
+                  ? dayjs(element).endOf("month").format("YYYY-MM-DD")
+                  : type === "yearly"
                   ? dayjs(element).endOf("year").format("YYYY-MM-DD")
                   : ""
               ]
             )
-            : 0;
+          : 0;
       });
       return obj;
     });

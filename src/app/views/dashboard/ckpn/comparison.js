@@ -122,17 +122,17 @@ export function ComparisonCKPN() {
     ...listDateFixed.map((item, index) => {
       return {
         title:
-          type === "monthly"
+          (type === "monthly"
             ? dayjs(item).format("MMM YYYY")
             : type === "yearly"
-              ? dayjs(item).format("YYYY")
-              : "",
+            ? dayjs(item).format("YYYY")
+            : "") + " (Jutaan)",
         dataIndex:
           type === "monthly"
             ? dayjs(item).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-              ? dayjs(item).endOf("year").format("YYYY-MM-DD")
-              : "",
+            ? dayjs(item).endOf("year").format("YYYY-MM-DD")
+            : "",
         key: index,
         render: (text, record) => {
           if (index === 0) {
@@ -142,14 +142,22 @@ export function ComparisonCKPN() {
           let currentdate = "";
           if (type === "monthly") {
             currentdate = dayjs(item).endOf("month").format("YYYY-MM-DD");
-            previousDate = dayjs(item)
-              .subtract(1, "month")
+            // previousDate = dayjs(item)
+            //   .subtract(1, "month")
+            //   .endOf("month")
+            //   .format("YYYY-MM-DD");
+
+            previousDate = dayjs(listDateFixed[index - 1])
               .endOf("month")
               .format("YYYY-MM-DD");
           } else if (type === "yearly") {
             currentdate = dayjs(item).endOf("year").format("YYYY-MM-DD");
-            previousDate = dayjs(item)
-              .subtract(1, "year")
+            // previousDate = dayjs(item)
+            //   .subtract(1, "year")
+            //   .endOf("year")
+            //   .format("YYYY-MM-DD");
+
+            previousDate = dayjs(listDateFixed[index - 1])
               .endOf("year")
               .format("YYYY-MM-DD");
           }
@@ -201,8 +209,8 @@ export function ComparisonCKPN() {
         type === "monthly"
           ? dayjs(item.period).endOf("month").format("YYYY-MM-DD")
           : type === "yearly"
-            ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
-            : ""
+          ? dayjs(item.period).endOf("year").format("YYYY-MM-DD")
+          : ""
       ] = item.sum;
       dataSource[index]["custody"] = item.custody;
     }
@@ -221,25 +229,25 @@ export function ComparisonCKPN() {
           type === "monthly"
             ? dayjs(element).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-              ? dayjs(element).endOf("year").format("YYYY-MM-DD")
-              : ""
+            ? dayjs(element).endOf("year").format("YYYY-MM-DD")
+            : ""
         ] = item[
           type === "monthly"
             ? dayjs(element).endOf("month").format("YYYY-MM-DD")
             : type === "yearly"
-              ? dayjs(element).endOf("year").format("YYYY-MM-DD")
-              : ""
+            ? dayjs(element).endOf("year").format("YYYY-MM-DD")
+            : ""
         ]
-            ? Number(
+          ? Number(
               item[
-              type === "monthly"
-                ? dayjs(element).endOf("month").format("YYYY-MM-DD")
-                : type === "yearly"
+                type === "monthly"
+                  ? dayjs(element).endOf("month").format("YYYY-MM-DD")
+                  : type === "yearly"
                   ? dayjs(element).endOf("year").format("YYYY-MM-DD")
                   : ""
               ]
             )
-            : 0;
+          : 0;
       });
       return obj;
     });

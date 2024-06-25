@@ -19,8 +19,12 @@ import * as XLSX from "xlsx";
 
 export function DetailCKPN() {
   const [loading, setLoading] = React.useState(false);
-  const [filterStartDate, setfilterStartDate] = React.useState(getFilterDate().startDate);
-  const [filterEndDate, setfilterEndDate] = React.useState(getFilterDate().endDate);
+  const [filterStartDate, setfilterStartDate] = React.useState(
+    getFilterDate().startDate
+  );
+  const [filterEndDate, setfilterEndDate] = React.useState(
+    getFilterDate().endDate
+  );
   const [filterIssuer, setFilterIssuer] = React.useState("all");
   const [filterCustody, setFilterCustody] = React.useState("all");
   const [issuer, setIssuer] = React.useState({ item: [], data: [] }); // for filter
@@ -73,7 +77,12 @@ export function DetailCKPN() {
     const {
       data: { data },
     } = await post("/ckpn/detail", QueryString.stringify(eq));
-
+    if (data.length === 0) {
+      notification.warning({
+        message: "Warning",
+        description: "Data Belum Tersedia",
+      });
+    }
     const dataSource = [];
     data.forEach((element, index) => {
       dataSource.push({
@@ -208,7 +217,7 @@ export function DetailCKPN() {
       },
     },
     {
-      title: "Sisa Tenor",
+      title: "Sisa Tenor (Hari)",
       dataIndex: "sisa_tenor",
       key: "sisa_tenor",
     },
@@ -265,7 +274,7 @@ export function DetailCKPN() {
         "Maturity Date": element.end_date,
         "Nominal (Jutaan)": Number(element.nominal).toLocaleString("id-ID"),
         "Term of Interest": element.interest_date,
-        "Sisa Tenor": element.sisa_tenor,
+        "Sisa Tenor (Hari)": element.sisa_tenor,
         "Rate (%)": element.rate.toFixed(2),
         PD: element.pd.toFixed(2),
         "LGD (%)": element.lgd,
@@ -288,7 +297,7 @@ export function DetailCKPN() {
       "Maturity Date": "",
       "Nominal (Jutaan)": "",
       "Term of Interest": "",
-      "Sisa Tenor": "",
+      "Sisa Tenor (Hari)": "",
       "Rate (%)": "",
       PD: "",
       "LGD (%)": "",

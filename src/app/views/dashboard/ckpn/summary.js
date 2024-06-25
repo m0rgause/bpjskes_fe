@@ -76,7 +76,12 @@ export function SummaryCKPN() {
       let {
         data: { data },
       } = await post("/ckpn/summary", QueryString.stringify(eq));
-
+      if (data.length === 0) {
+        notification.warning({
+          message: "Warning",
+          description: "Data Belum Tersedia",
+        });
+      }
       // add key to data
       // let dataChart = [];
       data.forEach((element, index) => {
@@ -141,10 +146,10 @@ export function SummaryCKPN() {
         offset: 15,
         style: {
           fontSize: 12,
-          fill: '#aaa',
+          fill: "#aaa",
           zIndex: 2,
-        }
-      }
+        },
+      },
     },
     meta: {
       bank: { alias: "Bank" },
@@ -163,8 +168,8 @@ export function SummaryCKPN() {
         };
       },
     },
-    minColumnWidth: '100%',
-    maxColumnWidth: '100%',
+    minColumnWidth: "100%",
+    maxColumnWidth: "100%",
     color: ({ bank }) => {
       let color = "#4ECB73";
       dataChart.forEach((element) => {
@@ -223,7 +228,7 @@ export function SummaryCKPN() {
   };
 
   return (
-    <Spin spinning={loading} >
+    <Spin spinning={loading}>
       <Typography.Title level={4} className="page-header">
         Summary
       </Typography.Title>
@@ -350,6 +355,6 @@ export function SummaryCKPN() {
           Export Excel
         </Button>
       </Card>
-    </Spin >
+    </Spin>
   );
 }

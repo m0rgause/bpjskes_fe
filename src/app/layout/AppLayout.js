@@ -166,7 +166,7 @@ export function AppLayout() {
                   marginRight: "10px",
                 }}
               >
-                Dashboard Kustodi
+                Dashboard Custody
               </Typography.Title>
             ) : null}
 

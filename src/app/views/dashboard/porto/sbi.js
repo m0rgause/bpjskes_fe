@@ -53,6 +53,7 @@ export function SBIPorto() {
     if (filterStartDate.isAfter(filterEndDate)) {
       notification.error({
         message: "Periode awal tidak boleh lebih besar dari periode akhir",
+        duration: 1,
       });
       return;
     }
@@ -64,7 +65,7 @@ export function SBIPorto() {
       data: { data },
     } = await get("/custody");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Custody" }];
     data.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -97,6 +98,7 @@ export function SBIPorto() {
         notification.warning({
           message: "Warning",
           description: "Data Belum Tersedia",
+          duration: 1,
         });
       }
       data.data.forEach((item) => {
@@ -108,10 +110,9 @@ export function SBIPorto() {
       setDataChart(data.data);
       setData(data.dataTable);
     } catch (error) {
-      console.error(error);
-      // notification.error({
-      //   message: error.message,
-      // });
+      notification.error({
+        message: error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -122,8 +123,8 @@ export function SBIPorto() {
     return response.data.data.rows;
   };
 
-  const createList = (data) => {
-    const list = [{ value: "all", label: "All" }];
+  const createList = (data, label) => {
+    const list = [{ value: "all", label: "All "+label }];
     data?.forEach((item) => {
       list.push({ value: item.id, label: item.nama });
     });
@@ -139,9 +140,9 @@ export function SBIPorto() {
         fetchData("/master/select/pengelolaan"),
       ]);
 
-      const issuerList = createList(issuerData);
-      const tenorList = createList(tenorData);
-      const pengelolaanList = createList(pengelolaanData);
+      const issuerList = createList(issuerData, 'Issuer');
+      const tenorList = createList(tenorData, 'Tenor');
+      const pengelolaanList = createList(pengelolaanData, 'Pengelolaan');
 
       setIssuer(issuerList);
       setTenor(tenorList);
@@ -335,12 +336,12 @@ export function SBIPorto() {
   };
   const onTypeChange = (e) => {
     setData([]);
-    if (e.target.value === "monthly") {
+    if (e === "monthly") {
       setPickerDate("month");
-    } else if (e.target.value === "yearly") {
+    } else if (e === "yearly") {
       setPickerDate("year");
     }
-    setType(e.target.value);
+    setType(e);
   };
 
   return (
@@ -351,100 +352,72 @@ export function SBIPorto() {
 
       <Card className="mb-1">
         <Row gutter={[8, 8]}>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Type</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <Radio.Group
-              defaultValue={type}
-              onChange={(e) => {
-                setType(e.target.value);
-                onTypeChange(e);
-              }}
-            >
-              <Radio value="monthly">Monthly</Radio>
-              <Radio value="yearly">Yearly</Radio>
-            </Radio.Group>
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <div>
+          <Col span={isMobile ? 24 : 22}>
+              <Select
+                defaultValue={type}
+                options={[{key:0, value:'monthly', label:'Monthly'}, {key:1, value:'yearly', label:'Yearly'}]}
+                onChange={(e) => {
+                  setType(e);
+                  onTypeChange(e);
+                }}
+                style={{ marginRight:10 }}
+              />
               <DatePicker
                 defaultValue={filterStartDate}
                 picker={pickerDate}
                 onChange={(date) => setfilterStartDate(date)}
                 style={{
                   marginRight: "5px",
-                  maxWidth: "150px",
-                  width: "100%",
                   marginBottom: isMobile ? "5px" : "0",
                 }}
               />
-              {isMobile ? "" : "-"}
               <DatePicker
                 defaultValue={filterEndDate}
                 picker={pickerDate}
                 onChange={(date) => setfilterEndDate(date)}
                 style={{
                   marginLeft: isMobile ? "0" : "5px",
-                  maxWidth: "150px",
-                  width: "100%",
                 }}
               />
-            </div>
           </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Bank Custody</Typography.Text>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Reference</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterCustody}
               options={custody}
               onChange={(value) => setFilterCustody(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Issuer</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterIssuer}
               options={issuer}
               onChange={(value) => setFilterIssuer(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Tenor</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterTenor}
               options={tenor}
               onChange={(value) => setFilterTenor(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Pengelolaan</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterPengelolaan}
               options={pengelolaan}
               onChange={(value) => setFilterPengelolaan(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10 }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 3}></Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 2}></Col>
+          <Col span={isMobile ? 24 : 22}>
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ maxWidth:115, width: "100%" }}
               onClick={onFilter}
             >
               Filter
@@ -453,6 +426,8 @@ export function SBIPorto() {
         </Row>
       </Card>
 
+      {data.length !== 0 &&
+      <>
       <Card className="mb-1">
         <Column {...config} />
       </Card>
@@ -495,6 +470,9 @@ export function SBIPorto() {
           Export Excel
         </Button>
       </Card>
+      </>
+      }
+
     </Spin>
   );
 }

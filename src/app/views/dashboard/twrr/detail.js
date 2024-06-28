@@ -46,6 +46,7 @@ export function DetailTWRR() {
       notification.warning({
         message: "Warning",
         description: "Data Belum Tersedia",
+        duration: 1,
       });
     }
 
@@ -65,6 +66,7 @@ export function DetailTWRR() {
     if (filterStartDate.isAfter(filterEndDate)) {
       notification.error({
         message: "Tanggal awal tidak boleh lebih besar dari tanggal akhir",
+        duration: 1,
       });
       return;
     } else {
@@ -228,7 +230,6 @@ export function DetailTWRR() {
                       marginBottom: isMobile ? "5px" : "0",
                     }}
                   />
-                  {isMobile ? "" : "-"}
                   <DatePicker
                     defaultValue={filterEndDate}
                     onChange={(date) => setfilterEndDate(date)}
@@ -245,7 +246,7 @@ export function DetailTWRR() {
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
-                  style={{ maxWidth: "150px", width: "100%" }}
+                  style={{ maxWidth:150, width: "100%" }}
                   onClick={onFilter}
                 >
                   Filter
@@ -284,6 +285,9 @@ export function DetailTWRR() {
           </Card>
         </Col>
       </Row>
+
+      {dataSource.length !== 0 &&
+      <>
       <Card>
         <Table
           columns={columns}
@@ -303,6 +307,9 @@ export function DetailTWRR() {
           Export Excel
         </Button>
       </Card>
+      </>
+      }
+
     </Spin>
   );
 }

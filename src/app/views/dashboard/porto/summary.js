@@ -10,7 +10,6 @@ import {
   DatePicker,
   Select,
   notification,
-  Radio,
 } from "antd";
 import { Pie } from "@ant-design/plots";
 import { SearchOutlined } from "@ant-design/icons";
@@ -46,7 +45,7 @@ export function SummaryPorto() {
       data: { data },
     } = await get("/custody");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Custody" }];
     data.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -74,6 +73,7 @@ export function SummaryPorto() {
         notification.warning({
           message: "Warning",
           description: "Data Belum Tersedia",
+          duration: 1,
         });
       }
 
@@ -92,6 +92,7 @@ export function SummaryPorto() {
       notification.error({
         message: "Error",
         description: error.message,
+        duration: 1,
       });
       setLoading(false);
     }
@@ -102,7 +103,7 @@ export function SummaryPorto() {
       data: { data },
     } = await get("/issuer/select");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Issuer" }];
     data?.rows.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -117,6 +118,7 @@ export function SummaryPorto() {
       notification.error({
         message: "Error",
         description: "Period awal tidak boleh lebih besar dari period akhir",
+        duration: 1,
       });
     } else {
       getData();
@@ -169,9 +171,9 @@ export function SummaryPorto() {
   };
 
   const onTypeChange = (e) => {
-    if (e.target.value === "monthly") {
+    if (e === "monthly") {
       setPickerDate("month");
-    } else if (e.target.value === "yearly") {
+    } else if (e === "yearly") {
       setPickerDate("year");
     }
   };
@@ -231,80 +233,64 @@ export function SummaryPorto() {
       <Typography.Title level={4} className="page-header">
         Summary
       </Typography.Title>
-      <Card className="mb-1" style={{ minHeight: "175px" }}>
+      <Card className="mb-1">
         <Row gutter={[8, 8]}>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Type</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <Radio.Group
-              defaultValue={type}
-              onChange={(e) => {
-                setType(e.target.value);
-                onTypeChange(e);
-              }}
-            >
-              <Radio value="monthly">Monthly</Radio>
-              <Radio value="yearly">Yearly</Radio>
-            </Radio.Group>
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <div>
-              <DatePicker
-                defaultValue={filterStartDate}
-                picker={pickerDate}
-                onChange={(date) => setfilterStartDate(date)}
-                style={{
-                  marginRight: "5px",
-                  maxWidth: "150px",
-                  width: "100%",
-                  marginBottom: isMobile ? "5px" : "0",
-                }}
-              />
-              {isMobile ? "" : "-"}
-              <DatePicker
-                defaultValue={filterEndDate}
-                picker={pickerDate}
-                onChange={(date) => setfilterEndDate(date)}
-                style={{
-                  marginLeft: isMobile ? "0" : "5px",
-                  maxWidth: "150px",
-                  width: "100%",
-                }}
-              />
-            </div>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={type}
+              options={[{key:0, value:'monthly', label:'Monthly'}, {key:1, value:'yearly', label:'Yearly'}]}
+              onChange={(e) => {
+                setType(e);
+                onTypeChange(e);
+              }}
+              style={{ marginRight:10 }}
+            />
+            <DatePicker
+              defaultValue={filterStartDate}
+              picker={pickerDate}
+              onChange={(date) => setfilterStartDate(date)}
+              style={{
+                marginRight: "5px",
+                marginBottom: isMobile ? "5px" : "0",
+              }}
+            />
+            <DatePicker
+              defaultValue={filterEndDate}
+              picker={pickerDate}
+              onChange={(date) => setfilterEndDate(date)}
+              style={{
+                marginLeft: isMobile ? "0" : "5px",
+              }}
+            />
+
           </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Bank Custody</Typography.Text>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Reference</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterCustody}
               options={custody}
               onChange={(value) => setFilterCustody(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Issuer</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterIssuer}
               options={issuer.item}
               onChange={(value) => setFilterIssuer(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ minWidth:200 }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 3}></Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 2}>
+          </Col>
+          <Col span={isMobile ? 24 : 22}>
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ maxWidth: "115px", width: "100%" }}
               onClick={onFilter}
             >
               Filter
@@ -312,6 +298,9 @@ export function SummaryPorto() {
           </Col>
         </Row>
       </Card>
+
+      {data?.totalNominal !== 0 &&
+      <>
       <Card>
         <Row gutter={[16, 16]}>
           <Col span={isMobile ? 24 : 8}>
@@ -355,6 +344,9 @@ export function SummaryPorto() {
           </Col>
         </Row>
       </Card>
+      </>
+      }
+
     </Spin>
   );
 }

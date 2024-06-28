@@ -8,7 +8,7 @@ import {
   Row,
   Col,
   Button,
-  Radio,
+  Select,
   notification,
 } from "antd";
 import { SearchOutlined, DownloadOutlined } from "@ant-design/icons";
@@ -32,11 +32,11 @@ export function ExternalCash() {
   const [pickerDate, setPickerDate] = React.useState("date");
 
   const onTypeChange = (e) => {
-    if (e.target.value === "daily") {
+    if (e === "daily") {
       setPickerDate("date");
-    } else if (e.target.value === "monthly") {
+    } else if (e === "monthly") {
       setPickerDate("month");
-    } else if (e.target.value === "yearly") {
+    } else if (e === "yearly") {
       setPickerDate("year");
     }
   };
@@ -50,6 +50,7 @@ export function ExternalCash() {
       notification.error({
         message: "Error",
         description: "Periode awal tidak boleh lebih besar dari periode akhir",
+        duration: 1,
       });
       return;
     }
@@ -76,6 +77,7 @@ export function ExternalCash() {
       notification.warning({
         message: "Warning",
         description: "Data Belum Tersedia",
+        duration: 1,
       });
     }
 
@@ -317,26 +319,18 @@ export function ExternalCash() {
           >
             <Row gutter={[8, 8]}>
               <Col span={isMobile ? 24 : 2}>
-                <Typography.Text strong>Type</Typography.Text>
-              </Col>
-              <Col span={isMobile ? 24 : 22}>
-                <Radio.Group
-                  defaultValue={type}
-                  onChange={(e) => {
-                    setType(e.target.value);
-                    onTypeChange(e);
-                  }}
-                >
-                  <Radio value="daily">Daily</Radio>
-                  <Radio value="monthly">Monthly</Radio>
-                  <Radio value="yearly">Yearly</Radio>
-                </Radio.Group>
-              </Col>
-              <Col span={isMobile ? 24 : 2}>
                 <Typography.Text strong>Period</Typography.Text>
               </Col>
               <Col span={isMobile ? 24 : 22}>
-                <div>
+                  <Select
+                    defaultValue={type}
+                    options={[{key:0, value:'daily', label:'Daily'}, {key:1, value:'monthly', label:'Monthly'}, {key:2, value:'yearly', label:'Yearly'}]}
+                    onChange={(e) => {
+                      setType(e);
+                      onTypeChange(e);
+                    }}
+                    style={{ marginRight:10 }}
+                  />
                   <DatePicker
                     id="startDate"
                     defaultValue={filterStartDate}
@@ -349,7 +343,6 @@ export function ExternalCash() {
                       marginBottom: isMobile ? "5px" : "0",
                     }}
                   />
-                  {isMobile ? "" : "-"}
                   <DatePicker
                     id="endDate"
                     defaultValue={filterEndDate}
@@ -361,14 +354,13 @@ export function ExternalCash() {
                       width: "100%",
                     }}
                   />
-                </div>
               </Col>
               <Col span={isMobile ? 24 : 2}></Col>
               <Col span={isMobile ? 24 : 22}>
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
-                  style={{ maxWidth: "150px", width: "100%" }}
+                  style={{ maxWidth:125, width: "100%" }}
                   onClick={onFilter}
                 >
                   Filter
@@ -410,6 +402,9 @@ export function ExternalCash() {
           </Card>
         </Col>
       </Row>
+
+      {data.length !== 0 &&
+      <>
       <Card
         className="mb-1"
         style={{
@@ -442,6 +437,9 @@ export function ExternalCash() {
           Export Excel
         </Button>
       </Card>
+      </>
+      }
+
     </Spin>
   );
 }

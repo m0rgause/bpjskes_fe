@@ -60,7 +60,7 @@ export function ObligasiCKPN() {
       data: { data },
     } = await get("/custody");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Custody" }];
     data.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -68,9 +68,9 @@ export function ObligasiCKPN() {
   };
 
   const onTypeChange = (e) => {
-    if (e.target.value === "monthly") {
+    if (e === "monthly") {
       setPickerDate("month");
-    } else if (e.target.value === "yearly") {
+    } else if (e === "yearly") {
       setPickerDate("year");
     }
   };
@@ -80,6 +80,7 @@ export function ObligasiCKPN() {
       notification.error({
         message: "Error",
         description: "Periode awal tidak boleh lebih besar dari periode akhir",
+        duration: 1,
       });
       return;
     }
@@ -111,6 +112,7 @@ export function ObligasiCKPN() {
         notification.warning({
           message: "Warning",
           description: "Data Belum Tersedia",
+          duration: 1,
         });
       }
       const dataChart = data.data.map((item) => ({
@@ -159,8 +161,8 @@ export function ObligasiCKPN() {
       const [
         issuerResponse,
         tenorResponse,
-        pengelolaanResponse,
         kepemilikanResponse,
+        pengelolaanResponse,
         kbmiResponse,
       ] = await Promise.all([
         get("/issuer/select?tipe=obligasi"),
@@ -176,11 +178,11 @@ export function ObligasiCKPN() {
       const pengelolaanData = pengelolaanResponse.data.data;
       const kbmiData = kbmiResponse.data.data;
 
-      const bank = [{ value: "all", label: "All" }];
-      const tenorList = [{ value: "all", label: "All" }];
-      const kepemilikan = [{ value: "all", label: "All" }];
-      const pengelolaan = [{ value: "all", label: "All" }];
-      const kbmi = [{ value: "all", label: "All" }];
+      const bank = [{ value: "all", label: "All Issuer" }];
+      const tenorList = [{ value: "all", label: "All Tenor" }];
+      const kepemilikan = [{ value: "all", label: "All Kepemilikan" }];
+      const pengelolaan = [{ value: "all", label: "All Pengelolaan" }];
+      const kbmi = [{ value: "all", label: "All KBMI" }];
 
       issuerData.rows.forEach((item) => {
         bank.push({ value: item.id, label: item.nama });
@@ -439,122 +441,85 @@ export function ObligasiCKPN() {
       </Typography.Title>
       <Card className="mb-1" style={{ minHeight: "175px" }}>
         <Row gutter={[8, 8]}>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Type</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <Radio.Group
-              defaultValue={type}
-              onChange={(e) => {
-                setType(e.target.value);
-                onTypeChange(e);
-              }}
-            >
-              <Radio value="monthly">Monthly</Radio>
-              <Radio value="yearly">Yearly</Radio>
-            </Radio.Group>
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <div>
-              <DatePicker
-                defaultValue={filterStartDate}
-                picker={pickerDate}
-                onChange={(date) => setfilterStartDate(date)}
-                style={{
-                  marginRight: "5px",
-                  maxWidth: "150px",
-                  width: "100%",
-                  marginBottom: isMobile ? "5px" : "0",
-                }}
-              />
-              {isMobile ? "" : "-"}
-              <DatePicker
-                defaultValue={filterEndDate}
-                picker={pickerDate}
-                onChange={(date) => setfilterEndDate(date)}
-                style={{
-                  marginLeft: isMobile ? "0" : "5px",
-                  maxWidth: "150px",
-                  width: "100%",
-                }}
-              />
-            </div>
+          <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={type}
+              options={[{key:0, value:'monthly', label:'Monthly'}, {key:1, value:'yearly', label:'Yearly'}]}
+              onChange={(e) => {
+                setType(e);
+                onTypeChange(e);
+              }}
+              style={{ marginRight:10 }}
+            />
+            <DatePicker
+              defaultValue={filterStartDate}
+              picker={pickerDate}
+              onChange={(date) => setfilterStartDate(date)}
+              style={{
+                marginRight: "5px",
+                marginBottom: isMobile ? "5px" : "0",
+              }}
+            />
+            {isMobile ? "" : "-"}
+            <DatePicker
+              defaultValue={filterEndDate}
+              picker={pickerDate}
+              onChange={(date) => setfilterEndDate(date)}
+              style={{
+                marginLeft: isMobile ? "0" : "5px",
+              }}
+            />
           </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Bank Custody</Typography.Text>
+          <Col span={isMobile ? 24 : 2}>
+            <Typography.Text strong>Reference</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterCustody}
               options={custody}
               onChange={(value) => setfilterCustody(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
-          </Col>
-          {/*<Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>KBMI</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <Select
+          {/*<Select
               defaultValue={filterKBMI}
               options={kbmi}
               onChange={(value) => setfilterKBMI(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
-            />
-          </Col>*/}
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Issuer</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
+              style={{ marginRight:10 }}
+            />*/}
             <Select
               defaultValue={filterBank}
               options={bank}
               onChange={(value) => setfilterBank(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Tenor</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterTenor}
               options={tenor}
               onChange={(value) => setfilterTenor(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Kepemilikan</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
-            <Select
-              defaultValue={filterKepemilikan}
-              options={kepemilikan}
-              onChange={(value) => setFilterKepemilikan(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
-            />
-          </Col>
-          <Col span={isMobile ? 24 : 3}>
-            <Typography.Text strong>Pengelolaan</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 21}>
             <Select
               defaultValue={filterPengelolaan}
               options={pengelolaan}
               onChange={(value) => setFilterPengelolaan(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10 }}
+            />
+            <Select
+              defaultValue={filterKepemilikan}
+              options={kepemilikan}
+              onChange={(value) => setFilterKepemilikan(value)}
+              style={{ marginRight:10 }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 3}></Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 2}></Col>
+          <Col span={isMobile ? 24 : 22}>
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ maxWidth:150, width: "100%" }}
               onClick={onFilter}
             >
               Filter
@@ -562,6 +527,9 @@ export function ObligasiCKPN() {
           </Col>
         </Row>
       </Card>
+
+      {dataSource.length !== 0 &&
+      <>
       <Card className="mb-1">
         <Column {...config} />
       </Card>
@@ -602,6 +570,9 @@ export function ObligasiCKPN() {
           Export Excel
         </Button>
       </Card>
+      </>
+      }
+      
     </Spin>
   );
 }

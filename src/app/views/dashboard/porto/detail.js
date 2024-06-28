@@ -299,10 +299,10 @@ export function DetailPorto() {
       </Typography.Title>
       <Card className="mb-1" style={{ minHeight: "175px" }}>
         <Row gutter={[8, 8]}>
-          <Col span={isMobile ? 24 : 3}>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Type</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 22}>
             <Radio.Group
               defaultValue={type}
               onChange={(e) => {
@@ -314,10 +314,10 @@ export function DetailPorto() {
               <Radio value="yearly">Yearly</Radio>
             </Radio.Group>
           </Col>
-          <Col span={isMobile ? 24 : 3}>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 22}>
             <div>
               <DatePicker
                 defaultValue={filterStartDate}
@@ -343,10 +343,10 @@ export function DetailPorto() {
               />
             </div>
           </Col>
-          <Col span={isMobile ? 24 : 3}>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Bank Custody</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterCustody}
               options={custody}
@@ -354,10 +354,10 @@ export function DetailPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 3}>
+          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Issuer</Typography.Text>
           </Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterIssuer}
               options={issuer.item}
@@ -365,8 +365,8 @@ export function DetailPorto() {
               style={{ maxWidth: "300px", width: "100%" }}
             />
           </Col>
-          <Col span={isMobile ? 24 : 3}></Col>
-          <Col span={isMobile ? 24 : 21}>
+          <Col span={isMobile ? 24 : 2}></Col>
+          <Col span={isMobile ? 24 : 22}>
             <Button
               type="primary"
               icon={<SearchOutlined />}

@@ -47,7 +47,7 @@ export function ComparisonPorto() {
       data: { data },
     } = await get("/custody");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Custody" }];
     data.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -59,7 +59,7 @@ export function ComparisonPorto() {
       data: { data },
     } = await get("/issuer/select");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Issuer" }];
     data.rows.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -102,9 +102,9 @@ export function ComparisonPorto() {
   const onTypeChange = (e) => {
     setListDate([]);
     setListDateFixed([]);
-    if (e.target.value === "monthly") {
+    if (e === "monthly") {
       setPickerDate("month");
-    } else if (e.target.value === "yearly") {
+    } else if (e === "yearly") {
       setPickerDate("year");
     }
   };
@@ -235,7 +235,7 @@ export function ComparisonPorto() {
       dataSource[index]["bank_custody"] = item.custody;
     }
   });
-
+  
   const onExport = async () => {
     const fileName = `Comparison CKPN ${type} ${dayjs().format("DD MMM YYYY")}`;
 
@@ -311,24 +311,18 @@ export function ComparisonPorto() {
       <Card className="mb-1">
         <Row gutter={[16, 16]}>
           <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Type</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 22}>
-            <Radio.Group
-              defaultValue={type}
-              onChange={(e) => {
-                setType(e.target.value);
-                onTypeChange(e);
-              }}
-            >
-              <Radio value="monthly">Monthly</Radio>
-              <Radio value="yearly">Yearly</Radio>
-            </Radio.Group>
-          </Col>
-          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={type}
+              options={[{key:0, value:'monthly', label:'Monthly'}, {key:1, value:'yearly', label:'Yearly'}]}
+              onChange={(e) => {
+                setType(e);
+                onTypeChange(e);
+              }}
+              style={{ marginRight:10 }}
+            />
             <Select
               mode="multiple"
               placeholder="Select date"
@@ -345,25 +339,20 @@ export function ComparisonPorto() {
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Bank Custody</Typography.Text>
+            <Typography.Text strong>Reference</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterCustody}
               options={custody}
               onChange={(value) => setFilterCustody(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Issuer</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterIssuer}
               options={issuer.item}
               onChange={(value) => setFilterIssuer(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
           </Col>
 
@@ -372,7 +361,7 @@ export function ComparisonPorto() {
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10 }}
               onClick={onFilter}
             >
               Filter
@@ -380,6 +369,9 @@ export function ComparisonPorto() {
           </Col>
         </Row>
       </Card>
+
+      {data !== null &&
+      <>
       <Card>
         <Table
           columns={columns}
@@ -402,6 +394,9 @@ export function ComparisonPorto() {
           Export Excel
         </Button>
       </Card>
+      </>
+      }
+
     </Spin>
   );
 }

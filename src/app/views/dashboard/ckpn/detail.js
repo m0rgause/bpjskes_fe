@@ -46,7 +46,7 @@ export function DetailCKPN() {
       data: { data },
     } = await get("/custody");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Custody" }];
     data.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -58,6 +58,7 @@ export function DetailCKPN() {
       notification.error({
         message: "Error",
         description: "Period awal tidak boleh lebih besar dari period akhir",
+        duration: 1,
       });
     } else {
       getData();
@@ -81,6 +82,7 @@ export function DetailCKPN() {
       notification.warning({
         message: "Warning",
         description: "Data Belum Tersedia",
+        duration: 1,
       });
     }
     const dataSource = [];
@@ -120,7 +122,7 @@ export function DetailCKPN() {
       data: { data },
     } = await get("/issuer/select");
 
-    let item = [{ value: "all", label: "All" }];
+    let item = [{ value: "all", label: "All Issuer" }];
     data.rows.forEach((element, index) => {
       item.push({ key: index, value: element.id, label: element.nama });
     });
@@ -326,8 +328,8 @@ export function DetailCKPN() {
               picker="month"
               defaultValue={filterStartDate}
               onChange={(date) => setfilterStartDate(date)}
-            />{" "}
-            -{" "}
+              style={{marginRight:10}}
+            />
             <DatePicker
               picker="month"
               defaultValue={filterEndDate}
@@ -335,25 +337,20 @@ export function DetailCKPN() {
             />
           </Col>
           <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Bank Custody</Typography.Text>
+            <Typography.Text strong>Reference</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterCustody}
               options={custody}
               onChange={(value) => setFilterCustody(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
-          </Col>
-          <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Issuer</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 22}>
             <Select
               defaultValue={filterIssuer}
               options={issuer.item}
               onChange={(value) => setFilterIssuer(value)}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10, minWidth:200 }}
             />
           </Col>
           <Col span={isMobile ? 24 : 2}></Col>
@@ -361,7 +358,7 @@ export function DetailCKPN() {
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ marginRight:10 }}
               onClick={onFilter}
             >
               Filter
@@ -370,6 +367,8 @@ export function DetailCKPN() {
         </Row>
       </Card>
 
+      {data.length !== 0 &&
+      <>
       <Card className="mb-1">
         <Table
           columns={columns}
@@ -406,6 +405,9 @@ export function DetailCKPN() {
           Export Excel
         </Button>
       </Card>
+      </>
+      }
+
     </Spin>
   );
 }

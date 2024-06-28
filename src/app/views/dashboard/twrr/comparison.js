@@ -66,11 +66,11 @@ export function ComparisonTWRR() {
   const onTypeChange = (e) => {
     setListDate([]);
     setListDateFixed([]);
-    if (e.target.value === "daily") {
+    if (e === "daily") {
       setPickerDate("date");
-    } else if (e.target.value === "monthly") {
+    } else if (e === "monthly") {
       setPickerDate("month");
-    } else if (e.target.value === "yearly") {
+    } else if (e === "yearly") {
       setPickerDate("year");
     }
   };
@@ -257,25 +257,18 @@ export function ComparisonTWRR() {
       <Card className="mb-1">
         <Row gutter={[16, 16]}>
           <Col span={isMobile ? 24 : 2}>
-            <Typography.Text strong>Type</Typography.Text>
-          </Col>
-          <Col span={isMobile ? 24 : 22}>
-            <Radio.Group
-              defaultValue={type}
-              onChange={(e) => {
-                setType(e.target.value);
-                onTypeChange(e);
-              }}
-            >
-              <Radio value="daily">Daily</Radio>
-              <Radio value="monthly">Monthly</Radio>
-              <Radio value="yearly">Yearly</Radio>
-            </Radio.Group>
-          </Col>
-          <Col span={isMobile ? 24 : 2}>
             <Typography.Text strong>Period</Typography.Text>
           </Col>
           <Col span={isMobile ? 24 : 22}>
+            <Select
+              defaultValue={type}
+              options={[{key:0, value:'daily', label:'Daily'}, {key:1, value:'monthly', label:'Monthly'}, {key:2, value:'yearly', label:'Yearly'}]}
+              onChange={(e) => {
+                setType(e);
+                onTypeChange(e);
+              }}
+              style={{ marginRight:10 }}
+            />
             <Select
               mode="multiple"
               placeholder="Select date"
@@ -296,7 +289,7 @@ export function ComparisonTWRR() {
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              style={{ maxWidth: "300px", width: "100%" }}
+              style={{ maxWidth:125, width: "100%" }}
               onClick={onFilter}
             >
               Filter
@@ -304,6 +297,9 @@ export function ComparisonTWRR() {
           </Col>
         </Row>
       </Card>
+
+      {data !== null &&
+      <>
       <Card>
         <Table
           bordered
@@ -326,6 +322,9 @@ export function ComparisonTWRR() {
           Export Excel
         </Button>
       </Card>
+      </>
+      }
+
     </Spin>
   );
 }
